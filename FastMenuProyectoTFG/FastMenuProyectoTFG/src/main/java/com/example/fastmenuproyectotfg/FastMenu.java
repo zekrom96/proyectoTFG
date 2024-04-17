@@ -14,6 +14,7 @@ import java.util.prefs.Preferences;
 public class FastMenu extends Application {
 
     Supabase supa;
+    Sesion sesion = new Sesion();
     //TODO RECUERDA CAMBIAR LOS TOKEN EL DIA DE LA PRESENTACION DEL TFG!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     //TODO Revisar los try-catch en todas las clases y manejas correctamente los errores
     //TODO Comprobar los campos antes de enviar los datos
@@ -30,10 +31,14 @@ public class FastMenu extends Application {
     @Override
     public void start(Stage stage) throws IOException {
         supa = new Supabase();
+        //sesion = sesion.getInstance();
         Preferences preferences = Preferences.userRoot().node("com.example.myapp");
         String correoShared = preferences.get("logged_in_user_email", null);
         boolean estado_login = supa.comprobarEstadoCampoUsuarioLogueado(correoShared);
+        //sesion.setUsuarioLogueado(true);
+        //sesion.getCorreoLogueado();
         vistaMenu(stage, estado_login);
+        System.out.println(sesion.getUsuarioLogueado());
     }
 
     private void vistaMenu(Stage stage, boolean valor) throws IOException {
@@ -85,6 +90,7 @@ public class FastMenu extends Application {
             stage.show();
         }
     }
+
 
     public static void main(String[] args) {
         launch();

@@ -26,6 +26,8 @@ public class ControladorLogin implements Initializable {
     Correo correo = new Correo();
     GeneradorPassword generadorPw = new GeneradorPassword();
 
+    Sesion sesion = new Sesion();
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         try {
@@ -92,10 +94,14 @@ public class ControladorLogin implements Initializable {
 
 
     public void onClickBtnLogin() {
-        if (supa.iniciarSesion(textfieldCorreo.getText(), textfieldPw.getText())) {
-            boolean campo = supa.comprobarEstadoCampoRestablecerPw(textfieldCorreo.getText());
-            System.out.println(campo);
-            if (campo) {
+        login(textfieldCorreo.getText(), textfieldPw.getText());
+    }
+
+    public void login(String correo, String pw) {
+        if (supa.iniciarSesion(correo, pw)) {
+            //boolean campo = supa.comprobarEstadoCampoRestablecerPw(textfieldCorreo.getText());
+            //System.out.println(campo);
+            if (supa.comprobarEstadoCampoRestablecerPw(textfieldCorreo.getText())) {
                 PasswordField campoPw = new PasswordField();
                 campoPw.setPromptText("Nueva Contraseña");
                 PasswordField campoConfirmar = new PasswordField();
@@ -126,6 +132,9 @@ public class ControladorLogin implements Initializable {
                             supa.modificarPassword(textfieldCorreo.getText(), pwTemporalCifrada);
                             supa.modificarCampoUsuarioRestablecerPw(textfieldCorreo.getText(), false);
                             System.out.println("Contraseña cambiada exitosamente.");
+                            //sesion.setUsuarioLogueado(true);
+                            //sesion.setCorreoLogueado(textfieldCorreo.getText());
+                            //sesion.setPassword(textfieldPw.getText());
                             vistaMenu();
                             guardarEstadoLoginPreferences(textfieldCorreo.getText());
                             supa.modificarCampoUsuarioLogueado(textfieldCorreo.getText(), true);
@@ -139,9 +148,13 @@ public class ControladorLogin implements Initializable {
                     }
                 });
             } else {
-                vistaMenu();
+                //sesion.setUsuarioLogueado(true);
+                //sesion.setCorreoLogueado(textfieldCorreo.getText());
+                //sesion.setPassword(textfieldPw.getText());
                 guardarEstadoLoginPreferences(textfieldCorreo.getText());
                 supa.modificarCampoUsuarioLogueado(textfieldCorreo.getText(), true);
+                vistaMenu();
+                //System.out.println(sesion.getUsuarioLogueado());
             }
         }
     }
@@ -157,6 +170,10 @@ public class ControladorLogin implements Initializable {
     }
 
     private void vistaMenu() {
+        // Cerrar la ventana actual (ventana de login)
+        Stage ventanaActual = (Stage) btnLogin.getScene().getWindow();
+        ventanaActual.close();
+
         // Crear una alerta con tipo de alerta de confirmación
         Alert alerta = new Alert(Alert.AlertType.CONFIRMATION);
         alerta.setTitle("Confirmación de acción");

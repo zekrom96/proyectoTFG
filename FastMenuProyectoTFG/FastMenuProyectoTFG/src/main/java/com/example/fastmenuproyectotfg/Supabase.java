@@ -20,6 +20,8 @@ public class Supabase {
     Properties properties = new Properties();
     CifradoyDescifrado crypt;
 
+    Sesion sesion = new Sesion();
+
     // Cargo el fichero properties en el constructor de la clase para luego usar las variables tengo almacenadas
     public Supabase() {
         try {
@@ -260,7 +262,6 @@ public class Supabase {
     public boolean iniciarSesion(String email, String pw) {
 
         try {
-
             String url = properties.getProperty("supabase_url_usuarios") + "?email=eq." + email;
             HttpClient httpClient = HttpClients.createDefault();
             HttpGet httpGet = new HttpGet(url);

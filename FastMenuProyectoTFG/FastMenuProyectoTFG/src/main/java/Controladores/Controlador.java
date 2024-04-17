@@ -35,6 +35,7 @@ public class Controlador implements Initializable {
     Supabase supa;
     AwsS3 s3 = new AwsS3();
     GeneradorQR qr = new GeneradorQR();
+    Sesion sesion = new Sesion();
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -43,6 +44,7 @@ public class Controlador implements Initializable {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+        sesion = sesion.getInstance();
         supa = new Supabase();
         comboBoxTipoPlato.getItems().addAll("PRIMERO", "SEGUNDO", "POSTRE");
     }
@@ -232,6 +234,7 @@ public class Controlador implements Initializable {
         Preferences preferences = Preferences.userRoot().node("com.example.myapp");
         String correoShared = preferences.get("logged_in_user_email", null);
         supa.modificarCampoUsuarioLogueado(correoShared, false);
+        //sesion.setUsuarioLogueado(false);
         Platform.exit();
     }
 
