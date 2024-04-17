@@ -1,8 +1,0 @@
-#fondoMenu {
-    -fx-background-image: url('../imagenes/fondoMenu.jpg');
-    -fx-background-size: cover; /* Opcional: para cubrir completamente el área */
-    -fx-text-fill: #ffffff; /* Color del texto blanco */
-    -fx-font-size: 16px; /* Tamaño de la fuente */
-    -fx-font-weight: bold; /* Fuente en negrita para mayor contraste */
-    -fx-effect: dropshadow( gaussian , rgba(0,0,0,0.7) , 2,2,2,2 ); /* Sombra para mejorar la visibilidad */
-}
