@@ -14,7 +14,7 @@ import java.util.prefs.Preferences;
 public class FastMenu extends Application {
 
     Supabase supa;
-    Sesion sesion = new Sesion();
+    //Sesion sesion = new Sesion();
     //TODO RECUERDA CAMBIAR LOS TOKEN EL DIA DE LA PRESENTACION DEL TFG!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     //TODO Revisar los try-catch en todas las clases y manejas correctamente los errores
     //TODO Comprobar los campos antes de enviar los datos
@@ -27,7 +27,7 @@ public class FastMenu extends Application {
     //TODO La contraseña podría generar una de forma aleatoria, enviarsela a su correo, cambiarla en Supabase
     //TODO Y que en el siguiente login de alguna forma detecte si ha reseteado la pw el usuario y entonces
     //TODO Le pido que el introduzca una nueva pw y ya asigno eso nueva
-
+    //TODO URGENTE, HACER CAMPO CORREO EN EMPRESA QUE SEA VALOR UNICO, LO DEJO HECHO PERO MODIFICA EL CODIGO LO COMPRUEBE
     @Override
     public void start(Stage stage) throws IOException {
         supa = new Supabase();
@@ -38,7 +38,7 @@ public class FastMenu extends Application {
         //sesion.setUsuarioLogueado(true);
         //sesion.getCorreoLogueado();
         vistaMenu(stage, estado_login);
-        System.out.println(sesion.getUsuarioLogueado());
+        //System.out.println(sesion.getUsuarioLogueado());
     }
 
     private void vistaMenu(Stage stage, boolean valor) throws IOException {
@@ -71,7 +71,9 @@ public class FastMenu extends Application {
 
                         Scene nuevaScene = new Scene(root);
                         Controlador controlador = loader.getController();
-
+                        Preferences preferences = Preferences.userRoot().node("com.example.myapp");
+                        String correoShared = preferences.get("logged_in_user_email", null);
+                        controlador.obtenerCorreo(correoShared);
                         // Establecer la nueva escena en una nueva ventana
                         Stage nuevaVentana = new Stage();
                         nuevaVentana.setScene(nuevaScene);

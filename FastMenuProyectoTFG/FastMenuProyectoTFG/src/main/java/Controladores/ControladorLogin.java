@@ -79,7 +79,8 @@ public class ControladorLogin implements Initializable {
                     Scene nuevaScene = new Scene(root);
                     Controlador controlador = loader.getController();
                     // Aquí le paso al controlador de la clase en la que creo los platos, el correo del usuario registrado
-                    controlador.obtenerCorreo(correo);
+                    controlador.obtenerCorreo(textfieldCorreo.getText());
+                    System.out.println();
                     Stage ventanaActual = (Stage) ((Node) mouseEvent.getSource()).getScene().getWindow();
                     ventanaActual.close();
                     Stage nuevaVentana = new Stage();
@@ -202,7 +203,7 @@ public class ControladorLogin implements Initializable {
 
                     Scene nuevaScene = new Scene(root);
                     Controlador controlador = loader.getController();
-
+                    controlador.obtenerCorreo(textfieldCorreo.getText());
                     // Establecer la nueva escena en una nueva ventana
                     Stage nuevaVentana = new Stage();
                     nuevaVentana.setScene(nuevaScene);
