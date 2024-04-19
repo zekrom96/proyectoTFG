@@ -16,7 +16,7 @@ public class Main extends Application {
 
     Supabase supa;
 
-
+    //TODO FUNCIONA
     //TODO RECUERDA CAMBIAR LOS TOKEN EL DIA DE LA PRESENTACION DEL TFG!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     //TODO Revisar los try-catch en todas las clases y manejas correctamente los errores
     //TODO Comprobar los campos antes de enviar los datos
