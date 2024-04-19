@@ -1,0 +1,24 @@
+#fondoLogin {
+    -fx-background-image: url('../imagenes/prueba2.png');
+    -fx-background-size: cover; /* Opcional: para cubrir completamente el área */
+    -fx-font-size: 14px;
+}
+
+#txtCorreo {
+    -fx-font-size: 16px;
+}
+
+#txtPw {
+    -fx-font-size: 16px;
+}
+
+#txtRecuperarPw {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-underline: true;
+    -fx-text-fill: black; /* Color de texto normal */
+}
+
+#txtRecuperarPw:hover {
+    -fx-text-fill: blue; /* Color de texto al pasar el ratón */
+}
