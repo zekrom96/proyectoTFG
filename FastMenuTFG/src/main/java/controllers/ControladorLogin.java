@@ -76,12 +76,12 @@ public class ControladorLogin implements Initializable {
 
                 // Resto del código para cargar la nueva vista y cerrar la ventana actual
                 try {
-                    FXMLLoader loader = new FXMLLoader(Main.class.getResource("vistaMenu.fxml"));
-                    Parent root = loader.load();
+                    FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("/views/vistaMenu.fxml"));
+                    Parent root = fxmlLoader.load();
                     Scene nuevaScene = new Scene(root);
-                    Controlador controlador = loader.getController();
+                    Controlador controlador = fxmlLoader.getController();
                     // Aquí le paso al controlador de la clase en la que creo los platos, el correo del usuario registrado
-                    controlador.obtenerCorreo(textfieldCorreo.getText());
+                    controlador.obtenerCorreo(correo);
                     System.out.println();
                     Stage ventanaActual = (Stage) ((Node) mouseEvent.getSource()).getScene().getWindow();
                     ventanaActual.close();
@@ -163,12 +163,12 @@ public class ControladorLogin implements Initializable {
     }
 
     private void guardarEstadoLoginPreferences(String correoUsuario) {
-        Preferences preferences = Preferences.userRoot().node("com.example.myapp");
+        Preferences preferences = Preferences.userRoot().node("fastmenu");
         preferences.put("logged_in_user_email", correoUsuario);
     }
 
     private String obtenerPreferences() {
-        Preferences preferences = Preferences.userRoot().node("com.example.myapp");
+        Preferences preferences = Preferences.userRoot().node("fastmenu");
         return preferences.get("logged_in_user_email", null);
     }
 

@@ -73,6 +73,7 @@ public class Main extends Application {
                         Controlador controlador = loader.getController();
                         Preferences preferences = Preferences.userRoot().node("fastmenu");
                         String correoShared = preferences.get("logged_in_user_email", null);
+                        //TODO REVISA ESTA LINEA URGENTE, AGREGA TODOS LOS PLATOS Y MENUS AL MISMO ID
                         controlador.obtenerCorreo(correoShared);
                         // Establecer la nueva escena en una nueva ventana
                         Stage nuevaVentana = new Stage();
