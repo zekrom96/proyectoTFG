@@ -1,6 +1,6 @@
 package fastmenu;
 
-import classes.Supabase;
+import classes.services.Supabase;
 import controllers.Controlador;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -19,16 +19,12 @@ public class Main extends Application {
     //TODO FUNCIONA
     //TODO RECUERDA CAMBIAR LOS TOKEN EL DIA DE LA PRESENTACION DEL TFG!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     //TODO Revisar los try-catch en todas las clases y manejas correctamente los errores
-    //TODO Comprobar los campos antes de enviar los datos
     //TODO Diseñar el apartado de moficicación o plantear como lo haré
     //TODO Diseñar una ventana con 4 o más diseños de plantilla para el pdf
     //TODO Dejar bonita la ventana de crear
     //TODO Crear un fichero de logs
     //TODO Crear pattern para el correo
     //TODO Revisar nombres de variables pdfs se suban con el nombre de la empresa o preguntarle por el nombre del menu
-    //TODO La contraseña podría generar una de forma aleatoria, enviarsela a su correo, cambiarla en Supabase
-    //TODO Y que en el siguiente login de alguna forma detecte si ha reseteado la pw el usuario y entonces
-    //TODO Le pido que el introduzca una nueva pw y ya asigno eso nueva
     //TODO URGENTE, HACER CAMPO CORREO EN EMPRESA QUE SEA VALOR UNICO, LO DEJO HECHO PERO MODIFICA EL CODIGO LO COMPRUEBE
     //TODO REVISAR CUANDO SE REGISTRA Y AGREGA UN PLATO DA ERROR
 

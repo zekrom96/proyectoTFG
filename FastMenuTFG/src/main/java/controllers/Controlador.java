@@ -1,8 +1,8 @@
 package controllers;
 
-import classes.AwsS3;
-import classes.GeneradorQR;
-import classes.Supabase;
+import classes.services.AwsS3;
+import classes.utils.GeneradorQR;
+import classes.services.Supabase;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Element;

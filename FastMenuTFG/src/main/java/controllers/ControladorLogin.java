@@ -1,9 +1,9 @@
 package controllers;
 
-import classes.CifradoyDescifrado;
-import classes.Correo;
-import classes.GeneradorPassword;
-import classes.Supabase;
+import classes.utils.CifradoyDescifrado;
+import classes.services.Correo;
+import classes.utils.GeneradorPassword;
+import classes.services.Supabase;
 import fastmenu.*;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
