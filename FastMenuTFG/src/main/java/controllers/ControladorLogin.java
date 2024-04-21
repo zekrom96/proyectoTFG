@@ -14,6 +14,8 @@ import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
+import models.Empresa;
+
 import java.io.IOException;
 import java.net.URL;
 import java.util.Optional;
@@ -72,7 +74,8 @@ public class ControladorLogin implements Initializable {
             } else {
                 System.out.println("El correo no existe en la bd");
                 supa.crearUsuario(pwCifrada, correo);
-                supa.agregarEmpresa(nombreEmpresa, correo);
+                Empresa empresa = new Empresa(nombreEmpresa);
+                supa.agregarEmpresa(empresa, correo);
 
                 // Resto del código para cargar la nueva vista y cerrar la ventana actual
                 try {

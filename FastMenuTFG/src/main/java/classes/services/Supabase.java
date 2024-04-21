@@ -1,6 +1,9 @@
 package classes.services;
 
 import classes.utils.CifradoyDescifrado;
+import models.Empresa;
+import models.Menu;
+import models.Plato;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
@@ -15,6 +18,7 @@ import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.util.Properties;
 
 public class Supabase {
@@ -41,8 +45,7 @@ public class Supabase {
      Metodo para agregar Platos a la tabla Platos en Supabase y asociandolos con el id de empresa actual que se
      ha logueado o registrado en la aplicacion
     */
-    public void agregarPlato(String nombrePlato, String descripcionPlato, String tipoPlato, double precioPlato,
-                             int idEmpresa, int idMenu) {
+    public void agregarPlato(Plato plato, int idEmpresa, int idMenu) {
 
         try {
             // Crear cliente HTTP y solicitud POST
@@ -51,20 +54,15 @@ public class Supabase {
 
             // Crear objeto JSON con los datos del plato
             JSONObject platoJson = new JSONObject();
-            platoJson.put("nombre", nombrePlato);
-            platoJson.put("descripcion", descripcionPlato);
-            platoJson.put("tipo", tipoPlato);
-            platoJson.put("precio", precioPlato);
+            platoJson.put("nombre", plato.getNombrePlato());
+            platoJson.put("descripcion", plato.getDescripcionPlato());
+            platoJson.put("tipo", plato.getTipoPlato());
+            platoJson.put("precio", plato.getPrecioPlato());
             platoJson.put("id_empresa", idEmpresa);
             platoJson.put("id_menu", idMenu);
 
-            // Configurar entidad JSON para la solicitud
-            StringEntity entidad = new StringEntity(platoJson.toString());
-            httpPost.setEntity(entidad);
 
-            // Configurar encabezados de la solicitud
-            httpPost.setHeader("Content-type", "application/json");
-            httpPost.setHeader("apikey", properties.getProperty("supabase_key"));
+            mandarSolicitudPost(platoJson, httpPost);
 
             // Ejecutar la solicitud POST
             HttpResponse response = clienteHttp.execute(httpPost);
@@ -83,21 +81,18 @@ public class Supabase {
         }
     }
 
+
     //Metodo para agregar el nombre y correo de la empresa en la tabla Empresa en Supabase
-    public void agregarEmpresa(String nombreEmpresa, String correo) {
+    public void agregarEmpresa(Empresa empresa, String correo) {
         try {
             HttpClient clienteHttp = HttpClients.createDefault();
             HttpPost httpPost = new HttpPost(properties.getProperty("supabase_url_empresa"));
 
             JSONObject empresaJson = new JSONObject();
-            empresaJson.put("nombreEmpresa", nombreEmpresa);
+            empresaJson.put("nombreEmpresa", empresa.getNombreEmpresa());
             empresaJson.put("correo", correo);
 
-            StringEntity entity = new StringEntity(empresaJson.toString());
-            httpPost.setEntity(entity);
-
-            httpPost.setHeader("Content-type", "application/json");
-            httpPost.setHeader("apikey", properties.getProperty("supabase_key"));
+            mandarSolicitudPost(empresaJson, httpPost);
 
             HttpResponse respuesta = clienteHttp.execute(httpPost);
 
@@ -114,20 +109,16 @@ public class Supabase {
     }
 
     //Metodo agregar un nuevo Menu a la tabla se le pasa el id de la empresa actual tambien
-    public void agregarMenu(String nombreMenu, int idEmpresa) {
+    public void agregarMenu(Menu menu) {
         try {
             HttpClient clienteHttp = HttpClients.createDefault();
             HttpPost httpPost = new HttpPost(properties.getProperty("supabase_url_menus"));
 
             JSONObject empresaJson = new JSONObject();
-            empresaJson.put("Nombre", nombreMenu);
-            empresaJson.put("id_empresa", idEmpresa);
+            empresaJson.put("Nombre", menu.getNombre());
+            empresaJson.put("id_empresa", menu.getId_empresa());
 
-            StringEntity entity = new StringEntity(empresaJson.toString());
-            httpPost.setEntity(entity);
-
-            httpPost.setHeader("Content-type", "application/json");
-            httpPost.setHeader("apikey", properties.getProperty("supabase_key"));
+           mandarSolicitudPost(empresaJson, httpPost);
 
             HttpResponse respuesta = clienteHttp.execute(httpPost);
 
@@ -184,10 +175,10 @@ public class Supabase {
     }
 
     //Metodo obtener el id de menu asignado a una empresa
-    public int obtenerIdMenuPorIdEmpresa(String nombreMenu, int idEmpresa) {
+    public int obtenerIdMenuPorIdEmpresa(Menu menu) {
         try {
-            String url = properties.getProperty("supabase_url_menus") + "?id_empresa=eq." + idEmpresa +
-                    "&Nombre=eq." + nombreMenu;
+            String url = properties.getProperty("supabase_url_menus") + "?id_empresa=eq." + menu.getId_empresa() +
+                    "&Nombre=eq." + menu.getNombre();
 
             String apiKey = properties.getProperty("supabase_key");
 
@@ -232,12 +223,8 @@ public class Supabase {
             JSONObject userData = new JSONObject();
             userData.put("password", password);
             userData.put("email", correo);
-
-            // Configurar la solicitud HTTP con el cuerpo JSON
-            StringEntity entity = new StringEntity(userData.toString());
-            httpPost.setEntity(entity);
-            httpPost.setHeader("Content-type", "application/json");
-            httpPost.setHeader("apikey", properties.getProperty("supabase_key"));
+            
+            mandarSolicitudPost(userData, httpPost);
 
             // Ejecutar la solicitud HTTP
             HttpResponse response = httpClient.execute(httpPost);
@@ -322,9 +309,7 @@ public class Supabase {
             String url = properties.getProperty("supabase_url_usuarios") + "?email=eq." + correoUsuario;
             HttpPatch httpPatch = new HttpPatch(url);
 
-            httpPatch.setHeader("Content-type", "application/json");
-            httpPatch.setHeader("apikey", properties.getProperty("supabase_key"));
-            httpPatch.setEntity(new StringEntity(requestBody.toString()));
+            mandarSolicitudPath(httpPatch, requestBody);
 
             HttpResponse response = httpClient.execute(httpPatch);
             int statusCode = response.getStatusLine().getStatusCode();
@@ -346,6 +331,7 @@ public class Supabase {
             e.printStackTrace();
         }
     }
+
 
     //Metodo encargado comprobar se ha cambiado la contraseña
     public boolean verificarCambioPassword(String correoUsuario, String nuevaPassword) {
@@ -395,9 +381,7 @@ public class Supabase {
             String url = properties.getProperty("supabase_url_usuarios") + "?email=eq." + correoUsuario;
             HttpPatch httpPatch = new HttpPatch(url);
 
-            httpPatch.setHeader("Content-type", "application/json");
-            httpPatch.setHeader("apikey", properties.getProperty("supabase_key"));
-            httpPatch.setEntity(new StringEntity(requestBody.toString()));
+            mandarSolicitudPath(httpPatch, requestBody);
 
             HttpResponse response = httpClient.execute(httpPatch);
             int statusCode = response.getStatusLine().getStatusCode();
@@ -464,9 +448,7 @@ public class Supabase {
             String url = properties.getProperty("supabase_url_usuarios") + "?email=eq." + correoUsuario;
             HttpPatch httpPatch = new HttpPatch(url);
 
-            httpPatch.setHeader("Content-type", "application/json");
-            httpPatch.setHeader("apikey", properties.getProperty("supabase_key"));
-            httpPatch.setEntity(new StringEntity(requestBody.toString()));
+            mandarSolicitudPath(httpPatch, requestBody);
 
             HttpResponse response = httpClient.execute(httpPatch);
             int statusCode = response.getStatusLine().getStatusCode();
@@ -635,5 +617,21 @@ public class Supabase {
             result.append(line);
         }
         return result.toString();
+    }
+
+    private void mandarSolicitudPost(JSONObject json, HttpPost post) throws UnsupportedEncodingException {
+        // Configurar entidad JSON para la solicitud
+        StringEntity entidad = new StringEntity(json.toString());
+        post.setEntity(entidad);
+
+        // Configurar encabezados de la solicitud
+        post.setHeader("Content-type", "application/json");
+        post.setHeader("apikey", properties.getProperty("supabase_key"));
+    }
+
+    private void mandarSolicitudPath(HttpPatch httpPatch, JSONObject requestBody) throws UnsupportedEncodingException {
+        httpPatch.setHeader("Content-type", "application/json");
+        httpPatch.setHeader("apikey", properties.getProperty("supabase_key"));
+        httpPatch.setEntity(new StringEntity(requestBody.toString()));
     }
 }

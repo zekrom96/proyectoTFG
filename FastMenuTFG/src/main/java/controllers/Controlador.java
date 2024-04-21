@@ -19,6 +19,7 @@ import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import models.Menu;
 import models.Plato;
 import java.awt.*;
 import java.io.File;
@@ -83,14 +84,14 @@ public class Controlador implements Initializable {
                 // Recupero primero el id de empresa del correo dado
                 int idEmpresa = supa.obtenerIdEmpresaPorCorreo(correoEmpresa);
                 System.out.println(idEmpresa);
+                Menu menu = new Menu(textfieldNombreMenu.getText(), idEmpresa);
                 // Agrego el menu con los datos y el id de empresa obtenido
-                supa.agregarMenu(textfieldNombreMenu.getText(), idEmpresa);
+                supa.agregarMenu(menu);
                 // Recupero el id del menu actual
-                int idMenu = supa.obtenerIdMenuPorIdEmpresa(textfieldNombreMenu.getText(), idEmpresa);
+                int idMenu = supa.obtenerIdMenuPorIdEmpresa(menu);
                 for (Plato plato : platos) {
                     // Agrego cada plato con sus correspondientes datos
-                    supa.agregarPlato(plato.getNombrePlato(), plato.getDescripcionPlato(), plato.getTipoPlato(),
-                            plato.getPrecioPlato(), idEmpresa, idMenu);
+                    supa.agregarPlato(plato, idEmpresa, idMenu);
                 }
                 // Llamada al metodo sube el pdf al bucket de aws s3
                 s3.subirPDFaS3(properties.getProperty("aws_access_key_id"), properties.getProperty("aws_secret_access_key"),

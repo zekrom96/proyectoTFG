@@ -2,6 +2,10 @@ package models;
 
 public class Empresa {
 
+    public String getNombreEmpresa() {
+        return nombreEmpresa;
+    }
+
     String nombreEmpresa;
 
     public Empresa(String nombreEmpresa) {
