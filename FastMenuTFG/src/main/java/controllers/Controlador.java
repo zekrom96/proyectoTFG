@@ -32,6 +32,7 @@ import java.util.prefs.Preferences;
 
 
 public class Controlador implements Initializable {
+    public ListView listaPlatosMenu;
     private String correoEmpresa;
     public TextField textfieldNombrePlato, textfieldPrecio, textfieldNombreMenu;
     public TextArea textareaDescripcionPlato;

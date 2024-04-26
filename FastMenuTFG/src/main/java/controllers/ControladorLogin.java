@@ -195,6 +195,21 @@ public class ControladorLogin implements Initializable {
         // Mostrar la alerta y esperar a que se seleccione una opción
         alerta.showAndWait().ifPresent(boton -> {
             if (boton == botonModificar) {
+                FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("/views/vistaModificacion.fxml"));
+                Parent root = null;
+                try {
+                    root = fxmlLoader.load();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+
+                Scene nuevaScene = new Scene(root);
+                Controlador controlador = fxmlLoader.getController();
+                controlador.obtenerCorreo(textfieldCorreo.getText());
+                // Establecer la nueva escena en una nueva ventana
+                Stage nuevaVentana = new Stage();
+                nuevaVentana.setScene(nuevaScene);
+                nuevaVentana.show();
                 // Acción a realizar si se selecciona "Modificar"
                 System.out.println("Se seleccionó Modificar");
                 // Aquí puedes agregar la lógica para la acción de "Modificar"

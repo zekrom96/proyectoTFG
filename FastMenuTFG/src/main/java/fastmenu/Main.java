@@ -3,14 +3,21 @@ package fastmenu;
 import classes.services.Supabase;
 import controllers.Controlador;
 import javafx.application.Application;
+import javafx.collections.FXCollections;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.ChoiceDialog;
+import javafx.scene.control.ListView;
 import javafx.stage.Stage;
 import java.io.IOException;
+import java.util.List;
+import java.util.Optional;
 import java.util.prefs.Preferences;
+import javafx.collections.ObservableList;
+
 
 public class Main extends Application {
 
@@ -55,15 +62,47 @@ public class Main extends Application {
             // Mostrar la alerta y esperar a que se seleccione una opción
             alerta.showAndWait().ifPresent(boton -> {
                 if (boton == botonModificar) {
+                    FXMLLoader loader = new FXMLLoader(Main.class.getResource("/views/vistaModificacion.fxml"));
+                    Parent root = null;
+                    try {
+                        root = loader.load();
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+
+                    Scene nuevaScene = new Scene(root);
+                    Controlador controlador = loader.getController();
+                    Preferences preferences = Preferences.userRoot().node("fastmenu");
+                    String correoShared = preferences.get("logged_in_user_email", null);
                     // Acción a realizar si se selecciona "Modificar"
                     System.out.println("Se seleccionó Modificar");
+                    int idEmpresaActual = supa.obtenerIdEmpresaPorCorreo(correoShared);
+                    List<String> nombresMenus = supa.obtenerNombresMenuPorIdEmpresa(idEmpresaActual);
+                    ObservableList<String> data = FXCollections.observableArrayList(nombresMenus);
+
+                    String menuElegido = mostrarNombresMenuEnDialogo(nombresMenus);
+                    int idMenu = supa.obtenerIdMenuPorNombre(menuElegido);
+                    System.out.println(idMenu);
+                    List<String> nombresPlatos = supa.obtenerNombresPlatosPorIdMenu(idMenu);
+                    ObservableList<String> platos = FXCollections.observableArrayList(nombresPlatos);
+                    controlador.listaPlatosMenu.setItems(platos);
+                    controlador.listaPlatosMenu.refresh();
+                    System.out.println(nombresPlatos);
+                    System.out.println("menu elegido: " + menuElegido);
+                    //TODO REVISA ESTA LINEA URGENTE, AGREGA TODOS LOS PLATOS Y MENUS AL MISMO ID
+                    controlador.obtenerCorreo(correoShared);
+                    // Establecer la nueva escena en una nueva ventana
+                    Stage nuevaVentana = new Stage();
+                    nuevaVentana.setScene(nuevaScene);
+                    nuevaVentana.show();
                     // Aquí puedes agregar la lógica para la acción de "Modificar"
                 } else if (boton == botonCrear) {
                     // Acción a realizar si se selecciona "Crear"
                     System.out.println("Se seleccionó Crear");
                     // Aquí puedes agregar la lógica para la acción de "Crear"
                     try {
-                        FXMLLoader loader = new FXMLLoader(Main.class.getResource("/views/vistaMenu.fxml"));                        Parent root = loader.load();
+                        FXMLLoader loader = new FXMLLoader(Main.class.getResource("/views/vistaMenu.fxml"));
+                        Parent root = loader.load();
 
                         Scene nuevaScene = new Scene(root);
                         Controlador controlador = loader.getController();
@@ -87,6 +126,24 @@ public class Main extends Application {
             stage.setScene(scene);
             stage.setResizable(false);
             stage.show();
+        }
+    }
+
+    public String mostrarNombresMenuEnDialogo(List<String> nombresMenus) {
+        // Crear el diálogo de selección
+        ChoiceDialog<String> dialogo = new ChoiceDialog<>(null, nombresMenus);
+        dialogo.setTitle("Selección de Menú");
+        dialogo.setHeaderText("Selecciona un Menú");
+        dialogo.setContentText("Menús disponibles:");
+
+        // Mostrar el diálogo y esperar a que el usuario seleccione una opción
+        Optional<String> resultado = dialogo.showAndWait();
+
+        // Verificar si el usuario seleccionó una opción y devolverla
+        if (resultado.isPresent()) {
+            return resultado.get(); // Devolver el menú seleccionado
+        } else {
+            return null; // Devolver null si el usuario cancela el diálogo
         }
     }
 

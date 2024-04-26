@@ -13,12 +13,15 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 public class Supabase {
@@ -172,6 +175,95 @@ public class Supabase {
             e.printStackTrace();
             return -1;
         }
+    }
+
+    public List<String> obtenerNombresPlatosPorIdMenu(int idMenu) {
+        List<String> nombresPlatos = new ArrayList<>();
+        try {
+            String url = properties.getProperty("supabase_url_platos") + "?id_menu=eq." + idMenu;
+            String apiKey = properties.getProperty("supabase_key");
+
+            HttpClient httpClient = HttpClients.createDefault();
+            HttpGet httpGet = new HttpGet(url);
+            httpGet.setHeader("apikey", apiKey);
+
+            HttpResponse response = httpClient.execute(httpGet);
+            String responseBody = EntityUtils.toString(response.getEntity());
+
+            // Verificar si la respuesta es un arreglo JSON
+            JSONArray jsonArray = new JSONArray(responseBody);
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject platoJson = jsonArray.getJSONObject(i);
+                String nombrePlato = platoJson.getString("nombre");
+                nombresPlatos.add(nombrePlato);
+            }
+        } catch (IOException | JSONException e) {
+            e.printStackTrace();
+        }
+        return nombresPlatos;
+    }
+
+
+    public int obtenerIdMenuPorNombre(String nombreMenu) {
+        try {
+            // URL del endpoint para obtener datos en Supabase
+            String url = properties.getProperty("supabase_url_menus") + "?Nombre=eq." + nombreMenu;
+
+            // API Key
+            String apiKey = properties.getProperty("supabase_key");
+
+            // Construir la solicitud HTTP GET
+            HttpClient httpClient = HttpClients.createDefault();
+            HttpGet httpGet = new HttpGet(url);
+
+            // Agregar la API Key a la cabecera de la solicitud
+            httpGet.setHeader("apikey", apiKey);
+
+            // Ejecutar la solicitud HTTP GET
+            HttpResponse response = httpClient.execute(httpGet);
+
+            // Leer la respuesta
+            String responseBody = EntityUtils.toString(response.getEntity());
+
+            // Analizar la respuesta JSON
+            JSONArray jsonArray = new JSONArray(responseBody);
+            if (jsonArray.length() > 0) {
+                // Obtener el ID de la primera empresa encontrada
+                JSONObject empresaJson = jsonArray.getJSONObject(0);
+                return empresaJson.getInt("id");
+            } else {
+                System.out.println("No se encontro ninguna menu");
+                return -1;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            return -1;
+        }
+    }
+
+    public List<String> obtenerNombresMenuPorIdEmpresa(int idEmpresa) {
+        List<String> nombresMenus = new ArrayList<>();
+        try {
+            String url = properties.getProperty("supabase_url_menus") + "?id_empresa=eq." + idEmpresa;
+            String apiKey = properties.getProperty("supabase_key");
+
+            HttpClient httpClient = HttpClients.createDefault();
+            HttpGet httpGet = new HttpGet(url);
+            httpGet.setHeader("apikey", apiKey);
+
+            HttpResponse response = httpClient.execute(httpGet);
+            String responseBody = EntityUtils.toString(response.getEntity());
+
+            JSONArray jsonArray = new JSONArray(responseBody);
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject menuJson = jsonArray.getJSONObject(i);
+                String nombreMenu = menuJson.getString("Nombre");
+                nombresMenus.add(nombreMenu);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return nombresMenus;
     }
 
     //Metodo obtener el id de menu asignado a una empresa
