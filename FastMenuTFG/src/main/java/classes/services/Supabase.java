@@ -4,6 +4,7 @@ import classes.utils.CifradoyDescifrado;
 import models.Empresa;
 import models.Menu;
 import models.Plato;
+import models.Usuario;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
@@ -306,15 +307,15 @@ public class Supabase {
     El campo de email es un campo unico en la tabla Usuarios, por lo que al registrarse compruebo no exista, si existe
     lanzo una alerta al usuario
      */
-    public void crearUsuario(String password, String correo) {
+    public void crearUsuario(Usuario usuario) {
         try {
             HttpClient httpClient = HttpClients.createDefault();
 
             HttpPost httpPost = new HttpPost(properties.getProperty("supabase_url_usuarios"));
 
             JSONObject userData = new JSONObject();
-            userData.put("password", password);
-            userData.put("email", correo);
+            userData.put("password", usuario.getPassword());
+            userData.put("email", usuario.getEmail());
             
             mandarSolicitudPost(userData, httpPost);
 
@@ -338,10 +339,10 @@ public class Supabase {
     Metodo "autenticarse" contra la bd de Usuarios, por un lado recupero de la bd la pw cifrada, la descifro y compruebo
     que son la misma contraseña, si es asi podrá acceder a su panel de modificar o crear
      */
-    public boolean iniciarSesion(String email, String pw) {
+    public boolean iniciarSesion(Usuario usuario) {
 
         try {
-            String url = properties.getProperty("supabase_url_usuarios") + "?email=eq." + email;
+            String url = properties.getProperty("supabase_url_usuarios") + "?email=eq." + usuario.getEmail();
             HttpClient httpClient = HttpClients.createDefault();
             HttpGet httpGet = new HttpGet(url);
             httpGet.setHeader("Content-type", "application/json");
@@ -363,20 +364,20 @@ public class Supabase {
                     String pwDescifrada = crypt.desencriptar(pwCifrada);
                     System.out.println(pwDescifrada);
                     // Verificar si la contraseña ingresada coincide con la contraseña descifrada
-                    if (pw.equals(pwDescifrada)) {
+                    if (usuario.getPassword().equals(pwDescifrada)) {
                         // Las contraseñas coinciden, el inicio de sesión es exitoso
-                        System.out.println("Inicio de sesión exitoso para el usuario: " + email);
+                        System.out.println("Inicio de sesión exitoso para el usuario: " + usuario.getEmail());
                         return true;
                         // Lógica para continuar con el flujo de la aplicación después del inicio de sesión exitoso
                     } else {
                         // Las contraseñas no coinciden, mostrar un mensaje de error al usuario
                         //TODO CREAR ALERTA
-                        System.out.println("La contraseña es incorrecta para el usuario: " + email);
+                        System.out.println("La contraseña es incorrecta para el usuario: " + usuario.getEmail());
                         return false;
                     }
                 } else {
                     //TODO CREAR ALERTA2
-                    System.out.println("El usuario " + email + " no existe.");
+                    System.out.println("El usuario " + usuario.getEmail() + " no existe.");
                     return false;
                 }
             } else {
@@ -392,13 +393,13 @@ public class Supabase {
     /*
     Metodo encargado de realizar el cambio de la pw en la bd y comprobar que se ha cambiado correctamente
      */
-    public void modificarPassword(String correoUsuario, String nuevaPassword) {
+    public void modificarPassword(Usuario usuario) {
         try {
             JSONObject requestBody = new JSONObject();
-            requestBody.put("password", nuevaPassword);
+            requestBody.put("password", usuario.getPassword());
 
             HttpClient httpClient = HttpClients.createDefault();
-            String url = properties.getProperty("supabase_url_usuarios") + "?email=eq." + correoUsuario;
+            String url = properties.getProperty("supabase_url_usuarios") + "?email=eq." + usuario.getEmail();
             HttpPatch httpPatch = new HttpPatch(url);
 
             mandarSolicitudPath(httpPatch, requestBody);
@@ -410,14 +411,17 @@ public class Supabase {
             //Por eso compruebo manualmente que la pw haya sido cambiada
             if (statusCode == 204) {
                 // Verificar si el cambio se realizó correctamente
-                boolean cambioRealizado = verificarCambioPassword(correoUsuario, nuevaPassword);
+                boolean cambioRealizado = verificarCambioPassword(usuario);
                 if (cambioRealizado) {
-                    System.out.println("Contraseña actualizada correctamente para el usuario con correo: " + correoUsuario);
+                    System.out.println("Contraseña actualizada correctamente para el usuario con correo: "
+                            + usuario.getEmail());
                 } else {
-                    System.out.println("Error: No se pudo confirmar que el cambio se realizó correctamente para el usuario con correo: " + correoUsuario);
+                    System.out.println("Error: No se pudo confirmar que el cambio se realizó correctamente"
+                            + "para el usuario con correo: " + usuario.getEmail());
                 }
             } else {
-                System.out.println("Error al actualizar la contraseña para el usuario con correo: " + correoUsuario);
+                System.out.println("Error al actualizar la contraseña para el usuario con correo: "
+                        + usuario.getEmail());
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -426,9 +430,9 @@ public class Supabase {
 
 
     //Metodo encargado comprobar se ha cambiado la contraseña
-    public boolean verificarCambioPassword(String correoUsuario, String nuevaPassword) {
+    public boolean verificarCambioPassword(Usuario nuevoUsuario) {
         try {
-            String url = properties.getProperty("supabase_url_usuarios") + "?email=eq." + correoUsuario;
+            String url = properties.getProperty("supabase_url_usuarios") + "?email=eq." + nuevoUsuario.getEmail();
 
             HttpClient httpClient = HttpClients.createDefault();
             HttpGet httpGet = new HttpGet(url);
@@ -447,7 +451,7 @@ public class Supabase {
                 if (jsonArray.length() > 0) {
                     JSONObject usuario = jsonArray.getJSONObject(0);
                     String passwordActual = usuario.getString("password");
-                    return passwordActual.equals(nuevaPassword);
+                    return passwordActual.equals(nuevoUsuario.getPassword());
                 } else {
                     System.out.println("Error: No se encontró ningún usuario con el correo especificado.");
                     return false;
@@ -562,9 +566,9 @@ public class Supabase {
     }
 
     //Metodo comprueba el estado del campo restablecerpw, si esta en false o true, segun como este el programa hara x
-    public boolean comprobarEstadoCampoRestablecerPw(String correoUsuario) {
+    public boolean comprobarEstadoCampoRestablecerPw(Usuario nuevoUsuario) {
         try {
-            String url = properties.getProperty("supabase_url_usuarios") + "?email=eq." + correoUsuario;
+            String url = properties.getProperty("supabase_url_usuarios") + "?email=eq." + nuevoUsuario.getEmail();
 
             HttpClient httpClient = HttpClients.createDefault();
             HttpGet httpGet = new HttpGet(url);
