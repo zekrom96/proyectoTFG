@@ -21,6 +21,7 @@
     -fx-padding: 8px 16px; /* Espaciado interno */
     -fx-font-size: 14px; /* Tamaño de fuente */
     -fx-border-radius: 5px; /* Radio de borde redondeado */
+    -fx-cursor: hand; /* Cambia el cursor a mano al pasar el ratón */
 }
 
 /* Estilo para el texto */
