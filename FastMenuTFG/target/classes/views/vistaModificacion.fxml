@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Text?>
+
+<VBox fx:id="fondoMenu" alignment="TOP_CENTER" prefHeight="611.0" prefWidth="1073.0" spacing="20.0" stylesheets="@../estilos_css/cssVistaMenu.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.Controlador">
+    <padding>
+        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+    </padding>
+    <children>
+        <HBox alignment="CENTER_LEFT" spacing="50.0">
+            <children>
+                <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Nombre del menu">
+                    <HBox.margin>
+                        <Insets />
+                    </HBox.margin>
+                </Text>
+                <TextField fx:id="textfieldNombreMenu" minHeight="-Infinity" minWidth="-Infinity" prefHeight="28.0" prefWidth="171.0">
+                    <HBox.margin>
+                        <Insets right="5.0" />
+                    </HBox.margin>
+                </TextField>
+            <ListView fx:id="listaPlatosMenu" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="121.0" prefWidth="396.0">
+               <HBox.margin>
+                  <Insets left="100.0" />
+               </HBox.margin>
+            </ListView>
+            </children>
+            <VBox.margin>
+                <Insets bottom="100.0" top="30.0" />
+            </VBox.margin>
+         <padding>
+            <Insets left="250.0" />
+         </padding>
+        </HBox>
+        <HBox alignment="CENTER" spacing="100.0">
+            <children>
+                <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Nombre del plato">
+                    <HBox.margin>
+                        <Insets left="200.0" right="-34.0" />
+                    </HBox.margin>
+                </Text>
+                <TextField fx:id="textfieldNombrePlato" minHeight="-Infinity" minWidth="-Infinity" prefHeight="30.0" prefWidth="173.0">
+                    <HBox.margin>
+                        <Insets />
+                    </HBox.margin></TextField>
+                <HBox alignment="CENTER" prefHeight="70.0" prefWidth="1002.0" spacing="100.0">
+                    <children>
+                        <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Precio">
+                            <HBox.margin>
+                                <Insets left="-130.0" />
+                            </HBox.margin>
+                        </Text>
+                        <TextField fx:id="textfieldPrecio" minHeight="-Infinity" minWidth="-Infinity" prefHeight="30.0" prefWidth="173.0">
+                            <HBox.margin>
+                                <Insets left="50.0" />
+                            </HBox.margin>
+                        </TextField>
+                    </children>
+                </HBox>
+            </children>
+            <VBox.margin>
+                <Insets left="50.0" />
+            </VBox.margin>
+        </HBox>
+        <HBox alignment="CENTER" layoutX="30.0" layoutY="175.0" spacing="100.0">
+            <children>
+                <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Tipo de plato">
+                    <HBox.margin>
+                        <Insets left="250.0" />
+                    </HBox.margin></Text>
+                <ComboBox fx:id="comboBoxTipoPlato" minHeight="-Infinity" minWidth="-Infinity" prefHeight="30.0" prefWidth="173.0" />
+                <HBox alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="70.0" prefWidth="572.0" spacing="100.0">
+                    <children>
+                        <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Descripción">
+                            <HBox.margin>
+                                <Insets left="-85.0" />
+                            </HBox.margin>
+                        </Text>
+                        <TextArea fx:id="textareaDescripcionPlato" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="70.0" prefWidth="230.0">
+                            <HBox.margin>
+                                <Insets />
+                            </HBox.margin>
+                        </TextArea>
+                    </children>
+                </HBox>
+            </children>
+        </HBox>
+        <HBox alignment="CENTER" prefHeight="101.0" prefWidth="1066.0">
+            <VBox.margin>
+                <Insets />
+            </VBox.margin>
+            <children>
+                <Button fx:id="botonAgregarPlato" mnemonicParsing="false" onMouseClicked="#onClickBotonAgregar" prefHeight="37.0" prefWidth="145.0" text="Agregar plato">
+                    <HBox.margin>
+                        <Insets />
+                    </HBox.margin>
+                </Button>
+            </children>
+        </HBox>
+        <ListView fx:id="listaPlatos" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="129.0" prefWidth="507.0">
+            <VBox.margin>
+                <Insets />
+            </VBox.margin>
+        </ListView>
+        <HBox alignment="BOTTOM_CENTER" prefHeight="100.0" prefWidth="200.0" spacing="200.0">
+            <VBox.margin>
+                <Insets />
+            </VBox.margin>
+            <children>
+                <Button fx:id="botonGenerarPDF" mnemonicParsing="false" onMouseClicked="#onClickBotonPDF" prefHeight="45.0" prefWidth="145.0" text="Generar PDF" />
+                <Button fx:id="btnPrevisualizarPDF" mnemonicParsing="false" onMouseClicked="#onBtnClickPrevisualizar" prefHeight="45.0" prefWidth="227.0" text="Previsualizar PDF" />
+                <Button fx:id="botonSalir" mnemonicParsing="false" onMouseClicked="#onClickBotonDesconectarse" prefHeight="45.0" prefWidth="145.0" text="Desconectarse" />
+            </children>
+        </HBox>
+    </children>
+    <opaqueInsets>
+        <Insets />
+    </opaqueInsets>
+</VBox>
