@@ -23,7 +23,6 @@ public class Main extends Application {
 
     Supabase supa;
 
-    //TODO FUNCIONA
     //TODO RECUERDA CAMBIAR LOS TOKEN EL DIA DE LA PRESENTACION DEL TFG!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     //TODO Revisar los try-catch en todas las clases y manejas correctamente los errores
     //TODO Diseñar el apartado de moficicación o plantear como lo haré
@@ -40,8 +39,8 @@ public class Main extends Application {
     public void start(Stage stage) throws IOException {
         supa = new Supabase();
         Preferences preferences = Preferences.userRoot().node("fastmenu");
-        String correoShared = preferences.get("logged_in_user_email", null);
-        boolean estado_login = supa.comprobarEstadoCampoUsuarioLogueado(correoShared);
+        String correoPreferences = preferences.get("logged_in_user_email", null);
+        boolean estado_login = supa.comprobarEstadoCampoUsuarioLogueado(correoPreferences);
         vistaMenu(stage, estado_login);
     }
 
@@ -69,7 +68,6 @@ public class Main extends Application {
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
-
                     Scene nuevaScene = new Scene(root);
                     Controlador controlador = loader.getController();
                     Preferences preferences = Preferences.userRoot().node("fastmenu");
@@ -121,7 +119,7 @@ public class Main extends Application {
             });
         } else {
             FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("/views/vistaLogin.fxml"));
-            Scene scene = new Scene(fxmlLoader.load(), 521, 294);
+            Scene scene = new Scene(fxmlLoader.load(), 445, 294);
             stage.setTitle("LoginZekrom");
             stage.setScene(scene);
             stage.setResizable(false);

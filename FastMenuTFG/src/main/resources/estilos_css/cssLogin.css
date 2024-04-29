@@ -1,24 +1,46 @@
+/* Estilo para el fondo del VBox */
 #fondoLogin {
-    -fx-background-image: url('../imagenes/prueba2.png');
-    -fx-background-size: cover; /* Opcional: para cubrir completamente el área */
-    -fx-font-size: 14px;
+    -fx-background-color: #f0f0f0; /* Color de fondo gris claro */
+    -fx-padding: 20px; /* Espaciado interno */
+    -fx-background-image: url('../imagenes/fondoLogin.jpg');
 }
 
-#txtCorreo {
-    -fx-font-size: 16px;
+/* Estilo para los campos de texto */
+.text-field {
+    -fx-background-color: #ffffff; /* Color de fondo blanco */
+    -fx-border-color: #cccccc; /* Color del borde gris claro */
+    -fx-border-width: 1px; /* Ancho del borde */
+    -fx-padding: 5px; /* Espaciado interno */
+    -fx-pref-width: 200px; /* Ancho preferido */
 }
 
-#txtPw {
-    -fx-font-size: 16px;
+/* Estilo para los botones */
+.button {
+    -fx-background-color: #007bff; /* Color de fondo azul */
+    -fx-text-fill: #ffffff; /* Color del texto blanco */
+    -fx-padding: 8px 16px; /* Espaciado interno */
+    -fx-font-size: 14px; /* Tamaño de fuente */
+    -fx-border-radius: 5px; /* Radio de borde redondeado */
+    -fx-cursor: hand; /* Cambia el cursor a mano al pasar el ratón */
 }
 
+/* Estilo para el texto */
 #txtRecuperarPw {
-    -fx-font-size: 16px;
+    -fx-cursor: hand; /* Cambia el cursor a mano al pasar el ratón */
+    -fx-font-style: italic; /* Texto en cursiva */
+    -fx-background-color: #ffffff; /* Color de fondo blanco */
+    -fx-border-color: #cccccc; /* Color del borde gris claro */
+    -fx-border-width: 1px; /* Ancho del borde */
+    -fx-padding: 5px; /* Espaciado interno */
+    -fx-pref-width: 200px; /* Ancho preferido */
     -fx-font-weight: bold;
-    -fx-underline: true;
-    -fx-text-fill: black; /* Color de texto normal */
+    -fx-font-size: 16px; /* Tamaño de fuente */
 }
 
-#txtRecuperarPw:hover {
-    -fx-text-fill: blue; /* Color de texto al pasar el ratón */
+
+
+   /* Estilo para las etiquetas */
+
+.label {
+    -fx-font-weight: bold; /* Texto en negrita */
 }

@@ -15,6 +15,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 import models.Empresa;
+import models.Usuario;
 
 import java.io.IOException;
 import java.net.URL;
@@ -73,7 +74,8 @@ public class ControladorLogin implements Initializable {
                 alerta.showAndWait();
             } else {
                 System.out.println("El correo no existe en la bd");
-                supa.crearUsuario(pwCifrada, correo);
+                Usuario nuevoUsuario = new Usuario(pwCifrada, correo);
+                supa.crearUsuario(nuevoUsuario);
                 Empresa empresa = new Empresa(nombreEmpresa);
                 supa.agregarEmpresa(empresa, correo);
 
@@ -104,10 +106,11 @@ public class ControladorLogin implements Initializable {
     }
 
     public void login(String correo, String pw) {
-        if (supa.iniciarSesion(correo, pw)) {
+        Usuario usuario = new Usuario(correo, pw);
+        if (supa.iniciarSesion(usuario)) {
             //boolean campo = supa.comprobarEstadoCampoRestablecerPw(textfieldCorreo.getText());
             //System.out.println(campo);
-            if (supa.comprobarEstadoCampoRestablecerPw(textfieldCorreo.getText())) {
+            if (supa.comprobarEstadoCampoRestablecerPw(usuario)) {
                 PasswordField campoPw = new PasswordField();
                 campoPw.setPromptText("Nueva Contraseña");
                 PasswordField campoConfirmar = new PasswordField();
@@ -135,7 +138,8 @@ public class ControladorLogin implements Initializable {
                         String confirmarPw = campoConfirmar.getText();
                         if (nuevaPw.equals(confirmarPw)) {
                             String pwTemporalCifrada = crypt.encriptar(nuevaPw);
-                            supa.modificarPassword(textfieldCorreo.getText(), pwTemporalCifrada);
+                            Usuario nuevoUsuario = new Usuario(textfieldCorreo.getText(), pwTemporalCifrada);
+                            supa.modificarPassword(nuevoUsuario);
                             supa.modificarCampoUsuarioRestablecerPw(textfieldCorreo.getText(), false);
                             System.out.println("Contraseña cambiada exitosamente.");
                             //sesion.setUsuarioLogueado(true);
@@ -346,7 +350,8 @@ public class ControladorLogin implements Initializable {
                     correo.enviarGmail(props.getProperty("cuenta_correo"), props.getProperty("keygmail"),
                             correoTextField.getText(), pwTemporal);
                     String pwTemporalCifrada = crypt.encriptar(pwTemporal);
-                    supa.modificarPassword(correoTextField.getText(), pwTemporalCifrada);
+                    Usuario nuevoUsuario = new Usuario(correoTextField.getText(), pwTemporalCifrada);
+                    supa.modificarPassword(nuevoUsuario);
                     supa.modificarCampoUsuarioRestablecerPw(correoTextField.getText(), true);
                 } catch (Exception e) {
                     throw new RuntimeException(e);
