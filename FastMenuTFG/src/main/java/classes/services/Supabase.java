@@ -713,10 +713,12 @@ public class Supabase {
         return false;
     }
 
-    public void modificarPlatos(List<Plato> platosModificados, int idMenu, int idEmpresa) {
+    public void modificarPlatos(List<Plato> platosModificados, String nombrePlato, int idMenu, int idEmpresa) {
         try {
-            for (Plato platoModificado : platosModificados) {
-                int idPlato = recuperarIdPlato(platoModificado.getNombrePlato());
+            for (int i = 0; i < platosModificados.size(); i++) {
+                Plato platoModificado = platosModificados.get(i);
+
+                int idPlato = recuperarIdPlato(nombrePlato, idEmpresa, idMenu);
 
                 if (idPlato != 0) {
                     HttpClient clienteHttp = HttpClients.createDefault();
@@ -728,14 +730,12 @@ public class Supabase {
                     httpPut.setHeader("apikey", properties.getProperty("supabase_key"));
 
                     // Crear objeto JSON con los datos del plato modificado
-                    //Obligatorio pasarle el id o no funciona
                     JSONObject platoJson = new JSONObject();
                     platoJson.put("nombre", platoModificado.getNombrePlato());
                     platoJson.put("descripcion", platoModificado.getDescripcionPlato());
                     platoJson.put("tipo", platoModificado.getTipoPlato());
                     platoJson.put("precio", platoModificado.getPrecioPlato());
                     platoJson.put("id_plato", idPlato);
-
 
                     // Agregar el objeto JSON al cuerpo de la solicitud PUT
                     StringEntity entidadJson = new StringEntity(platoJson.toString());
@@ -754,7 +754,7 @@ public class Supabase {
                         System.out.println("Contenido de la respuesta: " + contenidoRespuestaModificarPlato);
                     }
                 } else {
-                    System.out.println("No se encontró el plato '" + platoModificado.getNombrePlato() + "' en el menú con ID " + idMenu + " de la empresa con ID " + idEmpresa);
+                    System.out.println("No se encontró el plato '" + nombrePlato + "' en el menú con ID " + idMenu + " de la empresa con ID " + idEmpresa);
                 }
             }
         } catch (IOException e) {
@@ -762,7 +762,7 @@ public class Supabase {
         }
     }
 
-    public int recuperarIdPlato(String nombrePlato) {
+    public int recuperarIdPlato(String nombrePlato, int id_empresa, int id_menu) {
         int idPlato = 0;
 
         try {
@@ -771,7 +771,8 @@ public class Supabase {
 
             // Construir la URL de la solicitud GET para recuperar el ID del plato
             String url = properties.getProperty("supabase_url_platos") +
-                    "?nombre=eq." + URLEncoder.encode(nombrePlato, StandardCharsets.UTF_8.toString());
+                    "?nombre=eq." + URLEncoder.encode(nombrePlato, StandardCharsets.UTF_8.toString()) +
+                    "&id_empresa=eq." + id_empresa + "&id_menu=eq." + id_menu;
 
             HttpGet httpGet = new HttpGet(url);
             httpGet.setHeader("Content-type", "application/json");
@@ -789,9 +790,7 @@ public class Supabase {
                 JSONArray platos = new JSONArray(contenidoRespuesta);
                 if (platos.length() > 0) {
                     JSONObject primerPlato = platos.getJSONObject(0);
-                    System.out.println("hola");
                     System.out.println(primerPlato);
-                    System.out.println("adios");
                     idPlato = primerPlato.getInt("id_plato");
                 } else {
                     System.out.println("No se encontró ningún plato con el nombre '" + nombrePlato);
