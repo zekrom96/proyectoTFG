@@ -1,8 +1,60 @@
+/* Estilo para el fondo del menú */
 #fondoMenu {
-    -fx-background-image: url('../imagenes/fondoMenu.jpg');
-    -fx-background-size: cover; /* Opcional: para cubrir completamente el área */
-    -fx-text-fill: #ffffff; /* Color del texto blanco */
-    -fx-font-size: 16px; /* Tamaño de la fuente */
-    -fx-font-weight: bold; /* Fuente en negrita para mayor contraste */
-    -fx-effect: dropshadow( gaussian , rgba(0,0,0,0.7) , 2,2,2,2 ); /* Sombra para mejorar la visibilidad */
+    -fx-background-image: url('../imagenes/fondoModificar.png');
+    -fx-background-color: #f0f0f0; /* Color de fondo */
+        -fx-background-size: cover; /* Ajustar la imagen al tamaño del contenedor */
+        -fx-background-position: center; /* Posicionar la imagen en el centro */
+        -fx-background-repeat: no-repeat; /* No repetir la imagen */
+}
+
+/* Estilo para el texto "Nombre del menú" */
+.text-nombre-menu {
+    -fx-font-size: 14px; /* Tamaño de fuente */
+    -fx-font-weight: bold; /* Negrita */
+    -fx-fill: #333; /* Color de texto */
+}
+
+/* Estilo para los textos */
+.texto-general {
+    -fx-font-size: 12px; /* Tamaño de fuente */
+    -fx-fill: #555; /* Color de texto */
+}
+
+/* Estilo para los botones */
+.button {
+    -fx-font-size: 12px; /* Tamaño de fuente */
+    -fx-font-weight: bold; /* Negrita */
+    -fx-background-color: #4d94ff; /* Color de fondo azul */
+    -fx-text-fill: white; /* Color de texto */
+}
+
+/* Estilo para los botones cuando se les pasa el ratón por encima */
+.button:hover {
+    -fx-background-color: #1a75ff; /* Color de fondo azul más oscuro */
+}
+
+/* Estilo para los ListView */
+.list-view {
+    -fx-background-color: #fff; /* Color de fondo */
+}
+
+/* Estilo para los TextField */
+.text-field {
+    -fx-background-color: #fff; /* Color de fondo */
+    -fx-border-color: #ccc; /* Color del borde */
+    -fx-border-width: 1px; /* Ancho del borde */
+}
+
+/* Estilo para los ComboBox */
+.combo-box {
+    -fx-background-color: #fff; /* Color de fondo */
+    -fx-border-color: #ccc; /* Color del borde */
+    -fx-border-width: 1px; /* Ancho del borde */
+}
+
+/* Estilo para los TextArea */
+.text-area {
+    -fx-background-color: #fff; /* Color de fondo */
+    -fx-border-color: #ccc; /* Color del borde */
+    -fx-border-width: 1px; /* Ancho del borde */
 }

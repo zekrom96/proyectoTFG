@@ -10,7 +10,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Text?>
 
-<VBox fx:id="fondoMenu" alignment="TOP_CENTER" prefHeight="611.0" prefWidth="1073.0" spacing="20.0" stylesheets="@../estilos_css/cssVistaMenu.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.Controlador">
+<VBox fx:id="fondoMenu" alignment="TOP_CENTER" prefHeight="712.0" prefWidth="1318.0" spacing="20.0" stylesheets="@../estilos_css/cssVistaMenu.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.Controlador">
     <padding>
         <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
     </padding>
@@ -24,17 +24,18 @@
                 </Text>
                 <TextField fx:id="textfieldNombreMenu" minHeight="-Infinity" minWidth="-Infinity" prefHeight="28.0" prefWidth="171.0">
                     <HBox.margin>
-                        <Insets right="5.0" />
+                        <Insets right="125.0" />
                     </HBox.margin>
                 </TextField>
+            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Platos" />
             <ListView fx:id="listaPlatosMenu" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="121.0" prefWidth="396.0">
                <HBox.margin>
-                  <Insets left="100.0" />
+                  <Insets />
                </HBox.margin>
             </ListView>
             </children>
             <VBox.margin>
-                <Insets bottom="100.0" top="30.0" />
+                <Insets bottom="40.0" top="30.0" />
             </VBox.margin>
          <padding>
             <Insets left="250.0" />
@@ -55,7 +56,7 @@
                     <children>
                         <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Precio">
                             <HBox.margin>
-                                <Insets left="-130.0" />
+                                <Insets left="-110.0" />
                             </HBox.margin>
                         </Text>
                         <TextField fx:id="textfieldPrecio" minHeight="-Infinity" minWidth="-Infinity" prefHeight="30.0" prefWidth="173.0">
@@ -92,24 +93,23 @@
                     </children>
                 </HBox>
             </children>
+         <VBox.margin>
+            <Insets top="-20.0" />
+         </VBox.margin>
         </HBox>
-        <HBox alignment="CENTER" prefHeight="101.0" prefWidth="1066.0">
+        <HBox alignment="CENTER" prefHeight="157.0" prefWidth="1278.0" spacing="200.0">
             <VBox.margin>
-                <Insets />
+                <Insets top="40.0" />
             </VBox.margin>
             <children>
-                <Button fx:id="botonAgregarPlato" mnemonicParsing="false" onMouseClicked="#onClickBotonAgregar" prefHeight="37.0" prefWidth="145.0" text="Agregar plato">
+              <ListView fx:id="listaPlatos" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="111.0" prefWidth="450.0" />
+                <Button fx:id="botonModificarPlato" mnemonicParsing="false" onMouseClicked="#onClickBotonAgregar" prefHeight="37.0" prefWidth="145.0" text="Modificar menu">
                     <HBox.margin>
-                        <Insets />
+                        <Insets left="40.0" />
                     </HBox.margin>
                 </Button>
             </children>
         </HBox>
-        <ListView fx:id="listaPlatos" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="129.0" prefWidth="507.0">
-            <VBox.margin>
-                <Insets />
-            </VBox.margin>
-        </ListView>
         <HBox alignment="BOTTOM_CENTER" prefHeight="100.0" prefWidth="200.0" spacing="200.0">
             <VBox.margin>
                 <Insets />
