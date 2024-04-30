@@ -10,6 +10,7 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPatch;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
@@ -21,6 +22,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -709,6 +712,127 @@ public class Supabase {
         }
         return false;
     }
+
+    public void modificarPlatos(List<Plato> platosModificados, int idEmpresa, int idMenu) {
+        try {
+            HttpClient clienteHttp = HttpClients.createDefault();
+
+            for (Plato platoModificado : platosModificados) {
+                String urlBuscarPlato = properties.getProperty("supabase_url_platos") +
+                        "?id_empresa=eq." + idEmpresa;
+
+                HttpGet httpGet = new HttpGet(urlBuscarPlato);
+                httpGet.setHeader("apikey", properties.getProperty("supabase_key"));
+
+                HttpResponse responseBuscarPlato = clienteHttp.execute(httpGet);
+                int codigoStatusBuscarPlato = responseBuscarPlato.getStatusLine().getStatusCode();
+
+                if (codigoStatusBuscarPlato == 200) {
+                    // Obtener el contenido de la respuesta
+                    String contenidoRespuesta = obtenerContenidoRespuesta(responseBuscarPlato);
+                    JSONArray platosEncontrados = new JSONArray(contenidoRespuesta);
+
+                    // Verificar si se encontró algún plato
+                    if (platosEncontrados.length() > 0) {
+                        // Tomar el primer plato encontrado (asumiendo que no hay duplicados)
+                        JSONObject platoEncontrado = platosEncontrados.getJSONObject(0);
+
+                        // Obtener el ID del plato
+                        int idPlato = platoEncontrado.getInt("id");
+
+                        // Construir la URL de la solicitud PUT utilizando el ID del plato encontrado
+                        String urlModificarPlato = properties.getProperty("supabase_url_platos") + "?id=eq." + idPlato;
+                        HttpPut httpPut = new HttpPut(urlModificarPlato);
+                        httpPut.setHeader("Content-type", "application/json");
+                        httpPut.setHeader("apikey", properties.getProperty("supabase_key"));
+
+                        // Crear objeto JSON con los datos del plato modificado
+                        JSONObject platoJson = new JSONObject();
+                        platoJson.put("nombre", platoModificado.getNombrePlato());
+                        platoJson.put("descripcion", platoModificado.getDescripcionPlato());
+                        platoJson.put("tipo", platoModificado.getTipoPlato());
+                        platoJson.put("precio", platoModificado.getPrecioPlato());
+                        platoJson.put("id_empresa", idEmpresa);
+                        platoJson.put("id_menu", idMenu);
+
+
+
+                        // Agregar el objeto JSON al cuerpo de la solicitud PUT
+                        StringEntity entidadJson = new StringEntity(platoJson.toString());
+                        httpPut.setEntity(entidadJson);
+
+                        // Ejecutar la solicitud PUT
+                        HttpResponse responseModificarPlato = clienteHttp.execute(httpPut);
+                        int codigoStatusModificarPlato = responseModificarPlato.getStatusLine().getStatusCode();
+
+                        // Verificar el código de estado de la respuesta
+                        if (codigoStatusModificarPlato == 200 || codigoStatusModificarPlato == 204) {
+                            System.out.println("Plato modificado correctamente. Nombre: " + platoModificado.getNombrePlato() + ", ID del Menú: " + idMenu);
+                        } else {
+                            System.out.println("Error al modificar el plato. Código de estado: " + codigoStatusModificarPlato);
+                            String contenidoRespuestaModificarPlato = obtenerContenidoRespuesta(responseModificarPlato);
+                            System.out.println("Contenido de la respuesta: " + contenidoRespuestaModificarPlato);
+                        }
+                    } else {
+                        System.out.println("No se encontró el plato '" + platoModificado.getNombrePlato() + "' en el menú con ID " + idMenu + " de la empresa con ID " + idEmpresa);
+                    }
+                } else {
+                    System.out.println("Error al buscar el plato. Código de estado: " + codigoStatusBuscarPlato);
+                    String contenidoRespuestaBuscarPlato = obtenerContenidoRespuesta(responseBuscarPlato);
+                    System.out.println("Contenido de la respuesta: " + contenidoRespuestaBuscarPlato);
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public int recuperarIdPlato(String nombrePlato, int idMenu) {
+        int idPlato = 0;
+
+        try {
+            // Crear cliente HTTP
+            HttpClient clienteHttp = HttpClients.createDefault();
+
+            // Construir la URL de la solicitud GET para recuperar el ID del plato
+            String url = properties.getProperty("supabase_url_platos") +
+                    "?nombre=eq." + URLEncoder.encode(nombrePlato, StandardCharsets.UTF_8.toString()) +
+                    "&id_menu=eq." + idMenu;
+
+            HttpGet httpGet = new HttpGet(url);
+            httpGet.setHeader("Content-type", "application/json");
+            httpGet.setHeader("apikey", properties.getProperty("supabase_key"));
+
+            // Ejecutar la solicitud GET
+            HttpResponse response = clienteHttp.execute(httpGet);
+
+            // Verificar el código de estado de la respuesta
+            int codigoStatus = response.getStatusLine().getStatusCode();
+
+            if (codigoStatus == 200) {
+                // Si la solicitud fue exitosa, obtener el ID del plato de la respuesta
+                String contenidoRespuesta = obtenerContenidoRespuesta(response);
+                JSONArray platos = new JSONArray(contenidoRespuesta);
+                if (platos.length() > 0) {
+                    JSONObject primerPlato = platos.getJSONObject(0);
+                    System.out.println(primerPlato);
+                    idPlato = primerPlato.getInt("id");
+                } else {
+                    System.out.println("No se encontró ningún plato con el nombre '" + nombrePlato + "' en el menú con ID " + idMenu);
+                }
+            } else {
+                System.out.println("Error al recuperar el ID del plato. Código de estado: " + codigoStatus);
+                // Obtener el contenido de la respuesta para depurar
+                String contenidoRespuesta = obtenerContenidoRespuesta(response);
+                System.out.println("Contenido de la respuesta: " + contenidoRespuesta);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        System.out.println(idPlato);
+        return idPlato;
+    }
+
 
 
     private String obtenerContenidoRespuesta(HttpResponse response) throws IOException {

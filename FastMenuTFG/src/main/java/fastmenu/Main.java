@@ -94,6 +94,7 @@ public class Main extends Application {
                     System.out.println("menu elegido: " + menuElegido);
                     controlador.obtenerCorreo(correoShared);
                     controlador.obtenerPlatosModificar(listaPlatos);
+                    controlador.obtenerMenu(menuElegido);
                     System.out.println(listaPlatos);
                     // Establecer la nueva escena en una nueva ventana
                     Stage nuevaVentana = new Stage();

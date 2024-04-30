@@ -103,7 +103,7 @@
             </VBox.margin>
             <children>
               <ListView fx:id="listaPlatos" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="111.0" prefWidth="450.0" />
-                <Button fx:id="botonModificarPlato" mnemonicParsing="false" onMouseClicked="#onClickBotonAgregar" prefHeight="37.0" prefWidth="145.0" text="Modificar menu">
+                <Button fx:id="botonAgregarPlato" mnemonicParsing="false" onMouseClicked="#onClickBotonAgregar" prefHeight="37.0" prefWidth="145.0" text="Modificar plato">
                     <HBox.margin>
                         <Insets left="40.0" />
                     </HBox.margin>
@@ -115,8 +115,7 @@
                 <Insets />
             </VBox.margin>
             <children>
-                <Button fx:id="botonGenerarPDF" mnemonicParsing="false" onMouseClicked="#onClickBotonPDF" prefHeight="45.0" prefWidth="145.0" text="Generar PDF" />
-                <Button fx:id="btnPrevisualizarPDF" mnemonicParsing="false" onMouseClicked="#onBtnClickPrevisualizar" prefHeight="45.0" prefWidth="227.0" text="Previsualizar PDF" />
+                <Button fx:id="botonGuardarCambios" mnemonicParsing="false" onMouseClicked="#onClickBotonGuardar" prefHeight="45.0" prefWidth="145.0" text="Guardar" />
                 <Button fx:id="botonSalir" mnemonicParsing="false" onMouseClicked="#onClickBotonDesconectarse" prefHeight="45.0" prefWidth="145.0" text="Desconectarse" />
             </children>
         </HBox>

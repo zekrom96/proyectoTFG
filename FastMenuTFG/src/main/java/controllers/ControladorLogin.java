@@ -5,6 +5,8 @@ import classes.services.Correo;
 import classes.utils.GeneradorPassword;
 import classes.services.Supabase;
 import fastmenu.*;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
@@ -15,10 +17,12 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 import models.Empresa;
+import models.Plato;
 import models.Usuario;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.ResourceBundle;
@@ -197,37 +201,62 @@ public class ControladorLogin implements Initializable {
         alerta.getButtonTypes().setAll(botonModificar, botonCrear);
 
         // Mostrar la alerta y esperar a que se seleccione una opción
+        // Mostrar la alerta y esperar a que se seleccione una opción
         alerta.showAndWait().ifPresent(boton -> {
             if (boton == botonModificar) {
-                FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("/views/vistaModificacion.fxml"));
+                FXMLLoader loader = new FXMLLoader(Main.class.getResource("/views/vistaModificacion.fxml"));
                 Parent root = null;
                 try {
-                    root = fxmlLoader.load();
+                    root = loader.load();
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
-
                 Scene nuevaScene = new Scene(root);
-                Controlador controlador = fxmlLoader.getController();
-                controlador.obtenerCorreo(textfieldCorreo.getText());
+                Controlador controlador = loader.getController();
+                Preferences preferences = Preferences.userRoot().node("fastmenu");
+                String correoShared = preferences.get("logged_in_user_email", null);
+                // Acción a realizar si se selecciona "Modificar"
+                System.out.println("Se seleccionó Modificar");
+                int idEmpresaActual = supa.obtenerIdEmpresaPorCorreo(correoShared);
+                List<String> nombresMenus = supa.obtenerNombresMenuPorIdEmpresa(idEmpresaActual);
+                ObservableList<String> data = FXCollections.observableArrayList(nombresMenus);
+
+                String menuElegido = mostrarNombresMenuEnDialogo(nombresMenus);
+                int idMenu = supa.obtenerIdMenuPorNombre(menuElegido);
+                System.out.println(idMenu);
+                List<Plato> listaPlatos = supa.obtenerPlatosPorIdMenu(idMenu);
+                ObservableList<String> nombresPlatos = FXCollections.observableArrayList();
+                for (Plato plato : listaPlatos) {
+                    nombresPlatos.add(plato.getNombrePlato());
+                }
+                controlador.listaPlatosMenu.setItems(nombresPlatos);
+                controlador.listaPlatosMenu.refresh();
+
+                //System.out.println(nombresPlatos);
+                System.out.println("menu elegido: " + menuElegido);
+                controlador.obtenerCorreo(correoShared);
+                controlador.obtenerPlatosModificar(listaPlatos);
+                controlador.obtenerMenu(menuElegido);
+                System.out.println(listaPlatos);
                 // Establecer la nueva escena en una nueva ventana
                 Stage nuevaVentana = new Stage();
                 nuevaVentana.setScene(nuevaScene);
                 nuevaVentana.show();
-                // Acción a realizar si se selecciona "Modificar"
-                System.out.println("Se seleccionó Modificar");
                 // Aquí puedes agregar la lógica para la acción de "Modificar"
             } else if (boton == botonCrear) {
                 // Acción a realizar si se selecciona "Crear"
                 System.out.println("Se seleccionó Crear");
                 // Aquí puedes agregar la lógica para la acción de "Crear"
                 try {
-                    FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("/views/vistaMenu.fxml"));
-                    Parent root = fxmlLoader.load();
+                    FXMLLoader loader = new FXMLLoader(Main.class.getResource("/views/vistaMenu.fxml"));
+                    Parent root = loader.load();
 
                     Scene nuevaScene = new Scene(root);
-                    Controlador controlador = fxmlLoader.getController();
-                    controlador.obtenerCorreo(textfieldCorreo.getText());
+                    Controlador controlador = loader.getController();
+                    Preferences preferences = Preferences.userRoot().node("fastmenu");
+                    String correoShared = preferences.get("logged_in_user_email", null);
+                    //TODO REVISA ESTA LINEA URGENTE, AGREGA TODOS LOS PLATOS Y MENUS AL MISMO ID
+                    controlador.obtenerCorreo(correoShared);
                     // Establecer la nueva escena en una nueva ventana
                     Stage nuevaVentana = new Stage();
                     nuevaVentana.setScene(nuevaScene);
@@ -311,6 +340,24 @@ public class ControladorLogin implements Initializable {
         // Mostrar el diálogo y devolver el resultado
         Optional<String[]> result = dialog.showAndWait();
         return result.orElse(null); // Devuelve el resultado o null si se cancela el diálogo
+    }
+
+    private String mostrarNombresMenuEnDialogo(List<String> nombresMenus) {
+        // Crear el diálogo de selección
+        ChoiceDialog<String> dialogo = new ChoiceDialog<>(null, nombresMenus);
+        dialogo.setTitle("Selección de Menú");
+        dialogo.setHeaderText("Selecciona un Menú");
+        dialogo.setContentText("Menús disponibles:");
+
+        // Mostrar el diálogo y esperar a que el usuario seleccione una opción
+        Optional<String> resultado = dialogo.showAndWait();
+
+        // Verificar si el usuario seleccionó una opción y devolverla
+        if (resultado.isPresent()) {
+            return resultado.get(); // Devolver el menú seleccionado
+        } else {
+            return null; // Devolver null si el usuario cancela el diálogo
+        }
     }
 
     public void onClickRecuperar(MouseEvent mouseEvent) throws Exception {

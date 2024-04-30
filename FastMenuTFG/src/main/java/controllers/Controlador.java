@@ -33,7 +33,9 @@ import java.util.prefs.Preferences;
 
 public class Controlador implements Initializable {
     public ListView listaPlatosMenu = new ListView<>();
+    public Button botonGuardarCambios;
     private String correoEmpresa;
+    private String nombreMenuModificar;
     private List<Plato> platosAModificar;
     public TextField textfieldNombrePlato, textfieldPrecio, textfieldNombreMenu;
     public TextArea textareaDescripcionPlato;
@@ -267,6 +269,12 @@ public class Controlador implements Initializable {
         System.out.println("Platos leidos correctamente");
     }
 
+    public void obtenerMenu(String menuModifcar) {
+        this.nombreMenuModificar = menuModifcar;
+        // Hacer lo que necesites con el correo del usuario, como mostrarlo en la nueva vista
+        System.out.println("Menu a modificar : " + menuModifcar);
+    }
+
     //Al hacer click en Salir acaba la aplicacion
     public void onClickBotonDesconectarse() {
         supa.modificarCampoUsuarioLogueado(correoEmpresa, false);
@@ -279,4 +287,7 @@ public class Controlador implements Initializable {
         guardarPDFYMostrar(platos, pdfPath);
     }
 
+    public void onClickBotonGuardar(MouseEvent mouseEvent) {
+        supa.modificarPlatos(platos, supa.obtenerIdMenuPorNombre(nombreMenuModificar), supa.obtenerIdEmpresaPorCorreo(correoEmpresa));
+    }
 }
