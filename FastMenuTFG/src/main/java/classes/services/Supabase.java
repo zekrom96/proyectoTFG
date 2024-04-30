@@ -178,8 +178,8 @@ public class Supabase {
         }
     }
 
-    public List<String> obtenerNombresPlatosPorIdMenu(int idMenu) {
-        List<String> nombresPlatos = new ArrayList<>();
+    public List<Plato> obtenerPlatosPorIdMenu(int idMenu) {
+        List<Plato> platos = new ArrayList<>();
         try {
             String url = properties.getProperty("supabase_url_platos") + "?id_menu=eq." + idMenu;
             String apiKey = properties.getProperty("supabase_key");
@@ -195,13 +195,19 @@ public class Supabase {
             JSONArray jsonArray = new JSONArray(responseBody);
             for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject platoJson = jsonArray.getJSONObject(i);
-                String nombrePlato = platoJson.getString("nombre");
-                nombresPlatos.add(nombrePlato);
+                String nombre = platoJson.getString("nombre");
+                double precio = platoJson.getDouble("precio");
+                String tipoPlato = platoJson.getString("tipo");
+                String descripcion = platoJson.getString("descripcion");
+
+                // Crear objeto Plato y añadirlo a la lista
+                Plato plato = new Plato(nombre, descripcion, tipoPlato, precio);
+                platos.add(plato);
             }
         } catch (IOException | JSONException e) {
             e.printStackTrace();
         }
-        return nombresPlatos;
+        return platos;
     }
 
 

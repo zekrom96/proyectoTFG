@@ -9,24 +9,30 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Text?>
 
-<VBox fx:id="fondoLogin" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="200.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/17" stylesheets="@../estilos_css/cssLogin.css" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.ControladorLogin">
+<VBox fx:id="fondoLogin" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="438.0" prefWidth="449.0" stylesheets="@../estilos_css/cssLogin.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.ControladorLogin">
    <children>
       <HBox spacing="10.0">
          <children>
             <Label fx:id="txtCorreo" text="Correo:" />
-            <TextField fx:id="textfieldCorreo" />
+            <TextField fx:id="textfieldCorreo">
+               <HBox.margin>
+                  <Insets left="25.0" />
+               </HBox.margin></TextField>
          </children>
          <VBox.margin>
-            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+            <Insets bottom="10.0" left="50.0" right="10.0" top="50.0" />
          </VBox.margin>
       </HBox>
       <HBox spacing="10.0">
          <children>
             <Label fx:id="txtPw" text="Contraseña:" />
-            <PasswordField fx:id="textfieldPw" />
+            <PasswordField fx:id="textfieldPw">
+               <HBox.margin>
+                  <Insets />
+               </HBox.margin></PasswordField>
          </children>
          <VBox.margin>
-            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+            <Insets bottom="10.0" left="50.0" right="10.0" top="10.0" />
          </VBox.margin>
       </HBox>
       <HBox spacing="10.0">
@@ -35,7 +41,7 @@
             <Button fx:id="btnRegistrase" mnemonicParsing="false" onMouseClicked="#onClickBtnRegistrarse" text="Registrarse" />
          </children>
          <VBox.margin>
-            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+            <Insets bottom="10.0" left="100.0" right="10.0" top="20.0" />
          </VBox.margin>
       </HBox>
       <HBox spacing="10.0">
@@ -43,7 +49,7 @@
             <Text fx:id="txtRecuperarPw" onMouseClicked="#onClickRecuperar" text="¿Has olvidado tu contraseña?" />
          </children>
          <VBox.margin>
-            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+            <Insets bottom="10.0" left="100.0" right="10.0" top="10.0" />
          </VBox.margin>
       </HBox>
    </children>
@@ -51,4 +57,3 @@
       <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
    </padding>
 </VBox>
-

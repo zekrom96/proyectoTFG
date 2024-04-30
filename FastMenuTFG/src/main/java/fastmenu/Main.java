@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.prefs.Preferences;
 import javafx.collections.ObservableList;
+import models.Plato;
 
 
 public class Main extends Application {
@@ -81,14 +82,19 @@ public class Main extends Application {
                     String menuElegido = mostrarNombresMenuEnDialogo(nombresMenus);
                     int idMenu = supa.obtenerIdMenuPorNombre(menuElegido);
                     System.out.println(idMenu);
-                    List<String> nombresPlatos = supa.obtenerNombresPlatosPorIdMenu(idMenu);
-                    ObservableList<String> platos = FXCollections.observableArrayList(nombresPlatos);
-                    controlador.listaPlatosMenu.setItems(platos);
+                    List<Plato> listaPlatos = supa.obtenerPlatosPorIdMenu(idMenu);
+                    ObservableList<String> nombresPlatos = FXCollections.observableArrayList();
+                    for (Plato plato : listaPlatos) {
+                        nombresPlatos.add(plato.getNombrePlato());
+                    }
+                    controlador.listaPlatosMenu.setItems(nombresPlatos);
                     controlador.listaPlatosMenu.refresh();
-                    System.out.println(nombresPlatos);
+
+                    //System.out.println(nombresPlatos);
                     System.out.println("menu elegido: " + menuElegido);
-                    //TODO REVISA ESTA LINEA URGENTE, AGREGA TODOS LOS PLATOS Y MENUS AL MISMO ID
                     controlador.obtenerCorreo(correoShared);
+                    controlador.obtenerPlatosModificar(listaPlatos);
+                    System.out.println(listaPlatos);
                     // Establecer la nueva escena en una nueva ventana
                     Stage nuevaVentana = new Stage();
                     nuevaVentana.setScene(nuevaScene);
@@ -119,7 +125,7 @@ public class Main extends Application {
             });
         } else {
             FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("/views/vistaLogin.fxml"));
-            Scene scene = new Scene(fxmlLoader.load(), 445, 294);
+            Scene scene = new Scene(fxmlLoader.load(), 449, 438);
             stage.setTitle("LoginZekrom");
             stage.setScene(scene);
             stage.setResizable(false);

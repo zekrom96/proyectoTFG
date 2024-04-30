@@ -32,8 +32,9 @@ import java.util.prefs.Preferences;
 
 
 public class Controlador implements Initializable {
-    public ListView listaPlatosMenu;
+    public ListView listaPlatosMenu = new ListView<>();
     private String correoEmpresa;
+    private List<Plato> platosAModificar;
     public TextField textfieldNombrePlato, textfieldPrecio, textfieldNombreMenu;
     public TextArea textareaDescripcionPlato;
     public ComboBox comboBoxTipoPlato;
@@ -55,6 +56,29 @@ public class Controlador implements Initializable {
         }
         supa = new Supabase();
         comboBoxTipoPlato.getItems().addAll("PRIMERO", "SEGUNDO", "POSTRE");
+        listaPlatosMenu.setOnMouseClicked(this::onPlatoSeleccionado);
+    }
+
+    // Método para manejar la selección de un plato en el ListView
+    private void onPlatoSeleccionado(MouseEvent event) {
+        String nombrePlatoSeleccionado = (String) listaPlatosMenu.getSelectionModel().getSelectedItem();
+        if (nombrePlatoSeleccionado != null) {
+            // Buscar el objeto Plato correspondiente al nombre seleccionado
+            Plato platoSeleccionado = null;
+            for (Plato plato : platosAModificar) {
+                if (plato.getNombrePlato().equals(nombrePlatoSeleccionado)) {
+                    platoSeleccionado = plato;
+                    break;
+                }
+            }
+            if (platoSeleccionado != null) {
+                // Rellenar los campos con los datos del plato seleccionado
+                textfieldNombrePlato.setText(platoSeleccionado.getNombrePlato());
+                textfieldPrecio.setText(String.valueOf(platoSeleccionado.getPrecioPlato()));
+                textareaDescripcionPlato.setText(platoSeleccionado.getDescripcionPlato());
+                comboBoxTipoPlato.setValue(platoSeleccionado.getTipoPlato());
+            }
+        }
     }
 
     //Metodo se llama al hacer click en el boton de generar pdf
@@ -237,12 +261,15 @@ public class Controlador implements Initializable {
         System.out.println("Correo del usuario registrado: " + correoUsuario);
     }
 
+    public void obtenerPlatosModificar(List<Plato> platos) {
+        this.platosAModificar = platos;
+        // Hacer lo que necesites con el correo del usuario, como mostrarlo en la nueva vista
+        System.out.println("Platos leidos correctamente");
+    }
+
     //Al hacer click en Salir acaba la aplicacion
     public void onClickBotonDesconectarse() {
-        Preferences preferences = Preferences.userRoot().node("com.example.myapp");
-        String correoShared = preferences.get("logged_in_user_email", null);
-        supa.modificarCampoUsuarioLogueado(correoShared, false);
-        //sesion.setUsuarioLogueado(false);
+        supa.modificarCampoUsuarioLogueado(correoEmpresa, false);
         Platform.exit();
     }
 
