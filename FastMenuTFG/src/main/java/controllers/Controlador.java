@@ -288,6 +288,6 @@ public class Controlador implements Initializable {
     }
 
     public void onClickBotonGuardar(MouseEvent mouseEvent) {
-        supa.modificarPlatos(platos, supa.obtenerIdMenuPorNombre(nombreMenuModificar), supa.obtenerIdEmpresaPorCorreo(correoEmpresa));
+        supa.modificarPlatos(platos, listaPlatosMenu.getSelectionModel().getSelectedItem().toString(), supa.obtenerIdMenuPorNombre(nombreMenuModificar), supa.obtenerIdEmpresaPorCorreo(correoEmpresa));
     }
 }
