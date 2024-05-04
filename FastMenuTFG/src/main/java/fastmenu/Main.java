@@ -24,6 +24,7 @@ public class Main extends Application {
 
     Supabase supa;
 
+    //hola
     //TODO RECUERDA CAMBIAR LOS TOKEN EL DIA DE LA PRESENTACION DEL TFG!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     //TODO Revisar los try-catch en todas las clases y manejas correctamente los errores
     //TODO Diseñar el apartado de moficicación o plantear como lo haré
