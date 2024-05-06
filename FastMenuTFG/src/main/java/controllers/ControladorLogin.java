@@ -35,7 +35,6 @@ public class ControladorLogin implements Initializable {
     Supabase supa;
     CifradoyDescifrado crypt;
     Correo correo = new Correo();
-    GeneradorPassword generadorPw = new GeneradorPassword();
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -52,22 +51,19 @@ public class ControladorLogin implements Initializable {
         supa = new Supabase();
     }
 
+    // Método para mostrar el dialogo de registro
     public void onClickBtnRegistrarse(MouseEvent mouseEvent) throws Exception {
-        /*
-        Muestro el dialogo y si el resultado no es null proceso los datos, recojo el valor del correo y la pw
-        y luego le paso los datos al metodo de crearUsuario que crea el usuario en la Auth de supabase finalmente
-        procedo a enviar al usuario a la ventana de CrearPlatos ya que al ser un nuevo usuario no va tener platos que
-        modificar aún, ni nombre de Empresa
-         */
-        String[] resultado = mostrarDialogoRegistro(mouseEvent);
+        String[] resultado = mostrarDialogoRegistro();
         if (resultado != null) {
             String correo = resultado[0];
             String pw = resultado[1];
             String nombreEmpresa = resultado[2];
 
-            // Llamar a la función createUsuario con los datos ingresados
+            //Antes de registrar un nuevo usuario, compruebo que el correo no exista en la base de datos
+            //Si no existe, creo el usuario en la base de datos
             String pwCifrada = crypt.encriptar(pw);
             boolean existecorreo = supa.comprobarExisteCorreo(correo);
+
             if (existecorreo) {
                 System.out.println("El correo ya existe en la bd");
                 // El correo ya existe en la base de datos
@@ -83,7 +79,7 @@ public class ControladorLogin implements Initializable {
                 Empresa empresa = new Empresa(nombreEmpresa);
                 supa.agregarEmpresa(empresa, correo);
 
-                // Resto del código para cargar la nueva vista y cerrar la ventana actual
+                //Una vez creado el usuario y la empresa en la base de datos, se accede directamente a crear platos
                 try {
                     FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("/views/vistaMenu.fxml"));
                     Parent root = fxmlLoader.load();
@@ -112,8 +108,11 @@ public class ControladorLogin implements Initializable {
     public void login(String correo, String pw) {
         Usuario usuario = new Usuario(correo, pw);
         if (supa.iniciarSesion(usuario)) {
-            //boolean campo = supa.comprobarEstadoCampoRestablecerPw(textfieldCorreo.getText());
-            //System.out.println(campo);
+            /*
+            Se comprueba si el usuario solicito un cambio de contraseña, si lo hizo en el proximo inicio de sesión,
+            se comprueba un valor en la bd, si es true, se le solicitara una nueva contraseña, en caso contrario,
+            hara un login normal.
+             */
             if (supa.comprobarEstadoCampoRestablecerPw(usuario)) {
                 PasswordField campoPw = new PasswordField();
                 campoPw.setPromptText("Nueva Contraseña");
@@ -146,9 +145,6 @@ public class ControladorLogin implements Initializable {
                             supa.modificarPassword(nuevoUsuario);
                             supa.modificarCampoUsuarioRestablecerPw(textfieldCorreo.getText(), false);
                             System.out.println("Contraseña cambiada exitosamente.");
-                            //sesion.setUsuarioLogueado(true);
-                            //sesion.setCorreoLogueado(textfieldCorreo.getText());
-                            //sesion.setPassword(textfieldPw.getText());
                             vistaMenu();
                             guardarEstadoLoginPreferences(textfieldCorreo.getText());
                             supa.modificarCampoUsuarioLogueado(textfieldCorreo.getText(), true);
@@ -162,27 +158,20 @@ public class ControladorLogin implements Initializable {
                     }
                 });
             } else {
-                //sesion.setUsuarioLogueado(true);
-                //sesion.setCorreoLogueado(textfieldCorreo.getText());
-                //sesion.setPassword(textfieldPw.getText());
                 guardarEstadoLoginPreferences(textfieldCorreo.getText());
                 supa.modificarCampoUsuarioLogueado(textfieldCorreo.getText(), true);
                 vistaMenu();
-                //System.out.println(sesion.getUsuarioLogueado());
             }
         }
     }
 
+    //Guarda el estado del usuario logueado en la base de datos
     private void guardarEstadoLoginPreferences(String correoUsuario) {
         Preferences preferences = Preferences.userRoot().node("fastmenu");
         preferences.put("logged_in_user_email", correoUsuario);
     }
 
-    private String obtenerPreferences() {
-        Preferences preferences = Preferences.userRoot().node("fastmenu");
-        return preferences.get("logged_in_user_email", null);
-    }
-
+    //Metodo para abrir la ventana de creación o de modificación
     private void vistaMenu() {
         // Cerrar la ventana actual (ventana de login)
         Stage ventanaActual = (Stage) btnLogin.getScene().getWindow();
@@ -201,11 +190,11 @@ public class ControladorLogin implements Initializable {
         alerta.getButtonTypes().setAll(botonModificar, botonCrear);
 
         // Mostrar la alerta y esperar a que se seleccione una opción
-        // Mostrar la alerta y esperar a que se seleccione una opción
         alerta.showAndWait().ifPresent(boton -> {
             if (boton == botonModificar) {
+                System.out.println("Se seleccionó Modificar");
                 FXMLLoader loader = new FXMLLoader(Main.class.getResource("/views/vistaModificacion.fxml"));
-                Parent root = null;
+                Parent root;
                 try {
                     root = loader.load();
                 } catch (IOException e) {
@@ -214,39 +203,37 @@ public class ControladorLogin implements Initializable {
                 Scene nuevaScene = new Scene(root);
                 Controlador controlador = loader.getController();
                 Preferences preferences = Preferences.userRoot().node("fastmenu");
+
                 String correoShared = preferences.get("logged_in_user_email", null);
-                // Acción a realizar si se selecciona "Modificar"
-                System.out.println("Se seleccionó Modificar");
                 int idEmpresaActual = supa.obtenerIdEmpresaPorCorreo(correoShared);
                 List<String> nombresMenus = supa.obtenerNombresMenuPorIdEmpresa(idEmpresaActual);
-                ObservableList<String> data = FXCollections.observableArrayList(nombresMenus);
-
                 String menuElegido = mostrarNombresMenuEnDialogo(nombresMenus);
                 int idMenu = supa.obtenerIdMenuPorNombre(menuElegido);
                 System.out.println(idMenu);
+
                 List<Plato> listaPlatos = supa.obtenerPlatosPorIdMenu(idMenu);
+
                 ObservableList<String> nombresPlatos = FXCollections.observableArrayList();
                 for (Plato plato : listaPlatos) {
                     nombresPlatos.add(plato.getNombrePlato());
                 }
+
                 controlador.listaPlatosMenu.setItems(nombresPlatos);
                 controlador.listaPlatosMenu.refresh();
 
-                //System.out.println(nombresPlatos);
-                System.out.println("menu elegido: " + menuElegido);
+                System.out.println("Menu elegido: " + menuElegido);
+
                 controlador.obtenerCorreo(correoShared);
                 controlador.obtenerPlatosModificar(listaPlatos);
                 controlador.obtenerMenu(menuElegido);
+
                 System.out.println(listaPlatos);
                 // Establecer la nueva escena en una nueva ventana
                 Stage nuevaVentana = new Stage();
                 nuevaVentana.setScene(nuevaScene);
                 nuevaVentana.show();
-                // Aquí puedes agregar la lógica para la acción de "Modificar"
             } else if (boton == botonCrear) {
-                // Acción a realizar si se selecciona "Crear"
                 System.out.println("Se seleccionó Crear");
-                // Aquí puedes agregar la lógica para la acción de "Crear"
                 try {
                     FXMLLoader loader = new FXMLLoader(Main.class.getResource("/views/vistaMenu.fxml"));
                     Parent root = loader.load();
@@ -255,9 +242,7 @@ public class ControladorLogin implements Initializable {
                     Controlador controlador = loader.getController();
                     Preferences preferences = Preferences.userRoot().node("fastmenu");
                     String correoShared = preferences.get("logged_in_user_email", null);
-                    //TODO REVISA ESTA LINEA URGENTE, AGREGA TODOS LOS PLATOS Y MENUS AL MISMO ID
                     controlador.obtenerCorreo(correoShared);
-                    // Establecer la nueva escena en una nueva ventana
                     Stage nuevaVentana = new Stage();
                     nuevaVentana.setScene(nuevaScene);
                     nuevaVentana.show();
@@ -268,18 +253,17 @@ public class ControladorLogin implements Initializable {
         });
     }
 
-    public String[] mostrarDialogoRegistro(MouseEvent mouseEvent) {
-        // Diseño del registro
-        // Crear los campos de texto
+    //Muestra el dialogo de registro para un usuario
+    public String[] mostrarDialogoRegistro() {
         TextField correoTextField = new TextField();
         PasswordField pw = new PasswordField();
-        PasswordField confirmarPw = new PasswordField(); // Nuevo campo de confirmación de contraseña
-        TextField nombreEmpresaTextField = new TextField(); // Nuevo campo para el nombre de la empresa
+        PasswordField confirmarPw = new PasswordField();
+        TextField nombreEmpresaTextField = new TextField();
 
         correoTextField.setPromptText("Correo");
         pw.setPromptText("Contraseña");
-        confirmarPw.setPromptText("Confirmar Contraseña"); // Texto de ayuda para el campo de confirmación
-        nombreEmpresaTextField.setPromptText("Nombre de la Empresa"); // Texto de ayuda para el campo del nombre de la empresa
+        confirmarPw.setPromptText("Confirmar Contraseña");
+        nombreEmpresaTextField.setPromptText("Nombre de la Empresa");
 
         // Crear el grid layout y añadir los nodos
         GridPane grid = new GridPane();
@@ -287,10 +271,11 @@ public class ControladorLogin implements Initializable {
         grid.add(correoTextField, 1, 0);
         grid.add(new Label("Contraseña:"), 0, 1);
         grid.add(pw, 1, 1);
-        grid.add(new Label("Confirmar Contraseña:"), 0, 2); // Etiqueta para confirmar contraseña
-        grid.add(confirmarPw, 1, 2); // Campo de confirmación de contraseña
-        grid.add(new Label("Nombre de la Empresa:"), 0, 3); // Etiqueta para el nombre de la empresa
-        grid.add(nombreEmpresaTextField, 1, 3); // Campo para el nombre de la empresa
+        grid.add(new Label("Confirmar Contraseña:"), 0, 2);
+        grid.add(confirmarPw, 1, 2);
+        grid.add(new Label("Nombre de la Empresa:"), 0, 3);
+        grid.add(nombreEmpresaTextField, 1, 3);
+
         // Crear el diálogo
         Dialog<String[]> dialog = new Dialog<>();
         dialog.setTitle("Registro");
@@ -339,9 +324,10 @@ public class ControladorLogin implements Initializable {
 
         // Mostrar el diálogo y devolver el resultado
         Optional<String[]> result = dialog.showAndWait();
-        return result.orElse(null); // Devuelve el resultado o null si se cancela el diálogo
+        return result.orElse(null);
     }
 
+    //Muestra el menú a elegir en un dialogo para luego modificarlo
     private String mostrarNombresMenuEnDialogo(List<String> nombresMenus) {
         // Crear el diálogo de selección
         ChoiceDialog<String> dialogo = new ChoiceDialog<>(null, nombresMenus);
@@ -353,14 +339,11 @@ public class ControladorLogin implements Initializable {
         Optional<String> resultado = dialogo.showAndWait();
 
         // Verificar si el usuario seleccionó una opción y devolverla
-        if (resultado.isPresent()) {
-            return resultado.get(); // Devolver el menú seleccionado
-        } else {
-            return null; // Devolver null si el usuario cancela el diálogo
-        }
+        return resultado.orElse(null);
     }
 
-    public void onClickRecuperar(MouseEvent mouseEvent) throws Exception {
+    //Dialogo para recuperar la contraseña de un usuario
+    public void onClickRecuperar() {
         // Crear el diálogo
         Alert dialogo = new Alert(Alert.AlertType.NONE);
         dialogo.setTitle("Recuperar Contraseña");
@@ -391,13 +374,14 @@ public class ControladorLogin implements Initializable {
         // Mostrar el diálogo y esperar a que el usuario interactúe con él
         dialogo.showAndWait().ifPresent(resultado -> {
             if (resultado == ButtonType.OK) {
-                String pwTemporal = generadorPw.generarPassword();
-                // Si el usuario hizo clic en "OK", enviar el correo
+                String pwTemporal = GeneradorPassword.generarPassword();
                 try {
                     correo.enviarGmail(props.getProperty("cuenta_correo"), props.getProperty("keygmail"),
                             correoTextField.getText(), pwTemporal);
+
                     String pwTemporalCifrada = crypt.encriptar(pwTemporal);
                     Usuario nuevoUsuario = new Usuario(correoTextField.getText(), pwTemporalCifrada);
+
                     supa.modificarPassword(nuevoUsuario);
                     supa.modificarCampoUsuarioRestablecerPw(correoTextField.getText(), true);
                 } catch (Exception e) {
