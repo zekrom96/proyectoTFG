@@ -33,15 +33,13 @@ import java.util.prefs.Preferences;
 
 public class Controlador implements Initializable {
     public ListView listaPlatosMenu = new ListView<>();
-    public Button botonGuardarCambios;
-    private String correoEmpresa;
-    private String nombreMenuModificar;
+    public ListView listaPlatos;
+    private String correoEmpresa, nombreMenuModificar;
     private List<Plato> platosAModificar;
     public TextField textfieldNombrePlato, textfieldPrecio, textfieldNombreMenu;
     public TextArea textareaDescripcionPlato;
     public ComboBox comboBoxTipoPlato;
-    public Button botonAgregarPlato, botonGenerarPDF, botonSalir;
-    public ListView listaPlatos;
+    public Button botonAgregarPlato, botonGenerarPDF, botonSalir, botonGuardarCambios;
     private ObservableList<Plato> listaPlatosObservable = FXCollections.observableArrayList();
     private List<Plato> platos = new ArrayList<>();
     Properties properties = new Properties();
@@ -56,6 +54,7 @@ public class Controlador implements Initializable {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+
         supa = new Supabase();
         comboBoxTipoPlato.getItems().addAll("PRIMERO", "SEGUNDO", "POSTRE");
         listaPlatosMenu.setOnMouseClicked(this::onPlatoSeleccionado);
@@ -107,7 +106,6 @@ public class Controlador implements Initializable {
                 agregarPlatosPorTipo(document, "POSTRE");
                 document.close();
 
-                // Lógica para agregar la empresa y sus platos a la base de datos
                 // Recupero primero el id de empresa del correo dado
                 int idEmpresa = supa.obtenerIdEmpresaPorCorreo(correoEmpresa);
                 System.out.println(idEmpresa);
@@ -259,19 +257,16 @@ public class Controlador implements Initializable {
     //Metodo pasarle el correo de la vista login a la de creacion o modificacion de platos
     public void obtenerCorreo(String correoUsuario) {
         this.correoEmpresa = correoUsuario;
-        // Hacer lo que necesites con el correo del usuario, como mostrarlo en la nueva vista
         System.out.println("Correo del usuario registrado: " + correoUsuario);
     }
 
     public void obtenerPlatosModificar(List<Plato> platos) {
         this.platosAModificar = platos;
-        // Hacer lo que necesites con el correo del usuario, como mostrarlo en la nueva vista
         System.out.println("Platos leidos correctamente");
     }
 
     public void obtenerMenu(String menuModifcar) {
         this.nombreMenuModificar = menuModifcar;
-        // Hacer lo que necesites con el correo del usuario, como mostrarlo en la nueva vista
         System.out.println("Menu a modificar : " + menuModifcar);
     }
 

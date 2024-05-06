@@ -17,7 +17,6 @@ import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -45,7 +44,11 @@ public class Supabase {
         }
     }
 
-   //**********************************PARTE DE AGREGAR DATOS A LAS TABLAS)********************************************
+   /*
+   //**********************************PARTE DE AGREGAR DATOS A LAS TABLAS********************************************
+    *                                                                                                                *
+    *                                                                                                                *
+    ******************************************************************************************************************/
 
 
     /*
@@ -146,26 +149,19 @@ public class Supabase {
     //Metodo para recuperar el id de una empresa en Supabase, dado un correo
     public int obtenerIdEmpresaPorCorreo(String correoEmpresa) {
         try {
-            // URL del endpoint para obtener datos en Supabase
             String url = properties.getProperty("supabase_url_empresa") + "?correo=eq." + correoEmpresa;
 
-            // API Key
             String apiKey = properties.getProperty("supabase_key");
 
-            // Construir la solicitud HTTP GET
             HttpClient httpClient = HttpClients.createDefault();
             HttpGet httpGet = new HttpGet(url);
-
-            // Agregar la API Key a la cabecera de la solicitud
             httpGet.setHeader("apikey", apiKey);
 
             // Ejecutar la solicitud HTTP GET
             HttpResponse response = httpClient.execute(httpGet);
 
-            // Leer la respuesta
             String responseBody = EntityUtils.toString(response.getEntity());
 
-            // Analizar la respuesta JSON
             JSONArray jsonArray = new JSONArray(responseBody);
             if (jsonArray.length() > 0) {
                 // Obtener el ID de la primera empresa encontrada
@@ -216,26 +212,17 @@ public class Supabase {
 
     public int obtenerIdMenuPorNombre(String nombreMenu) {
         try {
-            // URL del endpoint para obtener datos en Supabase
             String url = properties.getProperty("supabase_url_menus") + "?Nombre=eq." + nombreMenu;
-
-            // API Key
             String apiKey = properties.getProperty("supabase_key");
 
-            // Construir la solicitud HTTP GET
             HttpClient httpClient = HttpClients.createDefault();
             HttpGet httpGet = new HttpGet(url);
-
-            // Agregar la API Key a la cabecera de la solicitud
             httpGet.setHeader("apikey", apiKey);
 
-            // Ejecutar la solicitud HTTP GET
             HttpResponse response = httpClient.execute(httpGet);
 
-            // Leer la respuesta
             String responseBody = EntityUtils.toString(response.getEntity());
 
-            // Analizar la respuesta JSON
             JSONArray jsonArray = new JSONArray(responseBody);
             if (jsonArray.length() > 0) {
                 // Obtener el ID de la primera empresa encontrada
@@ -307,14 +294,56 @@ public class Supabase {
         }
     }
 
+    //Recupera un plato por su id_empresa, nombre, y id_menu
+    public int recuperarIdPlato(String nombrePlato, int id_empresa, int id_menu) {
+        int idPlato = 0;
 
-    //**************************************PARTE DE AUTH SIMULADA******************************************************
+        try {
+            HttpClient clienteHttp = HttpClients.createDefault();
+
+            String url = properties.getProperty("supabase_url_platos") +
+                    "?nombre=eq." + URLEncoder.encode(nombrePlato, StandardCharsets.UTF_8.toString()) +
+                    "&id_empresa=eq." + id_empresa + "&id_menu=eq." + id_menu;
+
+            HttpGet httpGet = new HttpGet(url);
+            httpGet.setHeader("Content-type", "application/json");
+            httpGet.setHeader("apikey", properties.getProperty("supabase_key"));
+
+            HttpResponse response = clienteHttp.execute(httpGet);
+
+            int codigoStatus = response.getStatusLine().getStatusCode();
+
+            if (codigoStatus == 200) {
+                String contenidoRespuesta = obtenerContenidoRespuesta(response);
+                JSONArray platos = new JSONArray(contenidoRespuesta);
+                if (platos.length() > 0) {
+                    JSONObject primerPlato = platos.getJSONObject(0);
+                    System.out.println(primerPlato);
+                    idPlato = primerPlato.getInt("id_plato");
+                } else {
+                    System.out.println("No se encontró ningún plato con el nombre '" + nombrePlato);
+                }
+            } else {
+                System.out.println("Error al recuperar el ID del plato. Código de estado: " + codigoStatus);
+                String contenidoRespuesta = obtenerContenidoRespuesta(response);
+                System.out.println("Contenido de la respuesta: " + contenidoRespuesta);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        System.out.println(idPlato);
+        return idPlato;
+    }
+
+
+      /*
+   //**********************************PARTE DE AUTH SIMULADA*********************************************************
+    *                                                                                                                *
+    *                                                                                                                *
+    ******************************************************************************************************************/
 
     /*
-    Metodo crea un usuario en tabla de usuarios, se le pasa como argumento el nombre usuario, el correo y la pw
-    La contraseña que el envia en texto plano se guarda cifrada en la bd
-    El campo de email es un campo unico en la tabla Usuarios, por lo que al registrarse compruebo no exista, si existe
-    lanzo una alerta al usuario
+    Metodo crea un usuario en tabla de usuarios
      */
     public void crearUsuario(Usuario usuario) {
         try {
@@ -544,6 +573,7 @@ public class Supabase {
         }
     }
 
+    //Metodo poner el campo usuario logueado en x valor de un correo
     public void modificarCampoUsuarioLogueado(String correoUsuario, boolean nuevoValor) {
         try {
             JSONObject requestBody = new JSONObject();
@@ -611,6 +641,7 @@ public class Supabase {
         }
     }
 
+    //Metodo comprueba el estado del campo usuario logueado, si esta en false o true, segun como este el programa hara x
     public boolean comprobarEstadoCampoUsuarioLogueado(String correoUsuario) {
         try {
             String url = properties.getProperty("supabase_url_usuarios") + "?email=eq." + correoUsuario;
@@ -647,6 +678,7 @@ public class Supabase {
         }
     }
 
+    //Comprueba se han realizado los cambios del campo usuario logueado
     public boolean verificarCambioCampoUsuarioLogueado(String correoUsuario, boolean nuevoValor) {
         try {
             String url = properties.getProperty("supabase_url_usuarios") + "?email=eq." + correoUsuario;
@@ -713,6 +745,7 @@ public class Supabase {
         return false;
     }
 
+    //Modifica los datos de un plato o varios
     public void modificarPlatos(List<Plato> platosModificados, String nombrePlato, int idMenu, int idEmpresa) {
         try {
             for (int i = 0; i < platosModificados.size(); i++) {
@@ -762,54 +795,8 @@ public class Supabase {
         }
     }
 
-    public int recuperarIdPlato(String nombrePlato, int id_empresa, int id_menu) {
-        int idPlato = 0;
 
-        try {
-            // Crear cliente HTTP
-            HttpClient clienteHttp = HttpClients.createDefault();
-
-            // Construir la URL de la solicitud GET para recuperar el ID del plato
-            String url = properties.getProperty("supabase_url_platos") +
-                    "?nombre=eq." + URLEncoder.encode(nombrePlato, StandardCharsets.UTF_8.toString()) +
-                    "&id_empresa=eq." + id_empresa + "&id_menu=eq." + id_menu;
-
-            HttpGet httpGet = new HttpGet(url);
-            httpGet.setHeader("Content-type", "application/json");
-            httpGet.setHeader("apikey", properties.getProperty("supabase_key"));
-
-            // Ejecutar la solicitud GET
-            HttpResponse response = clienteHttp.execute(httpGet);
-
-            // Verificar el código de estado de la respuesta
-            int codigoStatus = response.getStatusLine().getStatusCode();
-
-            if (codigoStatus == 200) {
-                // Si la solicitud fue exitosa, obtener el ID del plato de la respuesta
-                String contenidoRespuesta = obtenerContenidoRespuesta(response);
-                JSONArray platos = new JSONArray(contenidoRespuesta);
-                if (platos.length() > 0) {
-                    JSONObject primerPlato = platos.getJSONObject(0);
-                    System.out.println(primerPlato);
-                    idPlato = primerPlato.getInt("id_plato");
-                } else {
-                    System.out.println("No se encontró ningún plato con el nombre '" + nombrePlato);
-                }
-            } else {
-                System.out.println("Error al recuperar el ID del plato. Código de estado: " + codigoStatus);
-                // Obtener el contenido de la respuesta para depurar
-                String contenidoRespuesta = obtenerContenidoRespuesta(response);
-                System.out.println("Contenido de la respuesta: " + contenidoRespuesta);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        System.out.println(idPlato);
-        return idPlato;
-    }
-
-
-
+    //Imprime la respuesta del servidcr
     private String obtenerContenidoRespuesta(HttpResponse response) throws IOException {
         BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
         StringBuilder result = new StringBuilder();
@@ -820,6 +807,7 @@ public class Supabase {
         return result.toString();
     }
 
+    //Metodo ejecutar las solicitudes post
     private void mandarSolicitudPost(JSONObject json, HttpPost post) throws UnsupportedEncodingException {
         // Configurar entidad JSON para la solicitud
         StringEntity entidad = new StringEntity(json.toString());
@@ -830,6 +818,7 @@ public class Supabase {
         post.setHeader("apikey", properties.getProperty("supabase_key"));
     }
 
+    //Metodo ejecutar las solicitudes patch
     private void mandarSolicitudPath(HttpPatch httpPatch, JSONObject requestBody) throws UnsupportedEncodingException {
         httpPatch.setHeader("Content-type", "application/json");
         httpPatch.setHeader("apikey", properties.getProperty("supabase_key"));
