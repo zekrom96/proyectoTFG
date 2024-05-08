@@ -17,6 +17,7 @@ module com.example.fastmenuproyectotfg {
     requires software.amazon.awssdk.auth;
     requires java.mail;
     requires java.prefs;
+    requires org.apache.logging.log4j;
 
 
     opens fastmenu to javafx.fxml;
