@@ -64,15 +64,15 @@ public class Main extends Application {
 
     private void cargarVentanaModificacion() {
         FXMLLoader loader = new FXMLLoader(Main.class.getResource("/views/vistaModificacion.fxml"));
-        cargarVentana(loader);
+        cargarVentana(loader, false);
     }
 
     private void cargarVentanaCreacion() {
         FXMLLoader loader = new FXMLLoader(Main.class.getResource("/views/vistaMenu.fxml"));
-        cargarVentana(loader);
+        cargarVentana(loader, true);
     }
 
-    private void cargarVentana(FXMLLoader loader) {
+    private void cargarVentana(FXMLLoader loader, boolean ocultar) {
         try {
             Parent root = loader.load();
             Scene nuevaScene = new Scene(root);
@@ -86,24 +86,27 @@ public class Main extends Application {
             String correoShared = preferences.get("logged_in_user_email", null);
             //Recupera el id de la empresa del correo del usuario logueado
             int idEmpresaActual = supa.obtenerIdEmpresaPorCorreo(correoShared);
-            //Recupera los nombres de los menus de la empresa del usuario logueado
-            List<String> nombresMenus = supa.obtenerNombresMenuPorIdEmpresa(idEmpresaActual);
-            String menuElegido = mostrarNombresMenuEnDialogo(nombresMenus);
-            int idMenu = supa.obtenerIdMenuPorNombre(menuElegido);
+            if (!ocultar) {
+                //Recupera los nombres de los menus de la empresa del usuario logueado
+                List<String> nombresMenus = supa.obtenerNombresMenuPorIdEmpresa(idEmpresaActual);
+                String menuElegido = mostrarNombresMenuEnDialogo(nombresMenus);
+                int idMenu = supa.obtenerIdMenuPorNombre(menuElegido);
 
-            //Recupera los platos de la empresa del usuario logueado
-            List<Plato> listaPlatos = supa.obtenerPlatosPorIdMenu(idMenu);
-            ObservableList<String> nombresPlatos = FXCollections.observableArrayList();
-            for (Plato plato : listaPlatos) {
-                nombresPlatos.add(plato.getNombrePlato());
+                //Recupera los platos de la empresa del usuario logueado
+                List<Plato> listaPlatos = supa.obtenerPlatosPorIdMenu(idMenu);
+                ObservableList<String> nombresPlatos = FXCollections.observableArrayList();
+                for (Plato plato : listaPlatos) {
+                    nombresPlatos.add(plato.getNombrePlato());
+                }
+
+                controlador.listaPlatosMenu.setItems(nombresPlatos);
+                controlador.listaPlatosMenu.refresh();
+                controlador.obtenerPlatosModificar(listaPlatos);
+                controlador.obtenerMenu(menuElegido);
+
             }
 
-            controlador.listaPlatosMenu.setItems(nombresPlatos);
-            controlador.listaPlatosMenu.refresh();
             controlador.obtenerCorreo(correoShared);
-            controlador.obtenerPlatosModificar(listaPlatos);
-            controlador.obtenerMenu(menuElegido);
-
             //Muestra la ventana
             Stage nuevaVentana = new Stage();
             nuevaVentana.setScene(nuevaScene);

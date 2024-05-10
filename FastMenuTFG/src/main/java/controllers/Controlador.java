@@ -154,6 +154,7 @@ public class Controlador implements Initializable {
     }
 
     // Método para guardar el PDF y mostrarlo
+    // Método para guardar el PDF y mostrarlo
     private void guardarPDFYMostrar(List<Plato> platos, String pdfPath) {
         try {
             // Ordenar los platos por tipo
@@ -179,9 +180,26 @@ public class Controlador implements Initializable {
                     tipoTitle.setAlignment(Element.ALIGN_CENTER);
                     document.add(tipoTitle);
 
+                    // Agregar un salto de línea después de cada categoría
+                    document.add(new Paragraph("\n"));
+
+                    // Obtener la lista de platos para esta categoría
+                    List<Plato> platosDeEstaCategoria = platosPorTipo.get(tipoPlato);
+
+                    // Definir el ancho de la página
+                    float anchoPagina = document.getPageSize().getWidth();
+
                     // Agregar cada plato del tipo al documento
-                    for (Plato plato : platosPorTipo.get(tipoPlato)) {
-                        document.add(new Paragraph(plato.toString()));
+                    for (Plato plato : platosDeEstaCategoria) {
+                        // Formatear el nombre y el precio del plato
+                        String nombrePrecio = String.format("%-60s %50.2f€", plato.getNombrePlato(), plato.getPrecioPlato());
+                        document.add(new Paragraph(nombrePrecio));
+
+                        // Agregar la descripción del plato
+                        document.add(new Paragraph(plato.getDescripcionPlato()));
+
+                        // Agregar una línea en blanco entre platos
+                        document.add(new Paragraph("\n"));
                     }
 
                     // Agregar espacio entre tipos de platos
@@ -195,8 +213,6 @@ public class Controlador implements Initializable {
 
             // Mostrar el PDF después de guardarlo
             mostrarPDF(pdfPath);
-            //s3.descargarPDFdeS3(properties.getProperty("aws_access_key_id"), properties.getProperty("aws_secret_access_key"),
-                    //properties.getProperty("aws_session_token"));
         } catch (DocumentException | IOException e) {
             e.printStackTrace();
         }
