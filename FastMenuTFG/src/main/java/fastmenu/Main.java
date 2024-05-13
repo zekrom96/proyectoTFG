@@ -23,7 +23,7 @@ import org.apache.logging.log4j.Logger;
 public class Main extends Application {
 
     Supabase supa;
-    private static final Logger log = LogManager.getLogger(Main.class);
+    public static final Logger log = LogManager.getLogger(Main.class);
 
     @Override
     public void start(Stage stage) throws IOException {
@@ -112,6 +112,7 @@ public class Main extends Application {
             nuevaVentana.setScene(nuevaScene);
             nuevaVentana.show();
         } catch (IOException e) {
+            log.error("No se pudo cargar la ventana");
             throw new RuntimeException(e);
         }
     }

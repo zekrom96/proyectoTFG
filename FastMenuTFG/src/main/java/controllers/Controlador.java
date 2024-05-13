@@ -8,6 +8,7 @@ import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Element;
 import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.pdf.PdfWriter;
+import fastmenu.Main;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -54,10 +55,10 @@ public class Controlador implements Initializable {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
         supa = new Supabase();
         comboBoxTipoPlato.getItems().addAll("PRIMERO", "SEGUNDO", "POSTRE");
         listaPlatosMenu.setOnMouseClicked(this::onPlatoSeleccionado);
+        Main.log.info("Iniciando Controlador");
     }
 
     // Método para manejar la selección de un plato en el ListView
@@ -145,12 +146,68 @@ public class Controlador implements Initializable {
                         System.out.println("PDF guardado en: " + selectedFile.getAbsolutePath());
                     } catch (IOException e) {
                         e.printStackTrace();
+                        Main.log.error("Error al guardar el PDF");
                     }
                 }
             } catch (DocumentException | IOException e) {
                 e.printStackTrace();
+                Main.log.error("Error al generar el PDF");
             }
         }
+        Main.log.info("Se creo el pdf para el menú" + textfieldNombreMenu.getText());
+    }
+
+    private void regenerarPDf() {
+        Document document = new Document();
+        // Código para crear el documento PDF y agregar platos
+        try {
+            String pdfPath = "./" + this.nombreMenuModificar + ".pdf";
+            PdfWriter.getInstance(document, new FileOutputStream(pdfPath));
+            document.open();
+
+            // Agrupar los platos por tipo y agregar al documento
+            agregarPlatosPorTipo(document, "PRIMERO");
+            agregarPlatosPorTipo(document, "SEGUNDO");
+            agregarPlatosPorTipo(document, "POSTRE");
+            document.close();
+
+            int idMenu = supa.obtenerIdMenuPorNombre(this.nombreMenuModificar);
+            // Llamada al metodo sube el pdf al bucket de aws s3
+            s3.subirPDFaS3(properties.getProperty("aws_access_key_id"), properties.getProperty("aws_secret_access_key"),
+                    properties.getProperty("aws_session_token"), pdfPath);
+            // Llamada al metodo para acceder y generar un qr que redireccione al pdf alojado en s3
+            qr.generarQR("pruebazekrom", "archivo2.txt", "./qrzekrom.png",
+                    properties.getProperty("aws_access_key_id"),
+                    properties.getProperty("aws_secret_access_key"), properties.getProperty("aws_session_token"));
+            // Llamada al metodo para previsualizar los platos
+            List<Plato> platos = supa.obtenerPlatosPorIdMenu(idMenu);
+            guardarPDFYMostrar(platos, pdfPath);
+            // Abrir un cuadro de diálogo de guardado de archivos
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Guardar PDF");
+            fileChooser.setInitialFileName(textfieldNombreMenu.getText() + ".pdf");
+            FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Archivos PDF (*.pdf)",
+                    "*.pdf");
+            fileChooser.getExtensionFilters().add(extFilter);
+            Stage stage = (Stage) botonGuardarCambios.getScene().getWindow();
+            File selectedFile = fileChooser.showSaveDialog(stage);
+
+            // Guardar el PDF en la ubicación seleccionada por el usuario
+            if (selectedFile != null) {
+                try {
+                    String pdfFile = "./" + textfieldNombreMenu.getText() + ".pdf";
+                    java.nio.file.Files.copy(new File(pdfFile).toPath(), selectedFile.toPath());
+                    System.out.println("PDF guardado en: " + selectedFile.getAbsolutePath());
+                } catch (IOException e) {
+                    Main.log.error("Error al regenerar el PDF");
+                    e.printStackTrace();
+                }
+            }
+        } catch (DocumentException | IOException e) {
+            Main.log.error("Error al regenerar el PDF");
+            e.printStackTrace();
+        }
+        Main.log.info("Se regenero el pdf para el menú" + nombreMenuModificar);
     }
 
     // Método para guardar el PDF y mostrarlo
@@ -214,6 +271,7 @@ public class Controlador implements Initializable {
             // Mostrar el PDF después de guardarlo
             mostrarPDF(pdfPath);
         } catch (DocumentException | IOException e) {
+            Main.log.error("Error al guardar y mostrar el PDF");
             e.printStackTrace();
         }
     }
@@ -228,19 +286,28 @@ public class Controlador implements Initializable {
                 System.out.println("No se puede abrir el archivo PDF automáticamente.");
             }
         } catch (IOException e) {
+            Main.log.error("Error al mostrar el PDF");
             e.printStackTrace();
         }
     }
 
-    //Metodo encargado agregar platos y refrescar la lista
     public void onClickBotonAgregar(MouseEvent mouseEvent) {
-        if (!textareaDescripcionPlato.getText().isEmpty() &&
+        if (!textfieldPrecio.getText().isEmpty() && !isNumeric(textfieldPrecio.getText())) {
+            // Mostrar una alerta si el precio no es un número válido
+            Alert alertaError = new Alert(Alert.AlertType.ERROR);
+            alertaError.setTitle("Error");
+            alertaError.setHeaderText("Precio inválido");
+            alertaError.setContentText("Por favor, ingrese un número válido para el precio.");
+            alertaError.showAndWait();
+        } else if (!textareaDescripcionPlato.getText().isEmpty() &&
                 !textfieldNombrePlato.getText().isEmpty() &&
-                !comboBoxTipoPlato.getSelectionModel().isEmpty()){
+                !comboBoxTipoPlato.getSelectionModel().isEmpty()) {
+
+            double precio = Double.parseDouble(textfieldPrecio.getText());
             Plato nuevoPlato = new Plato(textfieldNombrePlato.getText(),
                     textareaDescripcionPlato.getText(),
                     comboBoxTipoPlato.getSelectionModel().getSelectedItem().toString(),
-                    Double.parseDouble(textfieldPrecio.getText()));
+                    precio);
             platos.add(nuevoPlato);
             listaPlatosObservable.setAll(platos);
             listaPlatos.setItems(listaPlatosObservable);
@@ -252,6 +319,17 @@ public class Controlador implements Initializable {
             alertaError.setHeaderText("Este es un mensaje de error");
             alertaError.setContentText("Todos los datos han de ser rellenados");
             alertaError.showAndWait();
+        }
+        Main.log.info("Se agregó el plato " + textfieldNombrePlato);
+    }
+
+    // Método auxiliar para verificar si una cadena es numérica
+    private boolean isNumeric(String str) {
+        try {
+            Double.parseDouble(str);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
         }
     }
 
@@ -274,6 +352,7 @@ public class Controlador implements Initializable {
     public void obtenerCorreo(String correoUsuario) {
         this.correoEmpresa = correoUsuario;
         System.out.println("Correo del usuario registrado: " + correoUsuario);
+        Main.log.info("Correo del usuario registrado: " + correoEmpresa);
     }
 
     public void obtenerPlatosModificar(List<Plato> platos) {
@@ -284,6 +363,7 @@ public class Controlador implements Initializable {
     public void obtenerMenu(String menuModifcar) {
         this.nombreMenuModificar = menuModifcar;
         System.out.println("Menu a modificar : " + menuModifcar);
+        Main.log.info("Menu a modificar : " + nombreMenuModificar);
     }
 
     //Al hacer click en Salir acaba la aplicacion
@@ -300,5 +380,6 @@ public class Controlador implements Initializable {
 
     public void onClickBotonGuardar(MouseEvent mouseEvent) {
         supa.modificarPlatos(platos, listaPlatosMenu.getSelectionModel().getSelectedItem().toString(), supa.obtenerIdMenuPorNombre(nombreMenuModificar), supa.obtenerIdEmpresaPorCorreo(correoEmpresa));
+        regenerarPDf();
     }
 }
