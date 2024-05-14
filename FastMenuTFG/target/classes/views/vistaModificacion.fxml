@@ -103,7 +103,7 @@
             </VBox.margin>
             <children>
               <ListView fx:id="listaPlatos" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="111.0" prefWidth="450.0" />
-                <Button fx:id="botonAgregarPlato" mnemonicParsing="false" onMouseClicked="#onClickBotonAgregar" prefHeight="37.0" prefWidth="145.0" text="Modificar plato">
+                <Button fx:id="botonAgregarPlatoModificar" mnemonicParsing="false" onMouseClicked="#onClickBotonAgregarModificar" prefHeight="37.0" prefWidth="145.0" text="Modificar plato">
                     <HBox.margin>
                         <Insets left="40.0" />
                     </HBox.margin>
