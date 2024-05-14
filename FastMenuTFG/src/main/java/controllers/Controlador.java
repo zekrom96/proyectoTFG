@@ -312,6 +312,9 @@ public class Controlador implements Initializable {
             listaPlatosObservable.setAll(platos);
             listaPlatos.setItems(listaPlatosObservable);
             listaPlatos.refresh();
+            Plato platoModificado = new Plato(textfieldNombrePlato.getText(), textareaDescripcionPlato.getText(),
+                    comboBoxTipoPlato.getSelectionModel().getSelectedItem().toString(), Double.parseDouble(textfieldPrecio.getText()));
+            supa.modificarPlatos(platoModificado, listaPlatosMenu.getSelectionModel().getSelectedItem().toString(),supa.obtenerIdMenuPorNombre(nombreMenuModificar), supa.obtenerIdEmpresaPorCorreo(correoEmpresa));
         } else {
             // Mostrar una alerta de error si faltan datos
             Alert alertaError = new Alert(Alert.AlertType.ERROR);
@@ -379,7 +382,6 @@ public class Controlador implements Initializable {
     }
 
     public void onClickBotonGuardar(MouseEvent mouseEvent) {
-        supa.modificarPlatos(platos, listaPlatosMenu.getSelectionModel().getSelectedItem().toString(), supa.obtenerIdMenuPorNombre(nombreMenuModificar), supa.obtenerIdEmpresaPorCorreo(correoEmpresa));
         regenerarPDf();
     }
 }

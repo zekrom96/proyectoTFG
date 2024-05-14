@@ -6,6 +6,7 @@ import models.Menu;
 import models.Plato;
 import models.Usuario;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPatch;
@@ -746,12 +747,9 @@ public class Supabase {
     }
 
     //Modifica los datos de un plato o varios
-    public void modificarPlatos(List<Plato> platosModificados, String nombrePlato, int idMenu, int idEmpresa) {
+    public void modificarPlatos(Plato platoModificado, String nombrePlatoOriginal, int idMenu, int idEmpresa) {
         try {
-            for (int i = 0; i < platosModificados.size(); i++) {
-                Plato platoModificado = platosModificados.get(i);
-
-                int idPlato = recuperarIdPlato(nombrePlato, idEmpresa, idMenu);
+                int idPlato = recuperarIdPlato(nombrePlatoOriginal, idEmpresa, idMenu);
 
                 if (idPlato != 0) {
                     HttpClient clienteHttp = HttpClients.createDefault();
@@ -787,11 +785,14 @@ public class Supabase {
                         System.out.println("Contenido de la respuesta: " + contenidoRespuestaModificarPlato);
                     }
                 } else {
-                    System.out.println("No se encontró el plato '" + nombrePlato + "' en el menú con ID " + idMenu + " de la empresa con ID " + idEmpresa);
+                    System.out.println("No se encontró el plato '" + platoModificado.getNombrePlato() + "' en el menú con ID " + idMenu + " de la empresa con ID " + idEmpresa);
                 }
-            }
+            } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        } catch (ClientProtocolException e) {
+            throw new RuntimeException(e);
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
