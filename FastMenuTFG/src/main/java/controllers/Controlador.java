@@ -312,6 +312,38 @@ public class Controlador implements Initializable {
             listaPlatosObservable.setAll(platos);
             listaPlatos.setItems(listaPlatosObservable);
             listaPlatos.refresh();
+        } else {
+            // Mostrar una alerta de error si faltan datos
+            Alert alertaError = new Alert(Alert.AlertType.ERROR);
+            alertaError.setTitle("Error");
+            alertaError.setHeaderText("Este es un mensaje de error");
+            alertaError.setContentText("Todos los datos han de ser rellenados");
+            alertaError.showAndWait();
+        }
+        Main.log.info("Se agregó el plato " + textfieldNombrePlato);
+    }
+
+    public void onClickBotonAgregarModificar(MouseEvent mouseEvent) {
+        if (!textfieldPrecio.getText().isEmpty() && !isNumeric(textfieldPrecio.getText())) {
+            // Mostrar una alerta si el precio no es un número válido
+            Alert alertaError = new Alert(Alert.AlertType.ERROR);
+            alertaError.setTitle("Error");
+            alertaError.setHeaderText("Precio inválido");
+            alertaError.setContentText("Por favor, ingrese un número válido para el precio.");
+            alertaError.showAndWait();
+        } else if (!textareaDescripcionPlato.getText().isEmpty() &&
+                !textfieldNombrePlato.getText().isEmpty() &&
+                !comboBoxTipoPlato.getSelectionModel().isEmpty()) {
+
+            double precio = Double.parseDouble(textfieldPrecio.getText());
+            Plato nuevoPlato = new Plato(textfieldNombrePlato.getText(),
+                    textareaDescripcionPlato.getText(),
+                    comboBoxTipoPlato.getSelectionModel().getSelectedItem().toString(),
+                    precio);
+            platos.add(nuevoPlato);
+            listaPlatosObservable.setAll(platos);
+            listaPlatos.setItems(listaPlatosObservable);
+            listaPlatos.refresh();
             Plato platoModificado = new Plato(textfieldNombrePlato.getText(), textareaDescripcionPlato.getText(),
                     comboBoxTipoPlato.getSelectionModel().getSelectedItem().toString(), Double.parseDouble(textfieldPrecio.getText()));
             supa.modificarPlatos(platoModificado, listaPlatosMenu.getSelectionModel().getSelectedItem().toString(),supa.obtenerIdMenuPorNombre(nombreMenuModificar), supa.obtenerIdEmpresaPorCorreo(correoEmpresa));
