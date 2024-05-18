@@ -37,10 +37,6 @@
     -fx-font-size: 16px; /* Tamaño de fuente */
 }
 
-
-
-   /* Estilo para las etiquetas */
-
 .label {
     -fx-font-weight: bold; /* Texto en negrita */
 }
