@@ -29,7 +29,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 import java.util.*;
-import java.util.prefs.Preferences;
 
 
 public class Controlador implements Initializable {
@@ -291,7 +290,7 @@ public class Controlador implements Initializable {
         }
     }
 
-    public void onClickBotonAgregar(MouseEvent mouseEvent) {
+    public void onClickBotonAgregar() {
         if (!textfieldPrecio.getText().isEmpty() && !isNumeric(textfieldPrecio.getText())) {
             // Mostrar una alerta si el precio no es un número válido
             Alert alertaError = new Alert(Alert.AlertType.ERROR);
@@ -321,6 +320,7 @@ public class Controlador implements Initializable {
             alertaError.showAndWait();
         }
         Main.log.info("Se agregó el plato " + textfieldNombrePlato);
+        onClickBotonLimpiar();
     }
 
     public void onClickBotonAgregarModificar(MouseEvent mouseEvent) {
@@ -416,12 +416,28 @@ public class Controlador implements Initializable {
     }
 
     //Al hacer cick en previsualizar muestro el pdf se generaria
-    public void onBtnClickPrevisualizar(MouseEvent mouseEvent) {
+    public void onBtnClickPrevisualizar() {
         String pdfPath = "./" + textfieldNombreMenu.getText() + ".pdf";
         guardarPDFYMostrar(platos, pdfPath);
     }
 
-    public void onClickBotonGuardar(MouseEvent mouseEvent) {
+    public void onClickBotonGuardar() {
         regenerarPDf();
+    }
+
+    public void onClickBotonLimpiarModificar() {
+        textfieldNombrePlato.clear();
+        textfieldPrecio.clear();
+        textareaDescripcionPlato.clear();
+        comboBoxTipoPlato.getSelectionModel().clearSelection();
+        listaPlatosMenu.getSelectionModel().clearSelection();
+    }
+
+    public void onClickBotonLimpiar() {
+        textfieldNombreMenu.clear();
+        textfieldNombrePlato.clear();
+        textfieldPrecio.clear();
+        textareaDescripcionPlato.clear();
+        comboBoxTipoPlato.getSelectionModel().clearSelection();
     }
 }

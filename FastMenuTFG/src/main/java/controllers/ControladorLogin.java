@@ -81,7 +81,7 @@ public class ControladorLogin implements Initializable {
 
                 //Una vez creado el usuario y la empresa en la base de datos, se accede directamente a crear platos
                 try {
-                    FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("/views/vistaMenu.fxml"));
+                    FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("/views/vistaCrear.fxml"));
                     Parent root = fxmlLoader.load();
                     Scene nuevaScene = new Scene(root);
                     Controlador controlador = fxmlLoader.getController();
@@ -235,7 +235,7 @@ public class ControladorLogin implements Initializable {
             } else if (boton == botonCrear) {
                 System.out.println("Se seleccionó Crear");
                 try {
-                    FXMLLoader loader = new FXMLLoader(Main.class.getResource("/views/vistaMenu.fxml"));
+                    FXMLLoader loader = new FXMLLoader(Main.class.getResource("/views/vistaCrear.fxml"));
                     Parent root = loader.load();
 
                     Scene nuevaScene = new Scene(root);

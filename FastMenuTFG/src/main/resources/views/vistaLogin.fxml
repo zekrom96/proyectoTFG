@@ -5,30 +5,57 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
 <VBox fx:id="fondoLogin" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="438.0" prefWidth="449.0" stylesheets="@../estilos_css/cssLogin.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.ControladorLogin">
    <children>
+      <HBox prefHeight="44.0" prefWidth="409.0">
+         <children>
+            <ImageView fitHeight="112.0" fitWidth="278.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@../imagenes/logoLogin.png" />
+               </image>
+               <HBox.margin>
+                  <Insets left="-30.0" top="-20.0" />
+               </HBox.margin>
+            </ImageView>
+         </children>
+      </HBox>
       <HBox spacing="10.0">
          <children>
-            <Label fx:id="txtCorreo" text="Correo:" />
-            <TextField fx:id="textfieldCorreo">
+            <Label fx:id="txtCorreo" style="-fx-text-weight: bold;" text="Correo:">
+               <font>
+                  <Font size="16.0" />
+               </font>
                <HBox.margin>
-                  <Insets left="25.0" />
+                  <Insets />
+               </HBox.margin></Label>
+            <TextField fx:id="textfieldCorreo" prefHeight="29.0" prefWidth="199.0">
+               <HBox.margin>
+                  <Insets left="35.0" />
                </HBox.margin></TextField>
          </children>
          <VBox.margin>
-            <Insets bottom="10.0" left="50.0" right="10.0" top="50.0" />
+            <Insets bottom="10.0" left="50.0" right="10.0" top="5.0" />
          </VBox.margin>
       </HBox>
       <HBox spacing="10.0">
          <children>
-            <Label fx:id="txtPw" text="Contraseña:" />
-            <PasswordField fx:id="textfieldPw">
+            <Label fx:id="txtPw" style="-fx-text-weight: bold;" text="Contraseña:">
+               <font>
+                  <Font size="16.0" />
+               </font>
                <HBox.margin>
                   <Insets />
+               </HBox.margin></Label>
+            <PasswordField fx:id="textfieldPw">
+               <HBox.margin>
+                  <Insets left="2.0" />
                </HBox.margin></PasswordField>
          </children>
          <VBox.margin>
@@ -41,12 +68,15 @@
             <Button fx:id="btnRegistrase" mnemonicParsing="false" onMouseClicked="#onClickBtnRegistrarse" text="Registrarse" />
          </children>
          <VBox.margin>
-            <Insets bottom="10.0" left="80.0" right="10.0" top="20.0" />
+            <Insets bottom="10.0" left="80.0" right="10.0" top="10.0" />
          </VBox.margin>
       </HBox>
       <HBox spacing="10.0">
          <children>
-            <Text fx:id="txtRecuperarPw" onMouseClicked="#onClickRecuperar" text="¿Has olvidado tu contraseña?" />
+            <Text fx:id="txtRecuperarPw" onMouseClicked="#onClickRecuperar" text="¿Has olvidado tu contraseña?">
+               <HBox.margin>
+                  <Insets top="-5.0" />
+               </HBox.margin></Text>
          </children>
          <VBox.margin>
             <Insets bottom="10.0" left="100.0" right="10.0" top="10.0" />

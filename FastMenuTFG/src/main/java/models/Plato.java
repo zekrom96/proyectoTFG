@@ -14,9 +14,7 @@ public class Plato {
 
     @Override
     public String toString() {
-        return nombrePlato + "\n" +
-                descripcionPlato + "\n" +
-                precioPlato + "€" + "\n" + "\n";
+        return nombrePlato + "\t\t\t\t\t" + precioPlato + "€" + "\n" + descripcionPlato;
     }
 
     public String getNombrePlato() {

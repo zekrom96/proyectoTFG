@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Text?>
+
+<VBox fx:id="fondoMenu" alignment="TOP_CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="577.0" prefWidth="1089.0" stylesheets="@../estilos_css/cssVistaMenu.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.Controlador">
+    <padding>
+        <Insets bottom="20.0" left="20.0" right="20.0" />
+    </padding>
+   <children>
+      <HBox alignment="CENTER_LEFT" spacing="50.0">
+         <children>
+            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Nombre del menu">
+               <HBox.margin>
+                  <Insets left="28.0" />
+               </HBox.margin>
+            </Text>
+            <TextField fx:id="textfieldNombreMenu" minHeight="-Infinity" minWidth="-Infinity" prefHeight="28.0" prefWidth="171.0">
+               <HBox.margin>
+                  <Insets right="5.0" />
+               </HBox.margin>
+            </TextField>
+            <ImageView fitHeight="151.0" fitWidth="463.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@../imagenes/logo_Fastmenu.png" />
+               </image>
+               <HBox.margin>
+                  <Insets left="150.0" />
+               </HBox.margin>
+            </ImageView>
+         </children>
+         <VBox.margin>
+            <Insets bottom="100.0" />
+         </VBox.margin>
+      </HBox>
+      <HBox alignment="CENTER_LEFT" prefWidth="1061.0" spacing="100.0">
+         <children>
+            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Nombre del plato">
+               <HBox.margin>
+                  <Insets left="28.0" right="-34.0" />
+               </HBox.margin>
+            </Text>
+            <TextField fx:id="textfieldNombrePlato" minHeight="-Infinity" minWidth="-Infinity" prefHeight="30.0" prefWidth="173.0">
+               <HBox.margin>
+                  <Insets left="-12.0" />
+               </HBox.margin></TextField>
+            <HBox alignment="CENTER" prefHeight="70.0" prefWidth="1002.0" spacing="100.0">
+               <children>
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Precio">
+                     <HBox.margin>
+                        <Insets left="-25.0" />
+                     </HBox.margin>
+                  </Text>
+                  <HBox prefHeight="39.0" prefWidth="280.0">
+                     <HBox.margin>
+                        <Insets left="50.0" />
+                     </HBox.margin>
+                     <children>
+                        <TextField fx:id="textfieldPrecio" minHeight="-Infinity" minWidth="-Infinity" prefHeight="30.0" prefWidth="173.0">
+                           <HBox.margin>
+                              <Insets left="20.0" />
+                           </HBox.margin>
+                        </TextField>
+                     </children>
+                  </HBox>
+               </children>
+            </HBox>
+         </children>
+         <VBox.margin>
+            <Insets top="-50.0" />
+         </VBox.margin>
+      </HBox>
+      <HBox alignment="CENTER_LEFT" layoutX="30.0" layoutY="175.0" prefHeight="23.0" prefWidth="1266.0" spacing="100.0">
+         <children>
+            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Tipo de plato">
+               <HBox.margin>
+                  <Insets left="28.0" />
+               </HBox.margin></Text>
+            <ComboBox fx:id="comboBoxTipoPlato" minHeight="-Infinity" minWidth="-Infinity" prefHeight="30.0" prefWidth="173.0">
+               <HBox.margin>
+                  <Insets left="-24.0" />
+               </HBox.margin></ComboBox>
+            <HBox alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="70.0" prefWidth="572.0" spacing="100.0">
+               <children>
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Descripción">
+                     <HBox.margin>
+                        <Insets left="-30.0" />
+                     </HBox.margin>
+                  </Text>
+                  <TextArea fx:id="textareaDescripcionPlato" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="70.0" prefWidth="230.0">
+                     <HBox.margin>
+                        <Insets left="42.0" />
+                     </HBox.margin>
+                  </TextArea>
+               </children>
+            </HBox>
+         </children>
+         <VBox.margin>
+            <Insets top="10.0" />
+         </VBox.margin>
+      </HBox>
+      <HBox alignment="CENTER" prefHeight="101.0" prefWidth="1066.0" spacing="40.0">
+         <VBox.margin>
+            <Insets />
+         </VBox.margin>
+         <children>
+            <Button fx:id="botonAgregarPlato" mnemonicParsing="false" onMouseClicked="#onClickBotonAgregar" prefHeight="37.0" prefWidth="149.0" text="Agregar plato">
+               <HBox.margin>
+                  <Insets />
+               </HBox.margin>
+            </Button>
+            <Button fx:id="botonLimpiarCrear" mnemonicParsing="false" onMouseClicked="#onClickBotonLimpiar" prefHeight="37.0" prefWidth="149.0" text="Limpiar" />
+         </children>
+      </HBox>
+      <ListView fx:id="listaPlatos" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="129.0" prefWidth="376.0">
+         <VBox.margin>
+            <Insets />
+         </VBox.margin>
+      </ListView>
+      <HBox alignment="BOTTOM_CENTER" prefHeight="100.0" prefWidth="200.0" spacing="120.0">
+         <VBox.margin>
+            <Insets />
+         </VBox.margin>
+         <children>
+            <Button fx:id="botonGenerarPDF" mnemonicParsing="false" onMouseClicked="#onClickBotonPDF" prefHeight="37.0" prefWidth="149.0" text="Generar PDF" />
+            <Button fx:id="btnPrevisualizarPDF" mnemonicParsing="false" onMouseClicked="#onBtnClickPrevisualizar" prefHeight="37.0" prefWidth="149.0" text="Previsualizar PDF">
+               <HBox.margin>
+                  <Insets />
+               </HBox.margin></Button>
+            <Button fx:id="botonSalir" mnemonicParsing="false" onMouseClicked="#onClickBotonDesconectarse" prefHeight="37.0" prefWidth="149.0" text="Desconectarse">
+               <HBox.margin>
+                  <Insets />
+               </HBox.margin>
+            </Button>
+         </children>
+      </HBox>
+   </children>
+   <opaqueInsets>
+      <Insets />
+   </opaqueInsets>
+</VBox>

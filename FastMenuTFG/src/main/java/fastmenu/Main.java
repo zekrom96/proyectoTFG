@@ -26,6 +26,8 @@ public class Main extends Application {
     //TODO Revisar try-catch y avisos
     //TODO Revisar pdf y código, renombrar variables todas en español
     //TODO Pattern correo
+    //TODO Bloquear pantallas
+    //TODO Bloquear nombre menu
 
     Supabase supa;
     public static final Logger log = LogManager.getLogger(Main.class);
@@ -73,7 +75,7 @@ public class Main extends Application {
     }
 
     private void cargarVentanaCreacion() {
-        FXMLLoader loader = new FXMLLoader(Main.class.getResource("/views/vistaMenu.fxml"));
+        FXMLLoader loader = new FXMLLoader(Main.class.getResource("/views/vistaCrear.fxml"));
         cargarVentana(loader, true);
     }
 
