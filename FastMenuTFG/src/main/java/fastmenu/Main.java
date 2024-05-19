@@ -22,7 +22,6 @@ import org.apache.logging.log4j.Logger;
 
 public class Main extends Application {
 
-    //TODO Limpiar campos al agregar platos o modificar etc etc etc
     //TODO Revisar try-catch y avisos
     //TODO Revisar pdf y código, renombrar variables todas en español
     //TODO Pattern correo

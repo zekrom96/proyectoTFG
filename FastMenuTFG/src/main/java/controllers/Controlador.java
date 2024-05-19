@@ -3,10 +3,9 @@ package controllers;
 import classes.services.AwsS3;
 import classes.utils.GeneradorQR;
 import classes.services.Supabase;
-import com.itextpdf.text.Document;
-import com.itextpdf.text.DocumentException;
-import com.itextpdf.text.Element;
-import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.*;
+import com.itextpdf.text.pdf.PdfPCell;
+import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
 import fastmenu.Main;
 import javafx.application.Platform;
@@ -23,6 +22,7 @@ import javafx.stage.Stage;
 import models.Menu;
 import models.Plato;
 import java.awt.*;
+import java.awt.Rectangle;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -62,7 +62,9 @@ public class Controlador implements Initializable {
 
     // Método para manejar la selección de un plato en el ListView
     private void onPlatoSeleccionado(MouseEvent event) {
+        System.out.println("Entras a plato seleccionado");
         String nombrePlatoSeleccionado = (String) listaPlatosMenu.getSelectionModel().getSelectedItem();
+        System.out.println(nombrePlatoSeleccionado);
         if (nombrePlatoSeleccionado != null) {
             // Buscar el objeto Plato correspondiente al nombre seleccionado
             Plato platoSeleccionado = null;
@@ -210,7 +212,6 @@ public class Controlador implements Initializable {
     }
 
     // Método para guardar el PDF y mostrarlo
-    // Método para guardar el PDF y mostrarlo
     private void guardarPDFYMostrar(List<Plato> platos, String pdfPath) {
         try {
             // Ordenar los platos por tipo
@@ -232,7 +233,7 @@ public class Controlador implements Initializable {
             for (String tipoPlato : ordenTiposPlatos) {
                 if (platosPorTipo.containsKey(tipoPlato)) {
                     // Agregar título del tipo de plato al documento
-                    Paragraph tipoTitle = new Paragraph(tipoPlato);
+                    Paragraph tipoTitle = new Paragraph(tipoPlato, FontFactory.getFont(FontFactory.HELVETICA_BOLD, 16));
                     tipoTitle.setAlignment(Element.ALIGN_CENTER);
                     document.add(tipoTitle);
 
@@ -242,17 +243,29 @@ public class Controlador implements Initializable {
                     // Obtener la lista de platos para esta categoría
                     List<Plato> platosDeEstaCategoria = platosPorTipo.get(tipoPlato);
 
-                    // Definir el ancho de la página
-                    float anchoPagina = document.getPageSize().getWidth();
-
                     // Agregar cada plato del tipo al documento
                     for (Plato plato : platosDeEstaCategoria) {
-                        // Formatear el nombre y el precio del plato
-                        String nombrePrecio = String.format("%-60s %50.2f€", plato.getNombrePlato(), plato.getPrecioPlato());
-                        document.add(new Paragraph(nombrePrecio));
+                        // Crear una tabla con dos columnas para el nombre y el precio
+                        PdfPTable table = new PdfPTable(2);
+                        table.setWidthPercentage(100);
+                        table.setWidths(new int[]{70, 30});
 
-                        // Agregar la descripción del plato
-                        document.add(new Paragraph(plato.getDescripcionPlato()));
+                        // Agregar el nombre del plato a la primera celda
+                        PdfPCell nombreCell = new PdfPCell(new Phrase(plato.getNombrePlato(), FontFactory.getFont(FontFactory.HELVETICA, 12)));
+                        nombreCell.setBorder(PdfPCell.NO_BORDER); // Eliminar borde
+                        table.addCell(nombreCell);
+                        // Agregar el precio del plato a la segunda celda
+                        PdfPCell precioCell = new PdfPCell(new Phrase(String.format("%.2f€", plato.getPrecioPlato()), FontFactory.getFont(FontFactory.HELVETICA, 12)));
+                        precioCell.setHorizontalAlignment(Element.ALIGN_RIGHT);
+                        precioCell.setBorder(PdfPCell.NO_BORDER);
+                        table.addCell(precioCell);
+
+                        // Agregar la tabla al documento
+                        document.add(table);
+
+                        // Agregar la descripción del plato en una nueva línea
+                        Paragraph descripcion = new Paragraph(plato.getDescripcionPlato(), FontFactory.getFont(FontFactory.HELVETICA, 10));
+                        document.add(descripcion);
 
                         // Agregar una línea en blanco entre platos
                         document.add(new Paragraph("\n"));
@@ -349,12 +362,13 @@ public class Controlador implements Initializable {
                         comboBoxTipoPlato.getSelectionModel().getSelectedItem().toString(), Double.parseDouble(textfieldPrecio.getText()));
                 supa.agregarPlato(platoNuevo, supa.obtenerIdEmpresaPorCorreo(correoEmpresa), supa.obtenerIdMenuPorNombre(nombreMenuModificar));
             } else {
-
                 Plato platoModificado = new Plato(textfieldNombrePlato.getText(), textareaDescripcionPlato.getText(),
-                        comboBoxTipoPlato.getSelectionModel().getSelectedItem().toString(), Double.parseDouble(textfieldPrecio.getText()));
-                supa.modificarPlatos(platoModificado, listaPlatosMenu.getSelectionModel().getSelectedItem().toString(),supa.obtenerIdMenuPorNombre(nombreMenuModificar), supa.obtenerIdEmpresaPorCorreo(correoEmpresa));
-            }
+                        comboBoxTipoPlato.getSelectionModel().getSelectedItem().toString(),
+                        Double.parseDouble(textfieldPrecio.getText()));
 
+                supa.modificarPlatos(platoModificado, listaPlatosMenu.getSelectionModel().getSelectedItem().toString(),
+                        supa.obtenerIdMenuPorNombre(nombreMenuModificar), supa.obtenerIdEmpresaPorCorreo(correoEmpresa));
+            }
         } else {
             // Mostrar una alerta de error si faltan datos
             Alert alertaError = new Alert(Alert.AlertType.ERROR);
@@ -363,6 +377,16 @@ public class Controlador implements Initializable {
             alertaError.setContentText("Todos los datos han de ser rellenados");
             alertaError.showAndWait();
         }
+        //Recupera los platos de la empresa del usuario logueado
+        List<Plato> listaPlatos = supa.obtenerPlatosPorIdMenu(supa.obtenerIdMenuPorNombre(nombreMenuModificar));
+        ObservableList<String> nombresPlatos = FXCollections.observableArrayList();
+        for (Plato plato : listaPlatos) {
+            nombresPlatos.add(plato.getNombrePlato());
+        }
+        listaPlatosMenu.setItems(nombresPlatos);
+        listaPlatosMenu.refresh();
+        platosAModificar = listaPlatos;
+        onClickBotonLimpiarModificar();
         Main.log.info("Se agregó el plato " + textfieldNombrePlato);
     }
 
@@ -439,5 +463,19 @@ public class Controlador implements Initializable {
         textfieldPrecio.clear();
         textareaDescripcionPlato.clear();
         comboBoxTipoPlato.getSelectionModel().clearSelection();
+    }
+
+    public void onClickBotonBorrarPlato(MouseEvent mouseEvent) {
+        supa.borrarPlato(listaPlatosMenu.getSelectionModel().getSelectedItem().toString(),
+                supa.obtenerIdMenuPorNombre(nombreMenuModificar), supa.obtenerIdEmpresaPorCorreo(correoEmpresa));
+        //Recupera los platos de la empresa del usuario logueado
+        List<Plato> listaPlatos = supa.obtenerPlatosPorIdMenu(supa.obtenerIdMenuPorNombre(nombreMenuModificar));
+        ObservableList<String> nombresPlatos = FXCollections.observableArrayList();
+        for (Plato plato : listaPlatos) {
+            nombresPlatos.add(plato.getNombrePlato());
+        }
+        listaPlatosMenu.setItems(nombresPlatos);
+        listaPlatosMenu.refresh();
+        onClickBotonLimpiarModificar();
     }
 }

@@ -8,10 +8,7 @@ import models.Usuario;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPatch;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpPut;
+import org.apache.http.client.methods.*;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
@@ -788,6 +785,43 @@ public class Supabase {
                     System.out.println("No se encontró el plato '" + platoModificado.getNombrePlato() + "' en el menú con ID " + idMenu + " de la empresa con ID " + idEmpresa);
                 }
             } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        } catch (ClientProtocolException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void borrarPlato(String nombrePlatoOriginal, int idMenu, int idEmpresa) {
+        try {
+            int idPlato = recuperarIdPlato(nombrePlatoOriginal, idEmpresa, idMenu);
+
+            if (idPlato != 0) {
+                HttpClient clienteHttp = HttpClients.createDefault();
+
+                // Construir la URL de la solicitud DELETE utilizando el ID del plato encontrado
+                String urlBorrarPlato = properties.getProperty("supabase_url_platos") + "?id_plato=eq." + idPlato;
+                HttpDelete httpDelete = new HttpDelete(urlBorrarPlato);
+                httpDelete.setHeader("Content-type", "application/json");
+                httpDelete.setHeader("apikey", properties.getProperty("supabase_key"));
+
+                // Ejecutar la solicitud DELETE
+                HttpResponse responseBorrarPlato = clienteHttp.execute(httpDelete);
+                int codigoStatusBorrarPlato = responseBorrarPlato.getStatusLine().getStatusCode();
+
+                // Verificar el código de estado de la respuesta
+                if (codigoStatusBorrarPlato == 200 || codigoStatusBorrarPlato == 204) {
+                    System.out.println("Plato borrado correctamente. Nombre: " + nombrePlatoOriginal + ", ID del Menú: " + idMenu);
+                } else {
+                    System.out.println("Error al borrar el plato. Código de estado: " + codigoStatusBorrarPlato);
+                    String contenidoRespuestaBorrarPlato = obtenerContenidoRespuesta(responseBorrarPlato);
+                    System.out.println("Contenido de la respuesta: " + contenidoRespuestaBorrarPlato);
+                }
+            } else {
+                System.out.println("No se encontró el plato '" + nombrePlatoOriginal + "' en el menú con ID " + idMenu + " de la empresa con ID " + idEmpresa);
+            }
+        } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e);
         } catch (ClientProtocolException e) {
             throw new RuntimeException(e);
