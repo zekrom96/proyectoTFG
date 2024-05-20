@@ -27,8 +27,11 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.prefs.Preferences;
+import java.util.regex.Pattern;
 
 public class ControladorLogin implements Initializable {
+    private static final Pattern PATRON_CORREO =
+            Pattern.compile("^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,}$");
     public TextField textfieldCorreo, textfieldPw;
     public Button btnRegistrase, btnLogin;
     Properties props = new Properties();
@@ -291,9 +294,14 @@ public class ControladorLogin implements Initializable {
         Node registrarButton = dialog.getDialogPane().lookupButton(registrarButtonType);
         registrarButton.setDisable(true);
 
+        // Listener para validar el correo electrónico con el patrón
         correoTextField.textProperty().addListener((observable, oldValue, newValue) -> {
-            registrarButton.setDisable(newValue.isEmpty() || pw.getText().isEmpty() ||
-                    !newValue.equals(confirmarPw.getText()) || nombreEmpresaTextField.getText().isEmpty());
+            if (!validarCorreo(newValue)) {
+                registrarButton.setDisable(true);
+                // Puedes mostrar un mensaje de error aquí si el correo no es válido
+            } else {
+                registrarButton.setDisable(false);
+            }
         });
 
         pw.textProperty().addListener((observable, oldValue, newValue) -> {
@@ -310,6 +318,7 @@ public class ControladorLogin implements Initializable {
             registrarButton.setDisable(newValue.isEmpty() || correoTextField.getText().isEmpty() ||
                     pw.getText().isEmpty() || !pw.getText().equals(confirmarPw.getText()));
         });
+
 
         // Convertir el resultado del diálogo en un array de strings al hacer clic en el botón "Registrar"
         dialog.setResultConverter(dialogButton -> {
@@ -389,5 +398,9 @@ public class ControladorLogin implements Initializable {
                 }
             }
         });
+    }
+    // Método para validar el correo electrónico con el patrón
+    private boolean validarCorreo(String correo) {
+        return PATRON_CORREO.matcher(correo).matches();
     }
 }
