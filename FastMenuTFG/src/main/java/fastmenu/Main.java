@@ -24,9 +24,11 @@ public class Main extends Application {
 
     //TODO Revisar try-catch y avisos
     //TODO Revisar pdf y código
+    //TODO Que no puedo abrir la ventana de modificar si no tiene menus aun
 
     Supabase supa;
     public static final Logger log = LogManager.getLogger(Main.class);
+    private boolean loginCargado = false;
 
     @Override
     public void start(Stage stage) {
@@ -53,8 +55,12 @@ public class Main extends Application {
 
             alerta.showAndWait().ifPresent(boton -> {
                 if (boton == botonModificar) {
-                    cargarVentanaModificacion();
-                    log.info("El usuario accedio a la ventana de Modificación");
+                    if (loginCargado) {
+                        loginCargado = false;
+                    } else {
+                        cargarVentanaModificacion();
+                        log.info("El usuario accedio a la ventana de Modificación");
+                    }
                 } else if (boton == botonCrear) {
                     cargarVentanaCreacion();
                     log.info("El usuario accedio a la ventana de Creación");
@@ -94,29 +100,40 @@ public class Main extends Application {
             if (!ocultar) {
                 //Recupera los nombres de los menus de la empresa del usuario logueado
                 List<String> nombresMenus = supa.obtenerNombresMenuPorIdEmpresa(idEmpresaActual);
-                String menuElegido = mostrarNombresMenuEnDialogo(nombresMenus);
-                int idMenu = supa.obtenerIdMenuPorNombre(menuElegido);
+                if (nombresMenus.isEmpty()) {
+                    cargarVentanaCreacion();
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                    alert.setTitle("Alerta");
+                    alert.setHeaderText("Alerta");
+                    alert.setContentText("No tiene ningún menú creado, ha sido redirigido a crear");
+                    alert.showAndWait();
+                    loginCargado = true;
+                } else {
+                    String menuElegido = mostrarNombresMenuEnDialogo(nombresMenus);
+                    int idMenu = supa.obtenerIdMenuPorNombre(menuElegido);
 
-                //Recupera los platos de la empresa del usuario logueado
-                List<Plato> listaPlatos = supa.obtenerPlatosPorIdMenu(idMenu);
-                ObservableList<String> nombresPlatos = FXCollections.observableArrayList();
-                for (Plato plato : listaPlatos) {
-                    nombresPlatos.add(plato.getNombrePlato());
+                    //Recupera los platos de la empresa del usuario logueado
+                    List<Plato> listaPlatos = supa.obtenerPlatosPorIdMenu(idMenu);
+                    ObservableList<String> nombresPlatos = FXCollections.observableArrayList();
+                    for (Plato plato : listaPlatos) {
+                        nombresPlatos.add(plato.getNombrePlato());
+                    }
+                    controlador.listaPlatosMenu.setItems(nombresPlatos);
+                    controlador.listaPlatosMenu.refresh();
+                    controlador.obtenerPlatosModificar(listaPlatos);
+                    controlador.obtenerMenu(menuElegido);
                 }
-
-                controlador.listaPlatosMenu.setItems(nombresPlatos);
-                controlador.listaPlatosMenu.refresh();
-                controlador.obtenerPlatosModificar(listaPlatos);
-                controlador.obtenerMenu(menuElegido);
-
             }
-
             controlador.obtenerCorreo(correoShared);
             //Muestra la ventana
-            Stage nuevaVentana = new Stage();
-            nuevaVentana.setResizable(false);
-            nuevaVentana.setScene(nuevaScene);
-            nuevaVentana.show();
+            if (loginCargado) {
+                loginCargado = false;
+            } else {
+                Stage nuevaVentana = new Stage();
+                nuevaVentana.setResizable(false);
+                nuevaVentana.setScene(nuevaScene);
+                nuevaVentana.show();
+            }
         } catch (IOException e) {
             log.error("No se pudo cargar la ventana");
             throw new RuntimeException(e);
