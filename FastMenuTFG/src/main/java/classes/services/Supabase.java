@@ -845,7 +845,7 @@ public class Supabase {
     //Metodo ejecutar las solicitudes post
     private void mandarSolicitudPost(JSONObject json, HttpPost post) throws UnsupportedEncodingException {
         // Configurar entidad JSON para la solicitud
-        StringEntity entidad = new StringEntity(json.toString());
+        StringEntity entidad = new StringEntity(json.toString(), StandardCharsets.UTF_8);
         post.setEntity(entidad);
 
         // Configurar encabezados de la solicitud
@@ -857,6 +857,6 @@ public class Supabase {
     private void mandarSolicitudPath(HttpPatch httpPatch, JSONObject requestBody) throws UnsupportedEncodingException {
         httpPatch.setHeader("Content-type", "application/json");
         httpPatch.setHeader("apikey", properties.getProperty("supabase_key"));
-        httpPatch.setEntity(new StringEntity(requestBody.toString()));
+        httpPatch.setEntity(new StringEntity(requestBody.toString(), StandardCharsets.UTF_8));
     }
 }
