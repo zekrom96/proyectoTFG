@@ -28,31 +28,33 @@
       </HBox>
       <HBox spacing="10.0">
          <children>
-            <Label fx:id="txtCorreo" style="-fx-font-weight: bold;" text="Correo:">
+            <Label fx:id="txtCorreo" style="-fx-text-weight: bold; -fx-background-color: #ff9830;" text="Correo:">
                <font>
                   <Font size="16.0" />
                </font>
                <HBox.margin>
                   <Insets />
-               </HBox.margin></Label>
+               </HBox.margin>
+            </Label>
             <TextField fx:id="textfieldCorreo" prefHeight="29.0" prefWidth="199.0">
                <HBox.margin>
-                  <Insets left="35.0" />
+                  <Insets left="39.0" />
                </HBox.margin></TextField>
          </children>
          <VBox.margin>
-            <Insets bottom="10.0" left="50.0" right="10.0" top="5.0" />
+            <Insets bottom="10.0" left="50.0" right="10.0" top="10.0" />
          </VBox.margin>
       </HBox>
       <HBox spacing="10.0">
          <children>
-            <Label fx:id="txtPw" style="-fx-text-weight: bold;" text="Contraseña:">
+            <Label fx:id="txtPw" style="-fx-text-weight: bold; -fx-background-color: #ff9830;" text="Contraseña:">
                <font>
                   <Font size="16.0" />
                </font>
                <HBox.margin>
                   <Insets />
-               </HBox.margin></Label>
+               </HBox.margin>
+            </Label>
             <PasswordField fx:id="textfieldPw">
                <HBox.margin>
                   <Insets left="2.0" />
@@ -75,7 +77,7 @@
          <children>
             <Text fx:id="txtRecuperarPw" onMouseClicked="#onClickRecuperar" text="¿Has olvidado tu contraseña?">
                <HBox.margin>
-                  <Insets top="-5.0" />
+                  <Insets left="-10.0" top="-5.0" />
                </HBox.margin></Text>
          </children>
          <VBox.margin>

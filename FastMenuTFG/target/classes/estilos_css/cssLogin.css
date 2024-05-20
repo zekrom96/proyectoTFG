@@ -5,6 +5,19 @@
     -fx-background-image: url('../imagenes/fondoLogin.jpg');
 }
 
+/* Estilo para el texto */
+#txtRecuperarPw {
+    -fx-cursor: hand; /* Cambia el cursor a mano al pasar el ratón */
+    -fx-font-style: italic; /* Texto en cursiva */
+    -fx-background-color: #ffffff; /* Color de fondo blanco */
+    -fx-border-color: #cccccc; /* Color del borde gris claro */
+    -fx-border-width: 1px; /* Ancho del borde */
+    -fx-padding: 5px; /* Espaciado interno */
+    -fx-pref-width: 200px; /* Ancho preferido */
+    -fx-font-weight: bold;
+    -fx-font-size: 18px; /* Tamaño de fuente */
+}
+
 /* Estilo para los campos de texto */
 .text-field {
     -fx-background-color: #ffffff; /* Color de fondo blanco */
@@ -24,20 +37,6 @@
     -fx-cursor: hand; /* Cambia el cursor a mano al pasar el ratón */
 }
 
-
-
-/* Estilo para el texto */
-#txtRecuperarPw {
-    -fx-cursor: hand; /* Cambia el cursor a mano al pasar el ratón */
-    -fx-font-style: italic; /* Texto en cursiva */
-    -fx-background-color: #ffffff; /* Color de fondo blanco */
-    -fx-border-color: #cccccc; /* Color del borde gris claro */
-    -fx-border-width: 1px; /* Ancho del borde */
-    -fx-padding: 5px; /* Espaciado interno */
-    -fx-pref-width: 200px; /* Ancho preferido */
-    -fx-font-weight: bold;
-    -fx-font-size: 16px; /* Tamaño de fuente */
-}
 
 .label {
     -fx-font-weight: bold; /* Texto en negrita */
