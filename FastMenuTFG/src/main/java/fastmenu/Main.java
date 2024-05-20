@@ -23,7 +23,7 @@ import org.apache.logging.log4j.Logger;
 public class Main extends Application {
 
     //TODO Revisar try-catch y avisos
-    //TODO Revisar pdf y código, renombrar variables todas en español
+    //TODO Revisar pdf y código
     //TODO Pattern correo
     //TODO Bloquear pantallas
     //TODO Bloquear nombre menu
@@ -117,6 +117,7 @@ public class Main extends Application {
             controlador.obtenerCorreo(correoShared);
             //Muestra la ventana
             Stage nuevaVentana = new Stage();
+            nuevaVentana.setResizable(false);
             nuevaVentana.setScene(nuevaScene);
             nuevaVentana.show();
         } catch (IOException e) {

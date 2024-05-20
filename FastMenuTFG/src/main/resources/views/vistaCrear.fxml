@@ -31,7 +31,6 @@
             </TextField>
             <ImageView fitHeight="151.0" fitWidth="463.0" pickOnBounds="true" preserveRatio="true">
                <image>
-                  <Image url="@../imagenes/logo_Fastmenu.png" />
                </image>
                <HBox.margin>
                   <Insets left="150.0" />
