@@ -79,6 +79,7 @@ public class Main extends Application {
         cargarVentana(loader, true);
     }
 
+    //La variable ocultar se usa para evitar el paso de seleccionar un menú
     private void cargarVentana(FXMLLoader loader, boolean ocultar) {
         try {
             Parent root = loader.load();
@@ -91,9 +92,9 @@ public class Main extends Application {
 
             //Obtiene el correo del usuario logueado
             String correoShared = preferences.get("logged_in_user_email", null);
-
             //Recupera el id de la empresa del correo del usuario logueado
             int idEmpresaActual = supa.obtenerIdEmpresaPorCorreo(correoShared);
+
             if (!ocultar) {
                 //Recupera los nombres de los menus de la empresa del usuario logueado
                 List<String> nombresMenus = supa.obtenerNombresMenuPorIdEmpresa(idEmpresaActual);
@@ -117,6 +118,7 @@ public class Main extends Application {
             controlador.obtenerCorreo(correoShared);
             //Muestra la ventana
             Stage nuevaVentana = new Stage();
+            nuevaVentana.setResizable(false);
             nuevaVentana.setScene(nuevaScene);
             nuevaVentana.show();
         } catch (IOException e) {
