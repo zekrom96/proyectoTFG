@@ -120,15 +120,17 @@ public class Controlador implements Initializable {
                     // Agrego cada plato con sus correspondientes datos
                     supa.agregarPlato(plato, idEmpresa, idMenu);
                 }
-                // Llamada al metodo sube el pdf al bucket de aws s3
-                s3.subirPDFaS3(properties.getProperty("aws_access_key_id"), properties.getProperty("aws_secret_access_key"),
-                        properties.getProperty("aws_session_token"), pdfPath);
-                // Llamada al metodo para acceder y generar un qr que redireccione al pdf alojado en s3
-                qr.generarQR("pruebazekrom", "archivo2.txt", "./qrzekrom.png",
-                        properties.getProperty("aws_access_key_id"),
-                        properties.getProperty("aws_secret_access_key"), properties.getProperty("aws_session_token"));
                 // Llamada al metodo para previsualizar los platos
                 guardarPDFYMostrar(platos, pdfPath);
+                File pdf = new File("./" + textfieldNombreMenu.getText() + ".pdf");
+                // Llamada al metodo sube el pdf al bucket de aws s3
+                s3.subirPDFaS3(properties.getProperty("aws_access_key_id"), properties.getProperty("aws_secret_access_key"),
+                        properties.getProperty("aws_session_token"), pdf, textfieldNombreMenu.getText() + ".pdf");
+                // Llamada al metodo para acceder y generar un qr que redireccione al pdf alojado en s3
+                qr.generarQR("pruebazekrom", textfieldNombreMenu.getText() +
+                                ".pdf", "./" + textfieldNombreMenu.getText() + ".png",
+                        properties.getProperty("aws_access_key_id"),
+                        properties.getProperty("aws_secret_access_key"), properties.getProperty("aws_session_token"));
                 // Abrir un cuadro de diálogo de guardado de archivos
                 FileChooser fileChooser = new FileChooser();
                 fileChooser.setTitle("Guardar PDF");
@@ -173,20 +175,21 @@ public class Controlador implements Initializable {
             document.close();
 
             int idMenu = supa.obtenerIdMenuPorNombre(this.nombreMenuModificar);
-            // Llamada al metodo sube el pdf al bucket de aws s3
-            s3.subirPDFaS3(properties.getProperty("aws_access_key_id"), properties.getProperty("aws_secret_access_key"),
-                    properties.getProperty("aws_session_token"), pdfPath);
-            // Llamada al metodo para acceder y generar un qr que redireccione al pdf alojado en s3
-            qr.generarQR("pruebazekrom", "archivo2.txt", "./qrzekrom.png",
-                    properties.getProperty("aws_access_key_id"),
-                    properties.getProperty("aws_secret_access_key"), properties.getProperty("aws_session_token"));
             // Llamada al metodo para previsualizar los platos
             List<Plato> platos = supa.obtenerPlatosPorIdMenu(idMenu);
             guardarPDFYMostrar(platos, pdfPath);
+            File pdfFile = new File("./" + nombreMenuModificar + ".pdf");
+            // Llamada al metodo sube el pdf al bucket de aws s3
+            s3.subirPDFaS3(properties.getProperty("aws_access_key_id"), properties.getProperty("aws_secret_access_key"),
+                    properties.getProperty("aws_session_token"), pdfFile, nombreMenuModificar + ".pdf");
+            // Llamada al metodo para acceder y generar un qr que redireccione al pdf alojado en s3
+            qr.generarQR("pruebazekrom", nombreMenuModificar + ".pdf", "./" + nombreMenuModificar + ".png",
+                    properties.getProperty("aws_access_key_id"),
+                    properties.getProperty("aws_secret_access_key"), properties.getProperty("aws_session_token"));
             // Abrir un cuadro de diálogo de guardado de archivos
             FileChooser fileChooser = new FileChooser();
             fileChooser.setTitle("Guardar PDF");
-            fileChooser.setInitialFileName(textfieldNombreMenu.getText() + ".pdf");
+            fileChooser.setInitialFileName(nombreMenuModificar + ".pdf");
             FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Archivos PDF (*.pdf)",
                     "*.pdf");
             fileChooser.getExtensionFilters().add(extFilter);
@@ -196,8 +199,8 @@ public class Controlador implements Initializable {
             // Guardar el PDF en la ubicación seleccionada por el usuario
             if (selectedFile != null) {
                 try {
-                    String pdfFile = "./" + textfieldNombreMenu.getText() + ".pdf";
-                    java.nio.file.Files.copy(new File(pdfFile).toPath(), selectedFile.toPath());
+                    String file_pdf = "./" + nombreMenuModificar + ".pdf";
+                    java.nio.file.Files.copy(new File(file_pdf).toPath(), selectedFile.toPath());
                     System.out.println("PDF guardado en: " + selectedFile.getAbsolutePath());
                 } catch (IOException e) {
                     Main.log.error("Error al regenerar el PDF");

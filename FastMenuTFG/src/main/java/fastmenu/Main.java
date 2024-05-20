@@ -34,15 +34,16 @@ public class Main extends Application {
     @Override
     public void start(Stage stage) throws IOException {
         supa = new Supabase();
-        Preferences preferences = Preferences.userRoot().node("fastmenu");
-        String correoPreferences = preferences.get("logged_in_user_email", null);
+        Preferences preferencias = Preferences.userRoot().node("fastmenu");
+        //Se recupera si había un correo guardado y su valor para iniciar una vista u otra
+        String correoPreferences = preferencias.get("logged_in_user_email", null);
         boolean estado_login = supa.comprobarEstadoCampoUsuarioLogueado(correoPreferences);
         vistaMenu(estado_login);
         log.info("Iniciando aplicación...Aplicación iniciada");
     }
 
-    private void vistaMenu(boolean valor) {
-        if (valor) {
+    private void vistaMenu(boolean estadoLogeado) {
+        if (estadoLogeado) {
             Alert alerta = new Alert(Alert.AlertType.CONFIRMATION);
             alerta.setTitle("Confirmación de acción");
             alerta.setHeaderText("¿Qué acción deseas realizar?");
@@ -55,8 +56,8 @@ public class Main extends Application {
 
             alerta.showAndWait().ifPresent(boton -> {
                 if (boton == botonModificar) {
-                    log.info("El usuario accedio a la ventana de Modificación");
                     cargarVentanaModificacion();
+                    log.info("El usuario accedio a la ventana de Modificación");
                 } else if (boton == botonCrear) {
                     cargarVentanaCreacion();
                     log.info("El usuario accedio a la ventana de Creación");
@@ -90,6 +91,7 @@ public class Main extends Application {
 
             //Obtiene el correo del usuario logueado
             String correoShared = preferences.get("logged_in_user_email", null);
+
             //Recupera el id de la empresa del correo del usuario logueado
             int idEmpresaActual = supa.obtenerIdEmpresaPorCorreo(correoShared);
             if (!ocultar) {
