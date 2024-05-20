@@ -14,11 +14,11 @@
 
 <VBox fx:id="fondoLogin" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="438.0" prefWidth="449.0" stylesheets="@../estilos_css/cssLogin.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.ControladorLogin">
    <children>
-      <HBox prefHeight="44.0" prefWidth="409.0">
+      <HBox alignment="CENTER_LEFT" prefHeight="44.0" prefWidth="409.0">
          <children>
             <ImageView fitHeight="112.0" fitWidth="278.0" pickOnBounds="true" preserveRatio="true">
                <image>
-                  <Image url="@../imagenes/logoLogin.png" />
+                  <Image url="@../imagenes/logoLogin-removebg-preview.png" />
                </image>
                <HBox.margin>
                   <Insets left="-30.0" top="-20.0" />

@@ -17,7 +17,7 @@
         <Insets bottom="20.0" left="20.0" right="20.0" />
     </padding>
    <children>
-      <HBox alignment="CENTER_LEFT" spacing="50.0">
+      <HBox alignment="CENTER_LEFT" prefWidth="1049.0" spacing="50.0">
          <children>
             <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Nombre del menu">
                <HBox.margin>
@@ -29,16 +29,16 @@
                   <Insets right="5.0" />
                </HBox.margin>
             </TextField>
-            <ImageView fitHeight="151.0" fitWidth="463.0" pickOnBounds="true" preserveRatio="true">
+            <ImageView fitHeight="150.0" fitWidth="502.0" pickOnBounds="true" preserveRatio="true">
                <image>
+                  <Image url="@../imagenes/logoModificar_Crear-removebg-preview.png" />
                </image>
                <HBox.margin>
-                  <Insets left="150.0" />
-               </HBox.margin>
-            </ImageView>
+                  <Insets left="80.0" />
+               </HBox.margin></ImageView>
          </children>
          <VBox.margin>
-            <Insets bottom="100.0" />
+            <Insets bottom="100.0" top="20.0" />
          </VBox.margin>
       </HBox>
       <HBox alignment="CENTER_LEFT" prefWidth="1061.0" spacing="100.0">
@@ -75,7 +75,7 @@
             </HBox>
          </children>
          <VBox.margin>
-            <Insets top="-50.0" />
+            <Insets top="-65.0" />
          </VBox.margin>
       </HBox>
       <HBox alignment="CENTER_LEFT" layoutX="30.0" layoutY="175.0" prefHeight="23.0" prefWidth="1266.0" spacing="100.0">

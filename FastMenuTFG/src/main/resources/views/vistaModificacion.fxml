@@ -30,10 +30,10 @@
             </ListView>
             <ImageView fitHeight="150.0" fitWidth="532.0" pickOnBounds="true" preserveRatio="true">
                <image>
-                  <Image url="@../imagenes/logo_Fastmenu.png" />
+                  <Image url="@../imagenes/logoModificar_Crear-removebg-preview.png" />
                </image>
                <HBox.margin>
-                  <Insets left="50.0" top="-20.0" />
+                  <Insets left="30.0" top="-20.0" />
                </HBox.margin>
             </ImageView>
             </children>
