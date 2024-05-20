@@ -483,8 +483,17 @@ public class Controlador implements Initializable {
 
     //Al hacer cick en previsualizar muestro el pdf se generaria
     public void onBtnClickPrevisualizar() {
-        String pdfPath = "./" + textfieldNombreMenu.getText() + ".pdf";
-        guardarPDFYMostrar(platos, pdfPath);
+        if (platos.isEmpty()) {
+            Alert alertaError = new Alert(Alert.AlertType.ERROR);
+            alertaError.setTitle("Error");
+            alertaError.setHeaderText("Este es un mensaje de error");
+            alertaError.setContentText("No hay platos para mostrar");
+            alertaError.showAndWait();
+            Main.log.error("No hay platos para mostrar y no se puede previsualizar");
+        } else {
+            String pdfPath = "./" + textfieldNombreMenu.getText() + ".pdf";
+            guardarPDFYMostrar(platos, pdfPath);
+        }
     }
 
     //Regenerar el pdf en la vista de modificar
@@ -512,5 +521,15 @@ public class Controlador implements Initializable {
         textfieldPrecio.clear();
         textareaDescripcionPlato.clear();
         comboBoxTipoPlato.getSelectionModel().clearSelection();
+    }
+
+    public void onClickBotonBorrarCrear(MouseEvent mouseEvent) {
+        if (listaPlatos.getSelectionModel().getSelectedItem() != null) {
+            Plato platoSeleccionado = (Plato) listaPlatos.getSelectionModel().getSelectedItem();
+            platos.remove(platoSeleccionado);
+            listaPlatosObservable.setAll(platos);
+            listaPlatos.setItems(listaPlatosObservable);
+            listaPlatos.refresh();
+        }
     }
 }

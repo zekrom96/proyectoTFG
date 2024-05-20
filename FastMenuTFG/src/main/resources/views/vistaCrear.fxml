@@ -72,6 +72,9 @@
                      </children>
                   </HBox>
                </children>
+               <HBox.margin>
+                  <Insets left="-4.0" />
+               </HBox.margin>
             </HBox>
          </children>
          <VBox.margin>
@@ -118,6 +121,7 @@
                </HBox.margin>
             </Button>
             <Button fx:id="botonLimpiarCrear" mnemonicParsing="false" onMouseClicked="#onClickBotonLimpiar" prefHeight="37.0" prefWidth="149.0" text="Limpiar" />
+            <Button fx:id="botonBorrarCreacion" mnemonicParsing="false" onMouseClicked="#onClickBotonBorrarCrear" prefHeight="37.0" prefWidth="149.0" text="Borrar" />
          </children>
       </HBox>
       <ListView fx:id="listaPlatos" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="129.0" prefWidth="376.0">
