@@ -120,8 +120,8 @@
                 <Insets />
             </VBox.margin>
             <children>
-                <Button fx:id="botonGuardarCambios" mnemonicParsing="false" onMouseClicked="#onClickBotonGuardar" prefHeight="45.0" prefWidth="145.0" text="Regenerar PDF" />
-                <Button fx:id="botonSalir" mnemonicParsing="false" onMouseClicked="#onClickBotonDesconectarse" prefHeight="45.0" prefWidth="145.0" text="Desconectarse" />
+                <Button fx:id="botonGuardarCambios" mnemonicParsing="false" onMouseClicked="#onClickBotonGuardar" prefHeight="37.0" prefWidth="127.0" text="Regenerar PDF" />
+                <Button fx:id="botonSalir" mnemonicParsing="false" onMouseClicked="#onClickBotonDesconectarse" prefHeight="37.0" prefWidth="127.0" text="Desconectarse" />
             </children>
         </HBox>
     </children>

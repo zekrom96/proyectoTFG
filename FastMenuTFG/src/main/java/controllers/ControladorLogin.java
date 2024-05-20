@@ -294,29 +294,28 @@ public class ControladorLogin implements Initializable {
         Node registrarButton = dialog.getDialogPane().lookupButton(registrarButtonType);
         registrarButton.setDisable(true);
 
-        // Listener para validar el correo electrónico con el patrón
+        // Listener para validar el correo electrónico
         correoTextField.textProperty().addListener((observable, oldValue, newValue) -> {
-            if (!validarCorreo(newValue)) {
-                registrarButton.setDisable(true);
-                // Puedes mostrar un mensaje de error aquí si el correo no es válido
-            } else {
-                registrarButton.setDisable(false);
-            }
+            boolean camposVacios = correoTextField.getText().isEmpty() || pw.getText().isEmpty() || confirmarPw.getText().isEmpty() || nombreEmpresaTextField.getText().isEmpty();
+            registrarButton.setDisable(!validarCorreo(newValue) || camposVacios);
         });
 
+// Listener para validar la contraseña
         pw.textProperty().addListener((observable, oldValue, newValue) -> {
-            registrarButton.setDisable(newValue.isEmpty() || correoTextField.getText().isEmpty() ||
-                    !newValue.equals(confirmarPw.getText()) || nombreEmpresaTextField.getText().isEmpty());
+            boolean camposVacios = correoTextField.getText().isEmpty() || pw.getText().isEmpty() || confirmarPw.getText().isEmpty() || nombreEmpresaTextField.getText().isEmpty();
+            registrarButton.setDisable(!validarCorreo(correoTextField.getText()) || camposVacios || !newValue.equals(confirmarPw.getText()));
         });
 
+// Listener para validar la confirmación de contraseña
         confirmarPw.textProperty().addListener((observable, oldValue, newValue) -> {
-            registrarButton.setDisable(newValue.isEmpty() || correoTextField.getText().isEmpty() ||
-                    !newValue.equals(pw.getText()) || nombreEmpresaTextField.getText().isEmpty());
+            boolean camposVacios = correoTextField.getText().isEmpty() || pw.getText().isEmpty() || confirmarPw.getText().isEmpty() || nombreEmpresaTextField.getText().isEmpty();
+            registrarButton.setDisable(!validarCorreo(correoTextField.getText()) || camposVacios || !newValue.equals(pw.getText()));
         });
 
+// Listener para validar el nombre de la empresa
         nombreEmpresaTextField.textProperty().addListener((observable, oldValue, newValue) -> {
-            registrarButton.setDisable(newValue.isEmpty() || correoTextField.getText().isEmpty() ||
-                    pw.getText().isEmpty() || !pw.getText().equals(confirmarPw.getText()));
+            boolean camposVacios = correoTextField.getText().isEmpty() || pw.getText().isEmpty() || confirmarPw.getText().isEmpty() || nombreEmpresaTextField.getText().isEmpty();
+            registrarButton.setDisable(!validarCorreo(correoTextField.getText()) || camposVacios || !pw.getText().equals(confirmarPw.getText()));
         });
 
 
