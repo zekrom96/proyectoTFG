@@ -77,7 +77,7 @@ public class ControladorLogin implements Initializable {
                 alerta.showAndWait();
             } else {
                 System.out.println("El correo no existe en la bd");
-                Usuario nuevoUsuario = new Usuario(pwCifrada, correo);
+                Usuario nuevoUsuario = new Usuario(correo, pwCifrada);
                 supa.crearUsuario(nuevoUsuario);
                 Empresa empresa = new Empresa(nombreEmpresa);
                 supa.agregarEmpresa(empresa, correo);
@@ -300,24 +300,23 @@ public class ControladorLogin implements Initializable {
             registrarButton.setDisable(!validarCorreo(newValue) || camposVacios);
         });
 
-// Listener para validar la contraseña
+        //Listener para validar la contraseña
         pw.textProperty().addListener((observable, oldValue, newValue) -> {
             boolean camposVacios = correoTextField.getText().isEmpty() || pw.getText().isEmpty() || confirmarPw.getText().isEmpty() || nombreEmpresaTextField.getText().isEmpty();
             registrarButton.setDisable(!validarCorreo(correoTextField.getText()) || camposVacios || !newValue.equals(confirmarPw.getText()));
         });
 
-// Listener para validar la confirmación de contraseña
+        //Listener para validar la confirmación de contraseña
         confirmarPw.textProperty().addListener((observable, oldValue, newValue) -> {
             boolean camposVacios = correoTextField.getText().isEmpty() || pw.getText().isEmpty() || confirmarPw.getText().isEmpty() || nombreEmpresaTextField.getText().isEmpty();
             registrarButton.setDisable(!validarCorreo(correoTextField.getText()) || camposVacios || !newValue.equals(pw.getText()));
         });
 
-// Listener para validar el nombre de la empresa
+        //Listener para validar el nombre de la empresa
         nombreEmpresaTextField.textProperty().addListener((observable, oldValue, newValue) -> {
             boolean camposVacios = correoTextField.getText().isEmpty() || pw.getText().isEmpty() || confirmarPw.getText().isEmpty() || nombreEmpresaTextField.getText().isEmpty();
             registrarButton.setDisable(!validarCorreo(correoTextField.getText()) || camposVacios || !pw.getText().equals(confirmarPw.getText()));
         });
-
 
         // Convertir el resultado del diálogo en un array de strings al hacer clic en el botón "Registrar"
         dialog.setResultConverter(dialogButton -> {
