@@ -31,7 +31,7 @@
             </TextField>
             <ImageView fitHeight="150.0" fitWidth="502.0" pickOnBounds="true" preserveRatio="true">
                <image>
-                  <Image url="@../imagenes/logoModificar_Crear-removebg-preview.png" />
+                  <Image url="@../imagenes/logoModificar.png" />
                </image>
                <HBox.margin>
                   <Insets left="80.0" />
@@ -110,7 +110,7 @@
             <Insets top="10.0" />
          </VBox.margin>
       </HBox>
-      <HBox alignment="CENTER" prefHeight="101.0" prefWidth="1066.0" spacing="40.0">
+      <HBox alignment="CENTER" prefHeight="101.0" prefWidth="1066.0" spacing="50.0">
          <VBox.margin>
             <Insets />
          </VBox.margin>
@@ -129,7 +129,7 @@
             <Insets />
          </VBox.margin>
       </ListView>
-      <HBox alignment="BOTTOM_CENTER" prefHeight="100.0" prefWidth="200.0" spacing="120.0">
+      <HBox alignment="BOTTOM_CENTER" prefHeight="100.0" prefWidth="200.0" spacing="100.0">
          <VBox.margin>
             <Insets />
          </VBox.margin>
@@ -138,7 +138,8 @@
             <Button fx:id="btnPrevisualizarPDF" mnemonicParsing="false" onMouseClicked="#onBtnClickPrevisualizar" prefHeight="37.0" prefWidth="149.0" text="Previsualizar PDF">
                <HBox.margin>
                   <Insets />
-               </HBox.margin></Button>
+               </HBox.margin>
+            </Button>
             <Button fx:id="botonSalir" mnemonicParsing="false" onMouseClicked="#onClickBotonDesconectarse" prefHeight="37.0" prefWidth="149.0" text="Desconectarse">
                <HBox.margin>
                   <Insets />

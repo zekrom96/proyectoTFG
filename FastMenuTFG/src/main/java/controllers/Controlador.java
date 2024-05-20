@@ -98,70 +98,85 @@ public class Controlador implements Initializable {
             alertaError.showAndWait();
             Main.log.warn("El usuario " + correoEmpresa + " no introdujo el campo de menu, alerta mostrada");
         } else {
-            //Preparo un documento
-            Document document = new Document();
-            // Código para crear el documento PDF y agregar platos
-            try {
-                String pdfPath = "./" + nombreMenuNuevo + ".pdf";
-                PdfWriter.getInstance(document, new FileOutputStream(pdfPath));
-                document.open();
+            if (platos.isEmpty()) {
+                Alert alertaError = new Alert(Alert.AlertType.ERROR);
+                alertaError.setTitle("Error");
+                alertaError.setHeaderText("Este es un mensaje de error");
+                alertaError.setContentText("No hay platos para guardar");
+                alertaError.showAndWait();
+                Main.log.error("No hay platos para guardar");
+            } else {
+                //Preparo un documento
+                Document document = new Document();
+                // Código para crear el documento PDF y agregar platos
+                try {
+                    String pdfPath = "./" + nombreMenuNuevo + ".pdf";
+                    PdfWriter.getInstance(document, new FileOutputStream(pdfPath));
+                    document.open();
 
-                // Agrupar los platos por tipo y agregar al documento
-                agregarPlatosPorTipo(document, "PRIMERO");
-                agregarPlatosPorTipo(document, "SEGUNDO");
-                agregarPlatosPorTipo(document, "POSTRE");
-                document.close();
+                    // Agrupar los platos por tipo y agregar al documento
+                    agregarPlatosPorTipo(document, "PRIMERO");
+                    agregarPlatosPorTipo(document, "SEGUNDO");
+                    agregarPlatosPorTipo(document, "POSTRE");
+                    document.close();
 
-                // Recupero primero el id de empresa del correo recibe el controlador
-                int idEmpresa = supa.obtenerIdEmpresaPorCorreo(correoEmpresa);
-                System.out.println(idEmpresa);
-                Menu menu = new Menu(nombreMenuNuevo, idEmpresa);
-                // Agrego el menu con los datos y el id de empresa obtenido
-                supa.agregarMenu(menu);
-                // Recupero el id del menu actual
-                int idMenu = supa.obtenerIdMenuPorIdEmpresa(menu);
-                for (Plato plato : platos) {
-                    // Agrego cada plato con sus correspondientes datos al menu
-                    supa.agregarPlato(plato, idEmpresa, idMenu);
-                }
-                // Llamada al metodo para previsualizar los platos y guardar el pdf en local
-                guardarPDFYMostrar(platos, pdfPath);
-                File pdf = new File("./" + textfieldNombreMenu.getText() + ".pdf");
-                // Llamada al metodo sube el pdf al bucket de aws s3
-                s3.subirPDFaS3(properties.getProperty("aws_access_key_id"), properties.getProperty("aws_secret_access_key"),
-                        properties.getProperty("aws_session_token"), pdf, textfieldNombreMenu.getText() + ".pdf");
-                // Llamada al metodo para acceder y generar un qr que redireccione al pdf alojado en s3
-                qr.generarQR("pruebazekrom", nombreMenuNuevo +
-                                ".pdf", "./" + nombreMenuNuevo + ".png",
-                        properties.getProperty("aws_access_key_id"),
-                        properties.getProperty("aws_secret_access_key"), properties.getProperty("aws_session_token"));
-                // Abrir un cuadro de diálogo de guardado de archivos
-                FileChooser fileChooser = new FileChooser();
-                fileChooser.setTitle("Guardar PDF");
-                fileChooser.setInitialFileName(textfieldNombreMenu.getText() + ".pdf");
-                FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Archivos PDF (*.pdf)",
-                        "*.pdf");
-                fileChooser.getExtensionFilters().add(extFilter);
-                Stage stage = (Stage) botonGenerarPDF.getScene().getWindow();
-                File selectedFile = fileChooser.showSaveDialog(stage);
-
-                // Guardar el PDF en la ubicación seleccionada por el usuario
-                if (selectedFile != null) {
-                    try {
-                        String pdfFile = "./" + textfieldNombreMenu.getText() + ".pdf";
-                        java.nio.file.Files.copy(new File(pdfFile).toPath(), selectedFile.toPath());
-                        System.out.println("PDF guardado en: " + selectedFile.getAbsolutePath());
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        Main.log.error("Error al guardar el PDF");
+                    // Recupero primero el id de empresa del correo recibe el controlador
+                    int idEmpresa = supa.obtenerIdEmpresaPorCorreo(correoEmpresa);
+                    System.out.println(idEmpresa);
+                    Menu menu = new Menu(nombreMenuNuevo, idEmpresa);
+                    // Agrego el menu con los datos y el id de empresa obtenido
+                    supa.agregarMenu(menu);
+                    // Recupero el id del menu actual
+                    int idMenu = supa.obtenerIdMenuPorIdEmpresa(menu);
+                    for (Plato plato : platos) {
+                        // Agrego cada plato con sus correspondientes datos al menu
+                        supa.agregarPlato(plato, idEmpresa, idMenu);
                     }
+                    // Llamada al metodo para previsualizar los platos y guardar el pdf en local
+                    guardarPDFYMostrar(platos, pdfPath);
+                    File pdf = new File("./" + textfieldNombreMenu.getText() + ".pdf");
+                    // Llamada al metodo sube el pdf al bucket de aws s3
+                    s3.subirPDFaS3(properties.getProperty("aws_access_key_id"), properties.getProperty("aws_secret_access_key"),
+                            properties.getProperty("aws_session_token"), pdf, textfieldNombreMenu.getText() + ".pdf");
+                    // Llamada al metodo para acceder y generar un qr que redireccione al pdf alojado en s3
+                    qr.generarQR("pruebazekrom", nombreMenuNuevo +
+                                    ".pdf", "./" + nombreMenuNuevo + ".png",
+                            properties.getProperty("aws_access_key_id"),
+                            properties.getProperty("aws_secret_access_key"), properties.getProperty("aws_session_token"));
+                    // Abrir un cuadro de diálogo de guardado de archivos
+                    FileChooser fileChooser = new FileChooser();
+                    fileChooser.setTitle("Guardar PDF");
+                    fileChooser.setInitialFileName(textfieldNombreMenu.getText() + ".pdf");
+                    FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Archivos PDF (*.pdf)",
+                            "*.pdf");
+                    fileChooser.getExtensionFilters().add(extFilter);
+                    Stage stage = (Stage) botonGenerarPDF.getScene().getWindow();
+                    File selectedFile = fileChooser.showSaveDialog(stage);
+
+                    // Guardar el PDF en la ubicación seleccionada por el usuario
+                    if (selectedFile != null) {
+                        try {
+                            String pdfFile = "./" + textfieldNombreMenu.getText() + ".pdf";
+                            java.nio.file.Files.copy(new File(pdfFile).toPath(), selectedFile.toPath());
+                            System.out.println("PDF guardado en: " + selectedFile.getAbsolutePath());
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                            Main.log.error("Error al guardar el PDF");
+                        }
+                    }
+                } catch (DocumentException | IOException e) {
+                    e.printStackTrace();
+                    Main.log.error("Error al generar el PDF");
                 }
-            } catch (DocumentException | IOException e) {
-                e.printStackTrace();
-                Main.log.error("Error al generar el PDF");
+                Main.log.info("Se creo el pdf para el menú" + nombreMenuNuevo);
+                Alert alertaError = new Alert(Alert.AlertType.INFORMATION);
+                alertaError.setTitle("Menu");
+                alertaError.setHeaderText("Este es un mensaje de informacion");
+                alertaError.setContentText("El menu se creo correctamente, saliendo de fastmenu...");
+                alertaError.showAndWait();
+                Platform.exit();
             }
         }
-        Main.log.info("Se creo el pdf para el menú" + nombreMenuNuevo);
     }
 
     private void regenerarPDf() {

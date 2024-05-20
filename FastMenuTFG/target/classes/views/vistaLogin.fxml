@@ -16,9 +16,9 @@
    <children>
       <HBox alignment="CENTER_LEFT" prefHeight="44.0" prefWidth="409.0">
          <children>
-            <ImageView fitHeight="112.0" fitWidth="278.0" pickOnBounds="true" preserveRatio="true">
+            <ImageView fitHeight="146.0" fitWidth="317.0" pickOnBounds="true" preserveRatio="true">
                <image>
-                  <Image url="@../imagenes/logoLogin-removebg-preview.png" />
+                  <Image url="@../imagenes/logoLogin.png" />
                </image>
                <HBox.margin>
                   <Insets left="-30.0" top="-20.0" />
@@ -28,7 +28,7 @@
       </HBox>
       <HBox spacing="10.0">
          <children>
-            <Label fx:id="txtCorreo" style="-fx-text-weight: bold;" text="Correo:">
+            <Label fx:id="txtCorreo" style="-fx-font-weight: bold;" text="Correo:">
                <font>
                   <Font size="16.0" />
                </font>

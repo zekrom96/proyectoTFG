@@ -24,6 +24,8 @@
     -fx-cursor: hand; /* Cambia el cursor a mano al pasar el ratón */
 }
 
+
+
 /* Estilo para el texto */
 #txtRecuperarPw {
     -fx-cursor: hand; /* Cambia el cursor a mano al pasar el ratón */
@@ -39,4 +41,6 @@
 
 .label {
     -fx-font-weight: bold; /* Texto en negrita */
+    -fx-font-size: 18px; /* Tamaño de fuente */
+    -fx-text-fill: #333333; /* Color del texto */
 }

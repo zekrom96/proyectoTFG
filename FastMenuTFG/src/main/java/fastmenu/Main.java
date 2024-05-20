@@ -32,7 +32,7 @@ public class Main extends Application {
     public static final Logger log = LogManager.getLogger(Main.class);
 
     @Override
-    public void start(Stage stage) throws IOException {
+    public void start(Stage stage) {
         supa = new Supabase();
         Preferences preferencias = Preferences.userRoot().node("fastmenu");
         //Se recupera si había un correo guardado y su valor para iniciar una vista u otra
