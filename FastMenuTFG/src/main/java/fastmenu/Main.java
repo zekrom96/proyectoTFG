@@ -28,6 +28,10 @@ public class Main extends Application {
 
     Supabase supa;
     public static final Logger log = LogManager.getLogger(Main.class);
+    /*
+    Variable se usa para saber si se cargo la ventana de login cuando el usuario intenta hacer a menu sin tener platos
+    y se le redirige a la de crear platos
+     */
     private boolean loginCargado = false;
 
     @Override
@@ -86,20 +90,19 @@ public class Main extends Application {
         try {
             Parent root = loader.load();
             Scene nuevaScene = new Scene(root);
-
             //Obtiene el controlador de la ventana
             Controlador controlador = loader.getController();
-
             Preferences preferences = Preferences.userRoot().node("fastmenu");
-
             //Obtiene el correo del usuario logueado
             String correoShared = preferences.get("logged_in_user_email", null);
 
             //Recupera el id de la empresa del correo del usuario logueado
             int idEmpresaActual = supa.obtenerIdEmpresaPorCorreo(correoShared);
+            //Se usa la variable ocultar para evitar se vea la seleccion de menus al cargar la ventana de crear
             if (!ocultar) {
                 //Recupera los nombres de los menus de la empresa del usuario logueado
                 List<String> nombresMenus = supa.obtenerNombresMenuPorIdEmpresa(idEmpresaActual);
+                //Si no tiene menus se le redirige a la ventana de crear
                 if (nombresMenus.isEmpty()) {
                     cargarVentanaCreacion();
                     Alert alert = new Alert(Alert.AlertType.INFORMATION);
@@ -108,10 +111,11 @@ public class Main extends Application {
                     alert.setContentText("No tiene ningún menú creado, ha sido redirigido a crear");
                     alert.showAndWait();
                     loginCargado = true;
+                    Main.log.warn("El usuario " + correoShared + " intento acceder a modificar sin tener menus" +
+                            "redirigiendo a la ventana de crear");
                 } else {
                     String menuElegido = mostrarNombresMenuEnDialogo(nombresMenus);
                     int idMenu = supa.obtenerIdMenuPorNombre(menuElegido);
-
                     //Recupera los platos de la empresa del usuario logueado
                     List<Plato> listaPlatos = supa.obtenerPlatosPorIdMenu(idMenu);
                     ObservableList<String> nombresPlatos = FXCollections.observableArrayList();
@@ -125,7 +129,6 @@ public class Main extends Application {
                 }
             }
             controlador.obtenerCorreo(correoShared);
-            //Muestra la ventana
             if (loginCargado) {
                 loginCargado = false;
             } else {

@@ -20,12 +20,11 @@ import java.time.Duration;
 
 public class GeneradorQR {
 
-    public void generarQR(String bucketName, String objectKey, String qrFilePath, String keyid, String keysecret,
-                          String token) {
+    public void generarQRYSubirAs3(String bucketName, String objectKey, String qrFilePath, String keyid, String keysecret,
+                                   String token) {
         int width = 300;
         int height = 300;
         String format = "png";
-
         // Configurar credenciales de AWS
         AwsSessionCredentials credentials = AwsSessionCredentials.create(keyid, keysecret, token);
         StaticCredentialsProvider credentialsProvider = StaticCredentialsProvider.create(credentials);

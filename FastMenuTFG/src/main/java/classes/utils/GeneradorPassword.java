@@ -6,7 +6,7 @@ public class GeneradorPassword {
 
     private static final String CARACTERES = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+";
 
-    //Metodo me genera un pw aleatoria entre 32 y 64 de longitud, sin cifrar
+    //Metodo genera un pw aleatoria entre 32 y 64 de longitud, sin cifrar
     public static String generarPassword() {
         StringBuilder sb = new StringBuilder();
         SecureRandom random = new SecureRandom();

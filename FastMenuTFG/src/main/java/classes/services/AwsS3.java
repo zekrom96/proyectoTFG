@@ -19,7 +19,6 @@ public class AwsS3 {
 
         // Crea el cliente de S3 utilizando el proveedor de credenciales estático
         // Nombre del bucket y archivo local
-
         try (S3Client s3Client = S3Client.builder()
                 .region(Region.US_EAST_1) // Especifica tu región
                 .credentialsProvider(credentialsProvider)

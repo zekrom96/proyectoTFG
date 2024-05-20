@@ -158,7 +158,7 @@ public class Supabase {
             // Ejecutar la solicitud HTTP GET
             HttpResponse response = httpClient.execute(httpGet);
 
-            String responseBody = EntityUtils.toString(response.getEntity());
+            String responseBody = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
 
             JSONArray jsonArray = new JSONArray(responseBody);
             if (jsonArray.length() > 0) {
@@ -186,7 +186,7 @@ public class Supabase {
             httpGet.setHeader("apikey", apiKey);
 
             HttpResponse response = httpClient.execute(httpGet);
-            String responseBody = EntityUtils.toString(response.getEntity());
+            String responseBody = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
 
             // Verificar si la respuesta es un arreglo JSON
             JSONArray jsonArray = new JSONArray(responseBody);
@@ -219,7 +219,7 @@ public class Supabase {
 
             HttpResponse response = httpClient.execute(httpGet);
 
-            String responseBody = EntityUtils.toString(response.getEntity());
+            String responseBody = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
 
             JSONArray jsonArray = new JSONArray(responseBody);
             if (jsonArray.length() > 0) {
@@ -247,7 +247,7 @@ public class Supabase {
             httpGet.setHeader("apikey", apiKey);
 
             HttpResponse response = httpClient.execute(httpGet);
-            String responseBody = EntityUtils.toString(response.getEntity());
+            String responseBody = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
 
             JSONArray jsonArray = new JSONArray(responseBody);
             for (int i = 0; i < jsonArray.length(); i++) {
@@ -276,7 +276,7 @@ public class Supabase {
 
             HttpResponse response = httpClient.execute(httpGet);
 
-            String responseBody = EntityUtils.toString(response.getEntity());
+            String responseBody = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
 
             JSONArray jsonArray = new JSONArray(responseBody);
             if (jsonArray.length() > 0) {
@@ -766,7 +766,7 @@ public class Supabase {
                     platoJson.put("id_plato", idPlato);
 
                     // Agregar el objeto JSON al cuerpo de la solicitud PUT
-                    StringEntity entidadJson = new StringEntity(platoJson.toString());
+                    StringEntity entidadJson = new StringEntity(platoJson.toString(), StandardCharsets.UTF_8);
                     httpPut.setEntity(entidadJson);
 
                     // Ejecutar la solicitud PUT
@@ -843,7 +843,7 @@ public class Supabase {
     }
 
     //Metodo ejecutar las solicitudes post
-    private void mandarSolicitudPost(JSONObject json, HttpPost post) throws UnsupportedEncodingException {
+    private void mandarSolicitudPost(JSONObject json, HttpPost post) {
         // Configurar entidad JSON para la solicitud
         StringEntity entidad = new StringEntity(json.toString(), StandardCharsets.UTF_8);
         post.setEntity(entidad);
