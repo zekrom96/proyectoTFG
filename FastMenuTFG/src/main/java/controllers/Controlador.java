@@ -34,7 +34,7 @@ import java.util.*;
 public class Controlador implements Initializable {
     public ListView listaPlatosMenu = new ListView<>();
     public ListView listaPlatos;
-    private String correoEmpresa, nombreMenuModificar;
+    private String correoEmpresa, nombreMenuModificar, nombreMenuNuevo;
     private List<Plato> platosAModificar;
     public TextField textfieldNombrePlato, textfieldPrecio, textfieldNombreMenu;
     public TextArea textareaDescripcionPlato;
@@ -86,7 +86,7 @@ public class Controlador implements Initializable {
 
     //Metodo se llama al hacer click en el boton de generar pdf
     public void onClickBotonPDF() {
-        if (textfieldNombreMenu.getText().isEmpty()) {
+        if (nombreMenuNuevo.isEmpty()) {
             // Mostrar una alerta de error si faltan datos
             Alert alertaError = new Alert(Alert.AlertType.ERROR);
             alertaError.setTitle("Error");
@@ -98,7 +98,7 @@ public class Controlador implements Initializable {
             Document document = new Document();
             // Código para crear el documento PDF y agregar platos
             try {
-                String pdfPath = "./" + textfieldNombreMenu.getText() + ".pdf";
+                String pdfPath = "./" + nombreMenuNuevo + ".pdf";
                 PdfWriter.getInstance(document, new FileOutputStream(pdfPath));
                 document.open();
 
@@ -111,7 +111,7 @@ public class Controlador implements Initializable {
                 // Recupero primero el id de empresa del correo dado
                 int idEmpresa = supa.obtenerIdEmpresaPorCorreo(correoEmpresa);
                 System.out.println(idEmpresa);
-                Menu menu = new Menu(textfieldNombreMenu.getText(), idEmpresa);
+                Menu menu = new Menu(nombreMenuNuevo, idEmpresa);
                 // Agrego el menu con los datos y el id de empresa obtenido
                 supa.agregarMenu(menu);
                 // Recupero el id del menu actual
@@ -127,8 +127,8 @@ public class Controlador implements Initializable {
                 s3.subirPDFaS3(properties.getProperty("aws_access_key_id"), properties.getProperty("aws_secret_access_key"),
                         properties.getProperty("aws_session_token"), pdf, textfieldNombreMenu.getText() + ".pdf");
                 // Llamada al metodo para acceder y generar un qr que redireccione al pdf alojado en s3
-                qr.generarQR("pruebazekrom", textfieldNombreMenu.getText() +
-                                ".pdf", "./" + textfieldNombreMenu.getText() + ".png",
+                qr.generarQR("pruebazekrom", nombreMenuNuevo +
+                                ".pdf", "./" + nombreMenuNuevo + ".png",
                         properties.getProperty("aws_access_key_id"),
                         properties.getProperty("aws_secret_access_key"), properties.getProperty("aws_session_token"));
                 // Abrir un cuadro de diálogo de guardado de archivos
@@ -307,6 +307,11 @@ public class Controlador implements Initializable {
     }
 
     public void onClickBotonAgregar() {
+        if (!textfieldNombreMenu.getText().isEmpty()) {
+            nombreMenuNuevo = textfieldNombreMenu.getText();
+            textfieldNombreMenu.setText(nombreMenuNuevo);
+            textfieldNombreMenu.setEditable(false);
+        }
         if (!textfieldPrecio.getText().isEmpty() && !isNumeric(textfieldPrecio.getText())) {
             // Mostrar una alerta si el precio no es un número válido
             Alert alertaError = new Alert(Alert.AlertType.ERROR);
@@ -461,7 +466,11 @@ public class Controlador implements Initializable {
     }
 
     public void onClickBotonLimpiar() {
-        textfieldNombreMenu.clear();
+        if (!textfieldNombreMenu.isEditable()) {
+            textfieldNombreMenu.setText(nombreMenuNuevo);
+        } else {
+            textfieldNombreMenu.clear();
+        }
         textfieldNombrePlato.clear();
         textfieldPrecio.clear();
         textareaDescripcionPlato.clear();

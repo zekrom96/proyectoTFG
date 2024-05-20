@@ -104,6 +104,7 @@
          <children>
                 <Button fx:id="botonAgregarPlatoModificar" mnemonicParsing="false" onMouseClicked="#onClickBotonAgregarModificar" prefHeight="37.0" prefWidth="127.0" text="Modificar plato" />
             <Button fx:id="botonLimpiar" mnemonicParsing="false" onMouseClicked="#onClickBotonLimpiarModificar" prefHeight="37.0" prefWidth="127.0" text="Limpiar" />
+            <Button fx:id="botonBorrarPlato" mnemonicParsing="false" onMouseClicked="#onClickBotonBorrarPlato" prefHeight="37.0" prefWidth="127.0" text="Borrar plato" />
          </children>
       </HBox>
         <HBox alignment="CENTER" prefHeight="157.0" prefWidth="1278.0" spacing="50.0">
