@@ -429,19 +429,38 @@ public class Controlador implements Initializable {
         onClickBotonLimpiarModificar();
     }
 
-    //Metodo para borrar un plato seleccionado
     public void onClickBotonBorrarPlato(MouseEvent mouseEvent) {
-        supa.borrarPlato(listaPlatosMenu.getSelectionModel().getSelectedItem().toString(),
-                supa.obtenerIdMenuPorNombre(nombreMenuModificar), supa.obtenerIdEmpresaPorCorreo(correoEmpresa));
-        //Recupera los platos de la empresa del usuario logueado
-        List<Plato> listaPlatos = supa.obtenerPlatosPorIdMenu(supa.obtenerIdMenuPorNombre(nombreMenuModificar));
-        ObservableList<String> nombresPlatos = FXCollections.observableArrayList();
-        for (Plato plato : listaPlatos) {
-            nombresPlatos.add(plato.getNombrePlato());
-        }
-        listaPlatosMenu.setItems(nombresPlatos);
-        listaPlatosMenu.refresh();
-        onClickBotonLimpiarModificar();
+        // Obtener el plato seleccionado
+        String platoSeleccionado = listaPlatosMenu.getSelectionModel().getSelectedItem().toString();
+
+        // Crear la alerta de confirmación
+        Alert alertaConfirmacion = new Alert(Alert.AlertType.CONFIRMATION);
+        alertaConfirmacion.setTitle("Confirmación de Borrado");
+        alertaConfirmacion.setHeaderText("¿Estás seguro de que quieres borrar el plato?");
+        alertaConfirmacion.setContentText("Plato: " + platoSeleccionado);
+
+        // Mostrar la alerta y esperar la respuesta del usuario
+        alertaConfirmacion.showAndWait().ifPresent(response -> {
+            if (response == ButtonType.OK) {
+                // Si el usuario confirma, proceder con el borrado
+                supa.borrarPlato(platoSeleccionado,
+                        supa.obtenerIdMenuPorNombre(nombreMenuModificar),
+                        supa.obtenerIdEmpresaPorCorreo(correoEmpresa));
+                // Recuperar los platos de la empresa del usuario logueado
+                List<Plato> listaPlatos = supa.obtenerPlatosPorIdMenu(supa.obtenerIdMenuPorNombre(nombreMenuModificar));
+                ObservableList<String> nombresPlatos = FXCollections.observableArrayList();
+                for (Plato plato : listaPlatos) {
+                    nombresPlatos.add(plato.getNombrePlato());
+                }
+                listaPlatosMenu.setItems(nombresPlatos);
+                listaPlatosMenu.refresh();
+                onClickBotonLimpiarModificar();
+                Alert alertaOk = new Alert(Alert.AlertType.INFORMATION);
+                alertaOk.setTitle("Plato borrado");
+                alertaOk.setHeaderText("El plato " + platoSeleccionado +" fue borrado");
+                alertaOk.showAndWait();
+            }
+        });
     }
 
     //Método auxiliar para verificar si una cadena es numérica

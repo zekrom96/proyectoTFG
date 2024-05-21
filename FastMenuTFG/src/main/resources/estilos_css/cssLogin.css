@@ -37,6 +37,10 @@
     -fx-cursor: hand; /* Cambia el cursor a mano al pasar el ratón */
 }
 
+/* Estilo para los botones cuando se les pasa el ratón por encima */
+.button:hover {
+    -fx-background-color: #1a75ff; /* Color de fondo azul más oscuro */
+}
 
 .label {
     -fx-font-weight: bold; /* Texto en negrita */
