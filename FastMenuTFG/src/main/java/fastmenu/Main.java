@@ -24,8 +24,6 @@ public class Main extends Application {
 
     //TODO Revisar try-catch y avisos
     //TODO Revisar pdf y código
-    //TODO Que no puedo abrir la ventana de modificar si no tiene menus aun
-
     Supabase supa;
     public static final Logger log = LogManager.getLogger(Main.class);
     /*
@@ -115,17 +113,28 @@ public class Main extends Application {
                             "redirigiendo a la ventana de crear");
                 } else {
                     String menuElegido = mostrarNombresMenuEnDialogo(nombresMenus);
-                    int idMenu = supa.obtenerIdMenuPorNombre(menuElegido);
-                    //Recupera los platos de la empresa del usuario logueado
-                    List<Plato> listaPlatos = supa.obtenerPlatosPorIdMenu(idMenu);
-                    ObservableList<String> nombresPlatos = FXCollections.observableArrayList();
-                    for (Plato plato : listaPlatos) {
-                        nombresPlatos.add(plato.getNombrePlato());
+                    if (menuElegido != null) {
+                        int idMenu = supa.obtenerIdMenuPorNombre(menuElegido);
+                        //Recupera los platos de la empresa del usuario logueado
+                        List<Plato> listaPlatos = supa.obtenerPlatosPorIdMenu(idMenu);
+                        ObservableList<String> nombresPlatos = FXCollections.observableArrayList();
+                        for (Plato plato : listaPlatos) {
+                            nombresPlatos.add(plato.getNombrePlato());
+                        }
+                        controlador.listaPlatosMenu.setItems(nombresPlatos);
+                        controlador.listaPlatosMenu.refresh();
+                        controlador.obtenerPlatosModificar(listaPlatos);
+                        controlador.obtenerMenu(menuElegido);
+                    } else {
+                        // Mostrar alerta de selección cancelada
+                        Alert alerta = new Alert(Alert.AlertType.INFORMATION);
+                        alerta.setTitle("Información");
+                        alerta.setHeaderText("Selección cancelada");
+                        alerta.setContentText("No se ha seleccionado ningún menú, volviendo al inicio de sesión...");
+                        alerta.showAndWait();
+                        cargarVentanaLogin();
+                        loginCargado = true;
                     }
-                    controlador.listaPlatosMenu.setItems(nombresPlatos);
-                    controlador.listaPlatosMenu.refresh();
-                    controlador.obtenerPlatosModificar(listaPlatos);
-                    controlador.obtenerMenu(menuElegido);
                 }
             }
             controlador.obtenerCorreo(correoShared);
@@ -143,7 +152,7 @@ public class Main extends Application {
         }
     }
 
-    private void cargarVentanaLogin() {
+    public static void cargarVentanaLogin() {
         try {
             FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("/views/vistaLogin.fxml"));
             Scene scene = new Scene(fxmlLoader.load(), 449, 438);

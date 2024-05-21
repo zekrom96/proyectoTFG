@@ -1,6 +1,7 @@
 package classes.services;
 
 import classes.utils.CifradoyDescifrado;
+import javafx.scene.control.Alert;
 import models.Empresa;
 import models.Menu;
 import models.Plato;
@@ -406,13 +407,23 @@ public class Supabase {
                         return true;
                         // Lógica para continuar con el flujo de la aplicación después del inicio de sesión exitoso
                     } else {
-                        // Las contraseñas no coinciden, mostrar un mensaje de error al usuario
-                        //TODO CREAR ALERTA
                         System.out.println("La contraseña es incorrecta para el usuario: " + usuario.getEmail());
+                        // Crear una alerta de correo no encontrado
+                        Alert alertaCorreoNoEncontrado = new Alert(Alert.AlertType.ERROR);
+                        alertaCorreoNoEncontrado.setTitle("Datos incorrectos");
+                        alertaCorreoNoEncontrado.setHeaderText("Datos incorrectos");
+                        alertaCorreoNoEncontrado.setContentText("Los datos introducidos no corresponden a ningun usuario");
+                        alertaCorreoNoEncontrado.showAndWait();
+                        System.out.println("El usuario " + usuario.getEmail() + " no existe.");
                         return false;
                     }
                 } else {
-                    //TODO CREAR ALERTA2
+                    // Crear una alerta de correo no encontrado
+                    Alert alertaCorreoNoEncontrado = new Alert(Alert.AlertType.ERROR);
+                    alertaCorreoNoEncontrado.setTitle("Datos incorrectos");
+                    alertaCorreoNoEncontrado.setHeaderText("Datos incorrectos");
+                    alertaCorreoNoEncontrado.setContentText("Los datos introducidos no corresponden a ningun usuario");
+                    alertaCorreoNoEncontrado.showAndWait();
                     System.out.println("El usuario " + usuario.getEmail() + " no existe.");
                     return false;
                 }

@@ -224,30 +224,40 @@ public class ControladorLogin implements Initializable {
                 int idEmpresaActual = supa.obtenerIdEmpresaPorCorreo(correoShared);
                 List<String> nombresMenus = supa.obtenerNombresMenuPorIdEmpresa(idEmpresaActual);
                 String menuElegido = mostrarNombresMenuEnDialogo(nombresMenus);
-                int idMenu = supa.obtenerIdMenuPorNombre(menuElegido);
-                System.out.println(idMenu);
+                if (menuElegido != null) {
+                    int idMenu = supa.obtenerIdMenuPorNombre(menuElegido);
+                    System.out.println(idMenu);
 
-                List<Plato> listaPlatos = supa.obtenerPlatosPorIdMenu(idMenu);
+                    List<Plato> listaPlatos = supa.obtenerPlatosPorIdMenu(idMenu);
 
-                ObservableList<String> nombresPlatos = FXCollections.observableArrayList();
-                for (Plato plato : listaPlatos) {
-                    nombresPlatos.add(plato.getNombrePlato());
+                    ObservableList<String> nombresPlatos = FXCollections.observableArrayList();
+                    for (Plato plato : listaPlatos) {
+                        nombresPlatos.add(plato.getNombrePlato());
+                    }
+
+                    controlador.listaPlatosMenu.setItems(nombresPlatos);
+                    controlador.listaPlatosMenu.refresh();
+
+                    System.out.println("Menu elegido: " + menuElegido);
+
+                    controlador.obtenerCorreo(correoShared);
+                    controlador.obtenerPlatosModificar(listaPlatos);
+                    controlador.obtenerMenu(menuElegido);
+
+                    System.out.println(listaPlatos);
+                    // Establecer la nueva escena en una nueva ventana
+                    Stage nuevaVentana = new Stage();
+                    nuevaVentana.setScene(nuevaScene);
+                    nuevaVentana.show();
+                } else {
+                    // Mostrar alerta de selección cancelada
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                    alert.setTitle("Información");
+                    alert.setHeaderText("Selección cancelada");
+                    alert.setContentText("No se ha seleccionado ningún menú, volviendo al inicio de sesión...");
+                    alert.showAndWait();
+                    Main.cargarVentanaLogin();
                 }
-
-                controlador.listaPlatosMenu.setItems(nombresPlatos);
-                controlador.listaPlatosMenu.refresh();
-
-                System.out.println("Menu elegido: " + menuElegido);
-
-                controlador.obtenerCorreo(correoShared);
-                controlador.obtenerPlatosModificar(listaPlatos);
-                controlador.obtenerMenu(menuElegido);
-
-                System.out.println(listaPlatos);
-                // Establecer la nueva escena en una nueva ventana
-                Stage nuevaVentana = new Stage();
-                nuevaVentana.setScene(nuevaScene);
-                nuevaVentana.show();
             } else if (boton == botonCrear) {
                 System.out.println("Se seleccionó Crear");
                 try {
