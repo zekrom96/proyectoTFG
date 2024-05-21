@@ -138,8 +138,8 @@ public class Controlador implements Initializable {
                     s3.subirPDFaS3(properties.getProperty("aws_access_key_id"), properties.getProperty("aws_secret_access_key"),
                             properties.getProperty("aws_session_token"), pdf, textfieldNombreMenu.getText() + ".pdf");
                     // Llamada al metodo para acceder y generar un qr que redireccione al pdf alojado en s3
-                    qr.generarQRYSubirAs3("pruebazekrom", nombreMenuNuevo +
-                                    ".pdf", "./" + nombreMenuNuevo + ".png",
+                    qr.generarQRYSubirAs3("pruebazekrom", textfieldNombreMenu.getText() +
+                                    ".pdf", "./" + textfieldNombreMenu.getText() + ".png",
                             properties.getProperty("aws_access_key_id"),
                             properties.getProperty("aws_secret_access_key"), properties.getProperty("aws_session_token"));
                     // Abrir un cuadro de diálogo de guardado de archivos

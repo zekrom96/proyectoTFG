@@ -408,22 +408,9 @@ public class Supabase {
                         // Lógica para continuar con el flujo de la aplicación después del inicio de sesión exitoso
                     } else {
                         System.out.println("La contraseña es incorrecta para el usuario: " + usuario.getEmail());
-                        // Crear una alerta de correo no encontrado
-                        Alert alertaCorreoNoEncontrado = new Alert(Alert.AlertType.ERROR);
-                        alertaCorreoNoEncontrado.setTitle("Datos incorrectos");
-                        alertaCorreoNoEncontrado.setHeaderText("Datos incorrectos");
-                        alertaCorreoNoEncontrado.setContentText("Los datos introducidos no corresponden a ningun usuario");
-                        alertaCorreoNoEncontrado.showAndWait();
-                        System.out.println("El usuario " + usuario.getEmail() + " no existe.");
                         return false;
                     }
                 } else {
-                    // Crear una alerta de correo no encontrado
-                    Alert alertaCorreoNoEncontrado = new Alert(Alert.AlertType.ERROR);
-                    alertaCorreoNoEncontrado.setTitle("Datos incorrectos");
-                    alertaCorreoNoEncontrado.setHeaderText("Datos incorrectos");
-                    alertaCorreoNoEncontrado.setContentText("Los datos introducidos no corresponden a ningun usuario");
-                    alertaCorreoNoEncontrado.showAndWait();
                     System.out.println("El usuario " + usuario.getEmail() + " no existe.");
                     return false;
                 }
