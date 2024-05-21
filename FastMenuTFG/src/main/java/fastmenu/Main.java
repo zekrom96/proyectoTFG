@@ -24,6 +24,7 @@ public class Main extends Application {
 
     //TODO Revisar try-catch y avisos
     //TODO Revisar pdf y código
+    //TODO Mejorar logica nombreMenu?
     Supabase supa;
     public static final Logger log = LogManager.getLogger(Main.class);
     /*

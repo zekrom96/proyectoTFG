@@ -41,6 +41,7 @@ public class Controlador implements Initializable {
     public Button botonAgregarPlato, botonGenerarPDF, botonSalir, botonGuardarCambios;
     private ObservableList<Plato> listaPlatosObservable = FXCollections.observableArrayList();
     private List<Plato> platos = new ArrayList<>();
+    private Plato platoSeleccionado;
     Properties properties = new Properties();
     Supabase supa;
     AwsS3 s3 = new AwsS3();
@@ -65,7 +66,7 @@ public class Controlador implements Initializable {
         System.out.println(nombrePlatoSeleccionado);
         if (nombrePlatoSeleccionado != null) {
             // Buscar el objeto Plato correspondiente al nombre seleccionado
-            Plato platoSeleccionado = null;
+            platoSeleccionado = null;
             //platosAModificar es la lista contiene los platos y sus datos
             for (Plato plato : platosAModificar) {
                 if (plato.getNombrePlato().equals(nombrePlatoSeleccionado)) {
@@ -180,9 +181,21 @@ public class Controlador implements Initializable {
 
     private void regenerarPDf() {
         Document document = new Document();
-        // Código para crear el documento PDF y agregar platos
+        String pdfPath = "./" + this.nombreMenuModificar + ".pdf";
+        File pdfFile = new File(pdfPath);
+
+        // Verificar si el archivo PDF ya está abierto
+        if (pdfFile.exists() && !pdfFile.renameTo(pdfFile)) {
+            // Mostrar una alerta de que el archivo PDF está abierto
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Advertencia");
+            alert.setHeaderText("Archivo PDF Abierto");
+            alert.setContentText("Por favor, cierre el archivo PDF antes de regenerarlo.");
+            alert.showAndWait();
+            return;
+        }
+
         try {
-            String pdfPath = "./" + this.nombreMenuModificar + ".pdf";
             PdfWriter.getInstance(document, new FileOutputStream(pdfPath));
             document.open();
 
@@ -197,14 +210,16 @@ public class Controlador implements Initializable {
             //Regenero la lista de platos con los platos nuevos agregados o modificados
             List<Plato> platos = supa.obtenerPlatosPorIdMenu(idMenu);
             guardarPDFYMostrar(platos, pdfPath);
-            File pdfFile = new File("./" + nombreMenuModificar + ".pdf");
+
             // Llamada al metodo sube el pdf al bucket de aws s3
             s3.subirPDFaS3(properties.getProperty("aws_access_key_id"), properties.getProperty("aws_secret_access_key"),
                     properties.getProperty("aws_session_token"), pdfFile, nombreMenuModificar + ".pdf");
+
             // Llamada al metodo para acceder y generar un qr que redireccione al pdf alojado en s3
             qr.generarQRYSubirAs3("pruebazekrom", nombreMenuModificar + ".pdf", "./" + nombreMenuModificar + ".png",
                     properties.getProperty("aws_access_key_id"),
                     properties.getProperty("aws_secret_access_key"), properties.getProperty("aws_session_token"));
+
             // Abrir un cuadro de diálogo de guardado de archivos
             FileChooser fileChooser = new FileChooser();
             fileChooser.setTitle("Guardar PDF");
@@ -218,8 +233,7 @@ public class Controlador implements Initializable {
             // Guardar el PDF en la ubicación seleccionada por el usuario
             if (selectedFile != null) {
                 try {
-                    String file_pdf = "./" + nombreMenuModificar + ".pdf";
-                    java.nio.file.Files.copy(new File(file_pdf).toPath(), selectedFile.toPath());
+                    java.nio.file.Files.copy(new File(pdfPath).toPath(), selectedFile.toPath());
                     System.out.println("PDF guardado en: " + selectedFile.getAbsolutePath());
                 } catch (IOException e) {
                     Main.log.error("Error al regenerar el PDF");
@@ -227,10 +241,8 @@ public class Controlador implements Initializable {
                 }
             }
         } catch (DocumentException | IOException e) {
-            Main.log.error("Error al regenerar el PDF");
-            e.printStackTrace();
         }
-        Main.log.info("Se regenero el pdf para el menú" + nombreMenuModificar);
+        Main.log.info("Se regeneró el pdf para el menú " + nombreMenuModificar);
     }
 
     // Método para guardar el PDF y mostrarlo
@@ -403,10 +415,18 @@ public class Controlador implements Initializable {
                 Plato platoModificado = new Plato(textfieldNombrePlato.getText(), textareaDescripcionPlato.getText(),
                         comboBoxTipoPlato.getSelectionModel().getSelectedItem().toString(),
                         Double.parseDouble(textfieldPrecio.getText()));
-
-                supa.modificarPlatos(platoModificado, listaPlatosMenu.getSelectionModel().getSelectedItem().toString(),
-                        supa.obtenerIdMenuPorNombre(nombreMenuModificar), supa.obtenerIdEmpresaPorCorreo(correoEmpresa));
-                Main.log.info("Se modifico el plato " + textfieldNombrePlato.getText() + " del menu" + nombreMenuModificar);
+                if (platoSeleccionado.toString().equals(platoModificado.toString())) {
+                    // Mostrar una alerta de error si faltan datos
+                    Alert alertaError = new Alert(Alert.AlertType.ERROR);
+                    alertaError.setTitle("Error");
+                    alertaError.setHeaderText("Este es un mensaje de error");
+                    alertaError.setContentText("Los datos del plato no han sido cambiados, cancelando modificacion");
+                    alertaError.showAndWait();
+                } else {
+                    supa.modificarPlatos(platoModificado, listaPlatosMenu.getSelectionModel().getSelectedItem().toString(),
+                            supa.obtenerIdMenuPorNombre(nombreMenuModificar), supa.obtenerIdEmpresaPorCorreo(correoEmpresa));
+                    Main.log.info("Se modifico el plato " + textfieldNombrePlato.getText() + " del menu" + nombreMenuModificar);
+                }
             }
         } else {
             // Mostrar una alerta de error si faltan datos
@@ -559,10 +579,23 @@ public class Controlador implements Initializable {
     public void onClickBotonBorrarCrear(MouseEvent mouseEvent) {
         if (listaPlatos.getSelectionModel().getSelectedItem() != null) {
             Plato platoSeleccionado = (Plato) listaPlatos.getSelectionModel().getSelectedItem();
-            platos.remove(platoSeleccionado);
-            listaPlatosObservable.setAll(platos);
-            listaPlatos.setItems(listaPlatosObservable);
-            listaPlatos.refresh();
+
+            // Crear una alerta de confirmación
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Confirmación de borrado");
+            alert.setHeaderText("Está a punto de eliminar un plato");
+            alert.setContentText("¿Está seguro de que desea eliminar el plato seleccionado?");
+
+            // Mostrar la alerta y esperar a que el usuario confirme
+            alert.showAndWait().ifPresent(response -> {
+                if (response == ButtonType.OK) {
+                    // Eliminar el plato si el usuario confirma
+                    platos.remove(platoSeleccionado);
+                    listaPlatosObservable.setAll(platos);
+                    listaPlatos.setItems(listaPlatosObservable);
+                    listaPlatos.refresh();
+                }
+            });
         }
     }
 }
