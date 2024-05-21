@@ -22,10 +22,12 @@
 
 /* Estilo para los botones */
 .button {
-    -fx-font-size: 12px; /* Tamaño de fuente */
-    -fx-font-weight: bold; /* Negrita */
-    -fx-background-color: #4d94ff; /* Color de fondo azul */
-    -fx-text-fill: white; /* Color de texto */
+    -fx-background-color: #007bff; /* Color de fondo azul */
+    -fx-text-fill: #ffffff; /* Color del texto blanco */
+    -fx-padding: 8px 16px; /* Espaciado interno */
+    -fx-font-size: 14px; /* Tamaño de fuente */
+    -fx-border-radius: 5px; /* Radio de borde redondeado */
+    -fx-cursor: hand; /* Cambia el cursor a mano al pasar el ratón */
 }
 
 /* Estilo para los botones cuando se les pasa el ratón por encima */

@@ -138,26 +138,32 @@ public class ControladorLogin implements Initializable {
                 ButtonType botonConfirmar = new ButtonType("Confirmar", ButtonBar.ButtonData.OK_DONE);
                 dialogo.getButtonTypes().setAll(botonConfirmar, ButtonType.CANCEL);
 
+                // Deshabilitar el botón de confirmar inicialmente
+                dialogo.getDialogPane().lookupButton(botonConfirmar).setDisable(true);
+
+                // Listener para habilitar el botón solo cuando las contraseñas coinciden y no están vacías
+                campoPw.textProperty().addListener((observable, oldValue, newValue) -> {
+                    String pw1 = campoPw.getText();
+                    String pw2 = campoConfirmar.getText();
+                    dialogo.getDialogPane().lookupButton(botonConfirmar).setDisable(pw1.isEmpty() || !pw1.equals(pw2));
+                });
+
+                campoConfirmar.textProperty().addListener((observable, oldValue, newValue) -> {
+                    String pw1 = campoPw.getText();
+                    String pw2 = campoConfirmar.getText();
+                    dialogo.getDialogPane().lookupButton(botonConfirmar).setDisable(pw1.isEmpty() || !pw1.equals(pw2));
+                });
+
                 dialogo.showAndWait().ifPresent(boton -> {
                     if (boton == botonConfirmar) {
-                        String nuevaPw = campoPw.getText();
-                        String confirmarPw = campoConfirmar.getText();
-                        if (nuevaPw.equals(confirmarPw)) {
-                            String pwTemporalCifrada = crypt.encriptar(nuevaPw);
-                            Usuario nuevoUsuario = new Usuario(textfieldCorreo.getText(), pwTemporalCifrada);
+                            String pwTemporalCifrada = crypt.encriptar(campoPw.getText());
+                            Usuario nuevoUsuario = new Usuario(correo, pwTemporalCifrada);
                             supa.modificarPassword(nuevoUsuario);
-                            supa.modificarCampoUsuarioRestablecerPw(textfieldCorreo.getText(), false);
+                            supa.modificarCampoUsuarioRestablecerPw(correo, false);
                             System.out.println("Contraseña cambiada exitosamente.");
                             vistaMenu();
-                            guardarEstadoLoginPreferences(textfieldCorreo.getText());
-                            supa.modificarCampoUsuarioLogueado(textfieldCorreo.getText(), true);
-                        } else {
-                            Alert alerta = new Alert(Alert.AlertType.ERROR);
-                            alerta.setTitle("Error");
-                            alerta.setHeaderText("Las contraseñas no coinciden.");
-                            alerta.setContentText("Por favor intenta nuevamente.");
-                            alerta.showAndWait();
-                        }
+                            guardarEstadoLoginPreferences(correo);
+                            supa.modificarCampoUsuarioLogueado(correo, true);
                     }
                 });
             } else {
@@ -165,6 +171,13 @@ public class ControladorLogin implements Initializable {
                 supa.modificarCampoUsuarioLogueado(textfieldCorreo.getText(), true);
                 vistaMenu();
             }
+        } else {
+            // Crear una alerta de correo no encontrado
+            Alert alertaCorreoNoEncontrado = new Alert(Alert.AlertType.ERROR);
+            alertaCorreoNoEncontrado.setTitle("Datos incorrectos");
+            alertaCorreoNoEncontrado.setHeaderText("Datos incorrectos");
+            alertaCorreoNoEncontrado.setContentText("Los datos introducidos no corresponden a ningun usuario");
+            alertaCorreoNoEncontrado.showAndWait();
         }
     }
 
@@ -375,7 +388,7 @@ public class ControladorLogin implements Initializable {
 
         // Habilitar el botón "OK" cuando se introduce un correo válido
         correoTextField.textProperty().addListener((observable, oldValue, newValue) -> {
-            dialogo.getDialogPane().lookupButton(ButtonType.OK).setDisable(newValue.trim().isEmpty());
+            dialogo.getDialogPane().lookupButton(ButtonType.OK).setDisable(!validarCorreo(newValue.trim()));
         });
 
         // Mostrar el diálogo y esperar a que el usuario interactúe con él
@@ -383,14 +396,25 @@ public class ControladorLogin implements Initializable {
             if (resultado == ButtonType.OK) {
                 String pwTemporal = GeneradorPassword.generarPassword();
                 try {
-                    correo.enviarGmail(props.getProperty("cuenta_correo"), props.getProperty("keygmail"),
-                            correoTextField.getText(), pwTemporal);
+                    boolean correoEncontrado = supa.comprobarExisteCorreo(correoTextField.getText());
+                    if (correoEncontrado) {
+                        correo.enviarGmail(props.getProperty("cuenta_correo"), props.getProperty("keygmail"),
+                                correoTextField.getText(), pwTemporal);
 
-                    String pwTemporalCifrada = crypt.encriptar(pwTemporal);
-                    Usuario nuevoUsuario = new Usuario(correoTextField.getText(), pwTemporalCifrada);
+                        String pwTemporalCifrada = crypt.encriptar(pwTemporal);
+                        Usuario nuevoUsuario = new Usuario(correoTextField.getText(), pwTemporalCifrada);
 
-                    supa.modificarPassword(nuevoUsuario);
-                    supa.modificarCampoUsuarioRestablecerPw(correoTextField.getText(), true);
+                        supa.modificarPassword(nuevoUsuario);
+                        supa.modificarCampoUsuarioRestablecerPw(correoTextField.getText(), true);
+                    } else {
+                        // Crear una alerta de correo no encontrado
+                        Alert alertaCorreoNoEncontrado = new Alert(Alert.AlertType.ERROR);
+                        alertaCorreoNoEncontrado.setTitle("Correo No Encontrado");
+                        alertaCorreoNoEncontrado.setHeaderText("Correo electrónico no encontrado");
+                        alertaCorreoNoEncontrado.setContentText("El correo electrónico introducido no está registrado en el sistema.");
+                        alertaCorreoNoEncontrado.showAndWait();
+                    }
+
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
