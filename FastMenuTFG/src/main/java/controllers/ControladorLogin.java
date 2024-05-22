@@ -223,40 +223,56 @@ public class ControladorLogin implements Initializable {
                 String correoShared = preferences.get("logged_in_user_email", null);
                 int idEmpresaActual = supa.obtenerIdEmpresaPorCorreo(correoShared);
                 List<String> nombresMenus = supa.obtenerNombresMenuPorIdEmpresa(idEmpresaActual);
-                String menuElegido = mostrarNombresMenuEnDialogo(nombresMenus);
-                if (menuElegido != null) {
-                    int idMenu = supa.obtenerIdMenuPorNombre(menuElegido);
-                    System.out.println(idMenu);
-
-                    List<Plato> listaPlatos = supa.obtenerPlatosPorIdMenu(idMenu);
-
-                    ObservableList<String> nombresPlatos = FXCollections.observableArrayList();
-                    for (Plato plato : listaPlatos) {
-                        nombresPlatos.add(plato.getNombrePlato());
-                    }
-
-                    controlador.listaPlatosMenu.setItems(nombresPlatos);
-                    controlador.listaPlatosMenu.refresh();
-
-                    System.out.println("Menu elegido: " + menuElegido);
-
-                    controlador.obtenerCorreo(correoShared);
-                    controlador.obtenerPlatosModificar(listaPlatos);
-                    controlador.obtenerMenu(menuElegido);
-
-                    System.out.println(listaPlatos);
-                    // Establecer la nueva escena en una nueva ventana
-                    Stage nuevaVentana = new Stage();
-                    nuevaVentana.setScene(nuevaScene);
-                    nuevaVentana.show();
-                } else {
+                if(nombresMenus.isEmpty()) {
                     // Mostrar alerta de selección cancelada
                     Alert alert = new Alert(Alert.AlertType.INFORMATION);
                     alert.setTitle("Información");
                     alert.setHeaderText("Selección cancelada");
-                    alert.setContentText("No se ha seleccionado ningún menú, volviendo al inicio de sesión...");
+                    alert.setContentText("No puedes acceder a Modificar, no tienes aun menus, redirigiendo a crear...");
                     alert.showAndWait();
-                    Main.cargarVentanaLogin();
+                    try {
+                        FXMLLoader loaderr = new FXMLLoader(Main.class.getResource("/views/vistaCrear.fxml"));
+                        Parent roott = loaderr.load();
+
+                        Scene nuevaScenee = new Scene(roott);
+                        Controlador controladore = loaderr.getController();
+                        Preferences pref = Preferences.userRoot().node("fastmenu");
+                        String correoShar = pref.get("logged_in_user_email", null);
+                        controladore.obtenerCorreo(correoShar);
+                        Stage nuevaVentana = new Stage();
+                        nuevaVentana.setScene(nuevaScenee);
+                        nuevaVentana.show();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    String menuElegido = mostrarNombresMenuEnDialogo(nombresMenus);
+                    if (menuElegido != null) {
+                        int idMenu = supa.obtenerIdMenuPorNombre(menuElegido);
+                        System.out.println(idMenu);
+
+                        List<Plato> listaPlatos = supa.obtenerPlatosPorIdMenu(idMenu);
+
+                        ObservableList<String> nombresPlatos = FXCollections.observableArrayList();
+                        for (Plato plato : listaPlatos) {
+                            nombresPlatos.add(plato.getNombrePlato());
+                        }
+
+                        controlador.listaPlatosMenu.setItems(nombresPlatos);
+                        controlador.listaPlatosMenu.refresh();
+
+                        System.out.println("Menu elegido: " + menuElegido);
+
+                        controlador.obtenerCorreo(correoShared);
+                        controlador.obtenerPlatosModificar(listaPlatos);
+                        controlador.obtenerMenu(menuElegido);
+
+                        System.out.println(listaPlatos);
+                        // Establecer la nueva escena en una nueva ventana
+                        Stage nuevaVentana = new Stage();
+                        nuevaVentana.setScene(nuevaScene);
+                        nuevaVentana.show();
+                    }
                 }
             } else if (boton == botonCrear) {
                 System.out.println("Se seleccionó Crear");
