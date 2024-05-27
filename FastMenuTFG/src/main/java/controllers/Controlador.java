@@ -410,12 +410,23 @@ public class Controlador implements Initializable {
                 Plato platoNuevo = new Plato(textfieldNombrePlato.getText(), textareaDescripcionPlato.getText(),
                         comboBoxTipoPlato.getSelectionModel().getSelectedItem().toString(), Double.parseDouble(textfieldPrecio.getText()));
                 supa.agregarPlato(platoNuevo, supa.obtenerIdEmpresaPorCorreo(correoEmpresa), supa.obtenerIdMenuPorNombre(nombreMenuModificar));
+                // Crear una alerta de información
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Modificación de Plato");
+                alert.setHeaderText(null);
+                alert.setContentText("El plato fue agregado correctamente.");
+
+                // Mostrar la alerta y esperar a que el usuario la cierre
+                alert.showAndWait();
                 Main.log.info("Se agregó el plato " + textfieldNombrePlato.getText() + "al menu" + nombreMenuModificar);
             } else {
                 Plato platoModificado = new Plato(textfieldNombrePlato.getText(), textareaDescripcionPlato.getText(),
                         comboBoxTipoPlato.getSelectionModel().getSelectedItem().toString(),
                         Double.parseDouble(textfieldPrecio.getText()));
-                if (platoSeleccionado.toString().equals(platoModificado.toString())) {
+                System.out.println(platoModificado.getTipoPlato());
+                System.out.println(platoSeleccionado.getTipoPlato());
+                if (platoSeleccionado.toString().equals(platoModificado.toString())
+                && platoSeleccionado.getTipoPlato() == platoModificado.getTipoPlato()) {
                     // Mostrar una alerta de error si faltan datos
                     Alert alertaError = new Alert(Alert.AlertType.ERROR);
                     alertaError.setTitle("Error");
@@ -423,9 +434,34 @@ public class Controlador implements Initializable {
                     alertaError.setContentText("Los datos del plato no han sido cambiados, cancelando modificacion");
                     alertaError.showAndWait();
                 } else {
-                    supa.modificarPlatos(platoModificado, listaPlatosMenu.getSelectionModel().getSelectedItem().toString(),
-                            supa.obtenerIdMenuPorNombre(nombreMenuModificar), supa.obtenerIdEmpresaPorCorreo(correoEmpresa));
-                    Main.log.info("Se modifico el plato " + textfieldNombrePlato.getText() + " del menu" + nombreMenuModificar);
+                    try {
+                        // Lógica para modificar el plato
+                        supa.modificarPlatos(platoModificado, listaPlatosMenu.getSelectionModel().getSelectedItem().toString(),
+                                supa.obtenerIdMenuPorNombre(nombreMenuModificar), supa.obtenerIdEmpresaPorCorreo(correoEmpresa));
+                        Main.log.info("Se modificó el plato " + textfieldNombrePlato.getText() + " del menú " + nombreMenuModificar);
+
+                        // Crear una alerta de información
+                        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                        alert.setTitle("Modificación de Plato");
+                        alert.setHeaderText(null);
+                        alert.setContentText("El plato se modificó correctamente.");
+
+                        // Mostrar la alerta y esperar a que el usuario la cierre
+                        alert.showAndWait();
+                    } catch (Exception e) {
+                        // Manejo de errores
+                        Main.log.error("Error al modificar el plato: " + e.getMessage());
+                        e.printStackTrace();
+
+                        // Crear una alerta de error
+                        Alert alert = new Alert(Alert.AlertType.ERROR);
+                        alert.setTitle("Error");
+                        alert.setHeaderText(null);
+                        alert.setContentText("Ocurrió un error al modificar el plato. Por favor, intente nuevamente.");
+
+                        // Mostrar la alerta y esperar a que el usuario la cierre
+                        alert.showAndWait();
+                    }
                 }
             }
         } else {
