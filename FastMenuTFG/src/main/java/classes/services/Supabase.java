@@ -1,7 +1,6 @@
 package classes.services;
 
 import classes.utils.CifradoyDescifrado;
-import javafx.scene.control.Alert;
 import models.Empresa;
 import models.Menu;
 import models.Plato;
@@ -27,14 +26,15 @@ import java.util.List;
 import java.util.Properties;
 
 public class Supabase {
-
     Properties properties = new Properties();
     CifradoyDescifrado crypt;
+    static String apiKey;
 
     // Cargo el fichero properties en el constructor de la clase para luego usar las variables tengo almacenadas
     public Supabase() {
         try {
             properties.load(getClass().getResourceAsStream("/properties/configuraciones.properties"));
+            apiKey = properties.getProperty("supabase_key");
             System.out.println("Archivo properties cargado correctamente.");
             crypt = new CifradoyDescifrado(properties.getProperty("secret_key"));
         } catch (IOException e) {
@@ -49,13 +49,7 @@ public class Supabase {
     *                                                                                                                *
     ******************************************************************************************************************/
 
-
-    /*
-     Metodo para agregar Platos a la tabla Platos en Supabase y asociandolos con el id de empresa actual que se
-     ha logueado o registrado en la aplicacion
-    */
     public void agregarPlato(Plato plato, int idEmpresa, int idMenu) {
-
         try {
             // Crear cliente HTTP y solicitud POST
             HttpClient clienteHttp = HttpClients.createDefault();
@@ -69,7 +63,6 @@ public class Supabase {
             platoJson.put("precio", plato.getPrecioPlato());
             platoJson.put("id_empresa", idEmpresa);
             platoJson.put("id_menu", idMenu);
-
 
             mandarSolicitudPost(platoJson, httpPost);
 
@@ -91,7 +84,6 @@ public class Supabase {
     }
 
 
-    //Metodo para agregar el nombre y correo de la empresa en la tabla Empresa en Supabase
     public void agregarEmpresa(Empresa empresa, String correo) {
         try {
             HttpClient clienteHttp = HttpClients.createDefault();
@@ -117,7 +109,6 @@ public class Supabase {
         }
     }
 
-    //Metodo agregar un nuevo Menu a la tabla se le pasa el id de la empresa actual tambien
     public void agregarMenu(Menu menu) {
         try {
             HttpClient clienteHttp = HttpClients.createDefault();
@@ -143,15 +134,11 @@ public class Supabase {
         }
     }
 
-    //**********************************PARTE DE RECUPERAR DATOS********************************************************
+    //**********************************PARTE DE RECUPERAR DATOS******************************************************//
 
-    //Metodo para recuperar el id de una empresa en Supabase, dado un correo
     public int obtenerIdEmpresaPorCorreo(String correoEmpresa) {
         try {
             String url = properties.getProperty("supabase_url_empresa") + "?correo=eq." + correoEmpresa;
-
-            String apiKey = properties.getProperty("supabase_key");
-
             HttpClient httpClient = HttpClients.createDefault();
             HttpGet httpGet = new HttpGet(url);
             httpGet.setHeader("apikey", apiKey);
@@ -180,7 +167,6 @@ public class Supabase {
         List<Plato> platos = new ArrayList<>();
         try {
             String url = properties.getProperty("supabase_url_platos") + "?id_menu=eq." + idMenu;
-            String apiKey = properties.getProperty("supabase_key");
 
             HttpClient httpClient = HttpClients.createDefault();
             HttpGet httpGet = new HttpGet(url);
@@ -212,7 +198,6 @@ public class Supabase {
     public int obtenerIdMenuPorNombre(String nombreMenu) {
         try {
             String url = properties.getProperty("supabase_url_menus") + "?Nombre=eq." + nombreMenu;
-            String apiKey = properties.getProperty("supabase_key");
 
             HttpClient httpClient = HttpClients.createDefault();
             HttpGet httpGet = new HttpGet(url);
@@ -241,8 +226,6 @@ public class Supabase {
         List<String> nombresMenus = new ArrayList<>();
         try {
             String url = properties.getProperty("supabase_url_menus") + "?id_empresa=eq." + idEmpresa;
-            String apiKey = properties.getProperty("supabase_key");
-
             HttpClient httpClient = HttpClients.createDefault();
             HttpGet httpGet = new HttpGet(url);
             httpGet.setHeader("apikey", apiKey);
@@ -267,8 +250,6 @@ public class Supabase {
         try {
             String url = properties.getProperty("supabase_url_menus") + "?id_empresa=eq." + menu.getId_empresa() +
                     "&Nombre=eq." + menu.getNombre();
-
-            String apiKey = properties.getProperty("supabase_key");
 
             HttpClient httpClient = HttpClients.createDefault();
             HttpGet httpGet = new HttpGet(url);
@@ -296,7 +277,6 @@ public class Supabase {
     //Recupera un plato por su id_empresa, nombre, y id_menu
     public int recuperarIdPlato(String nombrePlato, int id_empresa, int id_menu) {
         int idPlato = 0;
-
         try {
             HttpClient clienteHttp = HttpClients.createDefault();
 
@@ -306,7 +286,7 @@ public class Supabase {
 
             HttpGet httpGet = new HttpGet(url);
             httpGet.setHeader("Content-type", "application/json");
-            httpGet.setHeader("apikey", properties.getProperty("supabase_key"));
+            httpGet.setHeader("apikey", apiKey);
 
             HttpResponse response = clienteHttp.execute(httpGet);
 
@@ -347,9 +327,7 @@ public class Supabase {
     public void crearUsuario(Usuario usuario) {
         try {
             HttpClient httpClient = HttpClients.createDefault();
-
             HttpPost httpPost = new HttpPost(properties.getProperty("supabase_url_usuarios"));
-
             JSONObject userData = new JSONObject();
             userData.put("password", usuario.getPassword());
             userData.put("email", usuario.getEmail());
@@ -377,13 +355,12 @@ public class Supabase {
     que son la misma contraseña, si es asi podrá acceder a su panel de modificar o crear
      */
     public boolean iniciarSesion(Usuario usuario) {
-
         try {
             String url = properties.getProperty("supabase_url_usuarios") + "?email=eq." + usuario.getEmail();
             HttpClient httpClient = HttpClients.createDefault();
             HttpGet httpGet = new HttpGet(url);
             httpGet.setHeader("Content-type", "application/json");
-            httpGet.setHeader("apikey", properties.getProperty("supabase_key"));
+            httpGet.setHeader("apikey", apiKey);
 
             HttpResponse response = httpClient.execute(httpGet);
             int statusCode = response.getStatusLine().getStatusCode();
@@ -394,7 +371,7 @@ public class Supabase {
 
                 if (jsonArray.length() > 0) {
                     // Usuario encontrado, recuperar la contraseña cifrada
-                    JSONObject userData = jsonArray.getJSONObject(0); // Suponiendo que solo hay un usuario con el mismo nombre
+                    JSONObject userData = jsonArray.getJSONObject(0);
                     String pwCifrada = userData.getString("password");
                     System.out.println(pwCifrada);
                     // Descifrar la contraseña
@@ -424,14 +401,12 @@ public class Supabase {
         return false;
     }
 
-    /*
-    Metodo encargado de realizar el cambio de la pw en la bd y comprobar que se ha cambiado correctamente
-     */
+
+    //Metodo encargado de realizar el cambio de la pw en la bd y comprobar que se ha cambiado correctamente
     public void modificarPassword(Usuario usuario) {
         try {
             JSONObject requestBody = new JSONObject();
             requestBody.put("password", usuario.getPassword());
-
             HttpClient httpClient = HttpClients.createDefault();
             String url = properties.getProperty("supabase_url_usuarios") + "?email=eq." + usuario.getEmail();
             HttpPatch httpPatch = new HttpPatch(url);
@@ -442,7 +417,7 @@ public class Supabase {
             int statusCode = response.getStatusLine().getStatusCode();
 
             //El codigo 204 es por que cuando realiza una accion y no devuelve nada da codigo 204
-            //Por eso compruebo manualmente que la pw haya sido cambiada
+            //Por eso compruebo manualmente que la pw haya sido cambiada al menos mientras depuraba la app
             if (statusCode == 204) {
                 // Verificar si el cambio se realizó correctamente
                 boolean cambioRealizado = verificarCambioPassword(usuario);
@@ -470,18 +445,14 @@ public class Supabase {
 
             HttpClient httpClient = HttpClients.createDefault();
             HttpGet httpGet = new HttpGet(url);
-
             httpGet.setHeader("Content-type", "application/json");
-            httpGet.setHeader("apikey", properties.getProperty("supabase_key"));
-
+            httpGet.setHeader("apikey", apiKey);
             HttpResponse response = httpClient.execute(httpGet);
             int statusCode = response.getStatusLine().getStatusCode();
 
             if (statusCode == 200) {
-
                 String responseBody = obtenerContenidoRespuesta(response);
                 JSONArray jsonArray = new JSONArray(responseBody);
-
                 if (jsonArray.length() > 0) {
                     JSONObject usuario = jsonArray.getJSONObject(0);
                     String passwordActual = usuario.getString("password");
@@ -499,7 +470,6 @@ public class Supabase {
             return false;
         }
     }
-
 
     //Metodo modifica el campo restablecer_pw de un usuario, la usaré ponerla en true o false segun el caso
     public void modificarCampoUsuarioRestablecerPw(String correoUsuario, boolean nuevoValor) {
@@ -541,7 +511,7 @@ public class Supabase {
             HttpGet httpGet = new HttpGet(url);
 
             httpGet.setHeader("Content-type", "application/json");
-            httpGet.setHeader("apikey", properties.getProperty("supabase_key"));
+            httpGet.setHeader("apikey", apiKey);
 
             HttpResponse response = httpClient.execute(httpGet);
             int statusCode = response.getStatusLine().getStatusCode();
@@ -609,16 +579,14 @@ public class Supabase {
             HttpGet httpGet = new HttpGet(url);
 
             httpGet.setHeader("Content-type", "application/json");
-            httpGet.setHeader("apikey", properties.getProperty("supabase_key"));
+            httpGet.setHeader("apikey", apiKey);
 
             HttpResponse response = httpClient.execute(httpGet);
             int statusCode = response.getStatusLine().getStatusCode();
 
             if (statusCode == 200) {
-
                 String responseBody = obtenerContenidoRespuesta(response);
                 JSONArray jsonArray = new JSONArray(responseBody);
-
                 if (jsonArray.length() > 0) {
                     JSONObject usuario = jsonArray.getJSONObject(0);
                     boolean valorActual = usuario.getBoolean("restablecer_pw");
@@ -646,16 +614,14 @@ public class Supabase {
             HttpGet httpGet = new HttpGet(url);
 
             httpGet.setHeader("Content-type", "application/json");
-            httpGet.setHeader("apikey", properties.getProperty("supabase_key"));
+            httpGet.setHeader("apikey", apiKey);
 
             HttpResponse response = httpClient.execute(httpGet);
             int statusCode = response.getStatusLine().getStatusCode();
 
             if (statusCode == 200) {
-
                 String responseBody = obtenerContenidoRespuesta(response);
                 JSONArray jsonArray = new JSONArray(responseBody);
-
                 if (jsonArray.length() > 0) {
                     JSONObject usuario = jsonArray.getJSONObject(0);
                     boolean valorActual = usuario.getBoolean("usuario_logueado");
@@ -678,21 +644,16 @@ public class Supabase {
     public boolean verificarCambioCampoUsuarioLogueado(String correoUsuario, boolean nuevoValor) {
         try {
             String url = properties.getProperty("supabase_url_usuarios") + "?email=eq." + correoUsuario;
-
             HttpClient httpClient = HttpClients.createDefault();
             HttpGet httpGet = new HttpGet(url);
-
             httpGet.setHeader("Content-type", "application/json");
-            httpGet.setHeader("apikey", properties.getProperty("supabase_key"));
-
+            httpGet.setHeader("apikey", apiKey);
             HttpResponse response = httpClient.execute(httpGet);
+
             int statusCode = response.getStatusLine().getStatusCode();
-
             if (statusCode == 200) {
-
                 String responseBody = obtenerContenidoRespuesta(response);
                 JSONArray jsonArray = new JSONArray(responseBody);
-
                 if (jsonArray.length() > 0) {
                     JSONObject usuario = jsonArray.getJSONObject(0);
                     boolean valorActual = usuario.getBoolean("usuario_logueado");
@@ -716,21 +677,16 @@ public class Supabase {
     public boolean comprobarExisteCorreo(String correo) {
         try {
             String url = properties.getProperty("supabase_url_usuarios") + "?select=email&email=eq." + correo;
-
             HttpClient httpClient = HttpClients.createDefault();
             HttpGet httpGet = new HttpGet(url);
-
             httpGet.setHeader("Content-type", "application/json");
-            httpGet.setHeader("apikey", properties.getProperty("supabase_key"));
-
+            httpGet.setHeader("apikey", apiKey);
             HttpResponse response = httpClient.execute(httpGet);
+
             int statusCode = response.getStatusLine().getStatusCode();
-
             if (statusCode == 200) {
-
                 String responseBody = obtenerContenidoRespuesta(response);
                 JSONArray jsonArray = new JSONArray(responseBody);
-
                 return jsonArray.length() > 0;
             } else {
                 System.out.println("Error: No se pudo obtener los detalles del usuario. Código de estado: " + statusCode);
@@ -745,15 +701,13 @@ public class Supabase {
     public void modificarPlatos(Plato platoModificado, String nombrePlatoOriginal, int idMenu, int idEmpresa) {
         try {
                 int idPlato = recuperarIdPlato(nombrePlatoOriginal, idEmpresa, idMenu);
-
                 if (idPlato != 0) {
                     HttpClient clienteHttp = HttpClients.createDefault();
-
                     // Construir la URL de la solicitud PUT utilizando el ID del plato encontrado
                     String urlModificarPlato = properties.getProperty("supabase_url_platos") + "?id_plato=eq." + idPlato;
                     HttpPut httpPut = new HttpPut(urlModificarPlato);
                     httpPut.setHeader("Content-type", "application/json");
-                    httpPut.setHeader("apikey", properties.getProperty("supabase_key"));
+                    httpPut.setHeader("apikey", apiKey);
 
                     // Crear objeto JSON con los datos del plato modificado
                     JSONObject platoJson = new JSONObject();
@@ -782,11 +736,7 @@ public class Supabase {
                 } else {
                     System.out.println("No se encontró el plato '" + platoModificado.getNombrePlato() + "' en el menú con ID " + idMenu + " de la empresa con ID " + idEmpresa);
                 }
-            } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
-        } catch (ClientProtocolException e) {
-            throw new RuntimeException(e);
-        } catch (IOException e) {
+            } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
@@ -797,12 +747,11 @@ public class Supabase {
 
             if (idPlato != 0) {
                 HttpClient clienteHttp = HttpClients.createDefault();
-
                 // Construir la URL de la solicitud DELETE utilizando el ID del plato encontrado
                 String urlBorrarPlato = properties.getProperty("supabase_url_platos") + "?id_plato=eq." + idPlato;
                 HttpDelete httpDelete = new HttpDelete(urlBorrarPlato);
                 httpDelete.setHeader("Content-type", "application/json");
-                httpDelete.setHeader("apikey", properties.getProperty("supabase_key"));
+                httpDelete.setHeader("apikey", apiKey);
 
                 // Ejecutar la solicitud DELETE
                 HttpResponse responseBorrarPlato = clienteHttp.execute(httpDelete);
@@ -819,17 +768,14 @@ public class Supabase {
             } else {
                 System.out.println("No se encontró el plato '" + nombrePlatoOriginal + "' en el menú con ID " + idMenu + " de la empresa con ID " + idEmpresa);
             }
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
-        } catch (ClientProtocolException e) {
-            throw new RuntimeException(e);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
+    //*****************************************METODOS PRIVADOS*******************************************************//
 
-    //Imprime la respuesta del servidcr
+    //Imprime la respuesta del servidcr, sirve para la depuracion prinicipalmente
     private String obtenerContenidoRespuesta(HttpResponse response) throws IOException {
         BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
         StringBuilder result = new StringBuilder();
@@ -845,16 +791,15 @@ public class Supabase {
         // Configurar entidad JSON para la solicitud
         StringEntity entidad = new StringEntity(json.toString(), StandardCharsets.UTF_8);
         post.setEntity(entidad);
-
         // Configurar encabezados de la solicitud
         post.setHeader("Content-type", "application/json");
-        post.setHeader("apikey", properties.getProperty("supabase_key"));
+        post.setHeader("apikey", apiKey);
     }
 
     //Metodo ejecutar las solicitudes patch
     private void mandarSolicitudPath(HttpPatch httpPatch, JSONObject requestBody) throws UnsupportedEncodingException {
         httpPatch.setHeader("Content-type", "application/json");
-        httpPatch.setHeader("apikey", properties.getProperty("supabase_key"));
+        httpPatch.setHeader("apikey", apiKey);
         httpPatch.setEntity(new StringEntity(requestBody.toString(), StandardCharsets.UTF_8));
     }
 }

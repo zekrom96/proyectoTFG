@@ -7,9 +7,7 @@ import java.security.SecureRandom;
 import java.util.Base64;
 
 public class CifradoyDescifrado {
-
     private final String clave;
-
     public CifradoyDescifrado(String clave) {
         this.clave = clave;
     }

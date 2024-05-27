@@ -1,10 +1,10 @@
 package models;
 
 public class Usuario {
-    String password;
-    String email;
-    boolean restablecer_pw;
-    boolean usuario_logueado;
+    private String password;
+    private String email;
+    private boolean restablecer_pw;
+    private boolean usuario_logueado;
 
     public Usuario(String email, String password) {
         this.email = email;

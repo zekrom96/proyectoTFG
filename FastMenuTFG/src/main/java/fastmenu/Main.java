@@ -25,11 +25,14 @@ public class Main extends Application {
     //TODO Revisar try-catch y avisos
     //TODO Revisar pdf y código
     //TODO Mejorar logica nombreMenu?
+    //TODO Borrar menu?
+    //TODO Revisar cancelar al seleccionar menu diferente
     Supabase supa;
     public static final Logger log = LogManager.getLogger(Main.class);
     /*
-    Variable se usa para saber si se cargo la ventana de login cuando el usuario intenta hacer a menu sin tener platos
-    y se le redirige a la de crear platos
+    loginCargado:
+    Variable que se usa para saber si se cargo correctamente la ventana de login en caso de que el usuario intente
+    acceder a la vista de modificar platos sin tener menus y ha sido redirigido a la de crear platos.
      */
     private boolean loginCargado = false;
 
@@ -44,8 +47,8 @@ public class Main extends Application {
         log.info("Iniciando aplicación...Aplicación iniciada");
     }
 
-    private void vistaMenu(boolean estadoLogeado) {
-        if (estadoLogeado) {
+    private void vistaMenu(boolean usuarioLogueado) {
+        if (usuarioLogueado) {
             Alert alerta = new Alert(Alert.AlertType.CONFIRMATION);
             alerta.setTitle("Confirmación de acción");
             alerta.setHeaderText("¿Qué acción deseas realizar?");
@@ -89,15 +92,14 @@ public class Main extends Application {
         try {
             Parent root = loader.load();
             Scene nuevaScene = new Scene(root);
-            //Obtiene el controlador de la ventana
             Controlador controlador = loader.getController();
             Preferences preferences = Preferences.userRoot().node("fastmenu");
-            //Obtiene el correo del usuario logueado
-            String correoShared = preferences.get("logged_in_user_email", null);
 
+            String correoShared = preferences.get("logged_in_user_email", null);
             //Recupera el id de la empresa del correo del usuario logueado
             int idEmpresaActual = supa.obtenerIdEmpresaPorCorreo(correoShared);
-            //Se usa la variable ocultar para evitar se vea la seleccion de menus al cargar la ventana de crear
+
+            //Se usa la variable ocultar para evitar se vea la seleccion de menus al cargar la ventana de Crear
             if (!ocultar) {
                 //Recupera los nombres de los menus de la empresa del usuario logueado
                 List<String> nombresMenus = supa.obtenerNombresMenuPorIdEmpresa(idEmpresaActual);
@@ -105,9 +107,9 @@ public class Main extends Application {
                 if (nombresMenus.isEmpty()) {
                     cargarVentanaCreacion();
                     Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                    alert.setTitle("Alerta");
-                    alert.setHeaderText("Alerta");
-                    alert.setContentText("No tiene ningún menú creado, ha sido redirigido a crear");
+                    alert.setTitle("Error del usuario");
+                    alert.setHeaderText("No tienes menús");
+                    alert.setContentText("Ha sido redirigido a crear");
                     alert.showAndWait();
                     loginCargado = true;
                     Main.log.warn("El usuario " + correoShared + " intento acceder a modificar sin tener menus" +
@@ -122,6 +124,7 @@ public class Main extends Application {
                         for (Plato plato : listaPlatos) {
                             nombresPlatos.add(plato.getNombrePlato());
                         }
+                        //Al controlador de la vista se le pasan los datos que requiere
                         controlador.listaPlatosMenu.setItems(nombresPlatos);
                         controlador.listaPlatosMenu.refresh();
                         controlador.obtenerPlatosModificar(listaPlatos);
