@@ -142,7 +142,7 @@ public class Controlador implements Initializable {
                     qr.generarQRYSubirAs3("pruebazekrom", textfieldNombreMenu.getText() +
                                     ".pdf", "./" + textfieldNombreMenu.getText() + ".png",
                             properties.getProperty("aws_access_key_id"),
-                            properties.getProperty("aws_secret_access_key"), properties.getProperty("aws_session_token"));
+                            properties.getProperty("aws_secret_access_key"), properties.getProperty("aws_session_token"), botonGenerarPDF);
                     // Abrir un cuadro de diálogo de guardado de archivos
                     FileChooser fileChooser = new FileChooser();
                     fileChooser.setTitle("Guardar PDF");
@@ -218,7 +218,7 @@ public class Controlador implements Initializable {
             // Llamada al metodo para acceder y generar un qr que redireccione al pdf alojado en s3
             qr.generarQRYSubirAs3("pruebazekrom", nombreMenuModificar + ".pdf", "./" + nombreMenuModificar + ".png",
                     properties.getProperty("aws_access_key_id"),
-                    properties.getProperty("aws_secret_access_key"), properties.getProperty("aws_session_token"));
+                    properties.getProperty("aws_secret_access_key"), properties.getProperty("aws_session_token"), botonGenerarPDF);
 
             // Abrir un cuadro de diálogo de guardado de archivos
             FileChooser fileChooser = new FileChooser();
@@ -267,7 +267,7 @@ public class Controlador implements Initializable {
             for (String tipoPlato : ordenTiposPlatos) {
                 if (platosPorTipo.containsKey(tipoPlato)) {
                     // Agregar título del tipo de plato al documento
-                    Paragraph tipoTitle = new Paragraph(tipoPlato, FontFactory.getFont(FontFactory.HELVETICA_BOLD, 16));
+                    Paragraph tipoTitle = new Paragraph(tipoPlato, FontFactory.getFont(FontFactory.HELVETICA_BOLD, 14));
                     tipoTitle.setAlignment(Element.ALIGN_CENTER);
                     document.add(tipoTitle);
 
