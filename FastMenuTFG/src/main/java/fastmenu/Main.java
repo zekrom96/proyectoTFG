@@ -3,6 +3,7 @@ package fastmenu;
 import classes.services.Supabase;
 import controllers.Controlador;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -56,8 +57,10 @@ public class Main extends Application {
 
             ButtonType botonModificar = new ButtonType("Modificar");
             ButtonType botonCrear = new ButtonType("Crear");
+            ButtonType botonCancelar = new ButtonType("Cancelar");
 
-            alerta.getButtonTypes().setAll(botonModificar, botonCrear);
+
+            alerta.getButtonTypes().setAll(botonModificar, botonCrear, botonCancelar);
 
             alerta.showAndWait().ifPresent(boton -> {
                 if (boton == botonModificar) {
@@ -70,6 +73,13 @@ public class Main extends Application {
                 } else if (boton == botonCrear) {
                     cargarVentanaCreacion();
                     log.info("El usuario accedio a la ventana de Creación");
+                } else if (boton == botonCancelar) {
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                    alert.setTitle("Informacion");
+                    alert.setHeaderText("Cancelacion de seleccion");
+                    alert.setContentText("Ha sido redirigido al login");
+                    alert.showAndWait();
+                    cargarVentanaLogin();
                 }
             });
         } else {

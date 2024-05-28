@@ -290,8 +290,10 @@ public class ControladorLogin implements Initializable {
         // Agregar botones al cuadro de diálogo
         ButtonType botonModificar = new ButtonType("Modificar");
         ButtonType botonCrear = new ButtonType("Crear");
+        ButtonType botonCancelar = new ButtonType("Cancelar");
 
-        alerta.getButtonTypes().setAll(botonModificar, botonCrear);
+
+        alerta.getButtonTypes().setAll(botonModificar, botonCrear, botonCancelar);
 
         // Mostrar la alerta y esperar a que se seleccione una opción
         alerta.showAndWait().ifPresent(boton -> {
@@ -375,6 +377,13 @@ public class ControladorLogin implements Initializable {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
+            } else if (boton == botonCancelar) {
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Informacion");
+                alert.setHeaderText("Cancelacion de seleccion");
+                alert.setContentText("Ha sido redirigido al login");
+                alert.showAndWait();
+                Main.cargarVentanaLogin();
             }
         });
     }
