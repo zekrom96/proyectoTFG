@@ -615,6 +615,7 @@ public class Controlador implements Initializable {
         }
         listaPlatosMenu.setItems(nombresPlatos);
         listaPlatosMenu.refresh();
+        platosAModificar = listaPlatos;
     }
 
     //Limpiar los campos en la pantalla de crear
