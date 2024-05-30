@@ -211,7 +211,6 @@ public class Supabase {
 
     public int obtenerIdMenuPorNombre(String nombreMenu) {
         try {
-            String nombreMenuCodificado = URLEncoder.encode(nombreMenu, StandardCharsets.UTF_8);
             String url = properties.getProperty("supabase_url_menus") + "?Nombre=eq." + nombreMenu;
 
             HttpClient httpClient = HttpClients.createDefault();

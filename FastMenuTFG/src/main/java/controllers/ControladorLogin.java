@@ -22,6 +22,8 @@ import models.Usuario;
 
 import java.io.IOException;
 import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
@@ -338,7 +340,8 @@ public class ControladorLogin implements Initializable {
                 } else {
                     String menuElegido = mostrarNombresMenuEnDialogo(nombresMenus);
                     if (menuElegido != null) {
-                        int idMenu = supa.obtenerIdMenuPorNombre(menuElegido);
+                        String nombreMenuCodificado = URLEncoder.encode(menuElegido, StandardCharsets.UTF_8);
+                        int idMenu = supa.obtenerIdMenuPorNombre(nombreMenuCodificado);
                         System.out.println(idMenu);
 
                         List<Plato> listaPlatos = supa.obtenerPlatosPorIdMenu(idMenu);
