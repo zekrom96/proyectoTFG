@@ -262,8 +262,10 @@ public class Supabase {
     //Metodo obtener el id de menu asignado a una empresa
     public int obtenerIdMenuPorIdEmpresa(Menu menu) {
         try {
+            String nombreMenuCodificado = URLEncoder.encode(menu.getNombre(), StandardCharsets.UTF_8);
+
             String url = properties.getProperty("supabase_url_menus") + "?id_empresa=eq." + menu.getId_empresa() +
-                    "&Nombre=eq." + menu.getNombre();
+                    "&Nombre=eq." + nombreMenuCodificado;
 
             HttpClient httpClient = HttpClients.createDefault();
             HttpGet httpGet = new HttpGet(url);

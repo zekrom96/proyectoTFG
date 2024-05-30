@@ -314,9 +314,10 @@ public class Controlador implements Initializable {
                 // Mostrar la alerta y esperar la respuesta del usuario
                 alertaConfirmacion.showAndWait().ifPresent(response -> {
                     if (response == ButtonType.OK) {
+                        String nombreMenuCodificado = URLEncoder.encode(nombreMenuModificar, StandardCharsets.UTF_8);
                         // Si el usuario confirma, proceder con el borrado
                         supa.borrarPlato(platoSeleccionado,
-                                supa.obtenerIdMenuPorNombre(nombreMenuModificar),
+                                supa.obtenerIdMenuPorNombre(nombreMenuCodificado),
                                 supa.obtenerIdEmpresaPorCorreo(correoEmpresa));
                         // Recuperar los platos de la empresa del usuario logueado
                         obtenerPlatos();
