@@ -5,6 +5,7 @@ import classes.services.Correo;
 import classes.utils.GeneradorPassword;
 import classes.services.Supabase;
 import fastmenu.*;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
@@ -391,17 +392,48 @@ public class ControladorLogin implements Initializable {
         });
     }
 
-    //Muestra el menú a elegir en un dialogo para luego modificarlo
-    private String mostrarNombresMenuEnDialogo(List<String> nombresMenus) {
-        // Crear el diálogo de selección
+    public String mostrarNombresMenuEnDialogo(List<String> nombresMenus) {
         ChoiceDialog<String> dialogo = new ChoiceDialog<>(null, nombresMenus);
         dialogo.setTitle("Selección de Menú");
         dialogo.setHeaderText("Selecciona un Menú");
         dialogo.setContentText("Menús disponibles:");
-        // Mostrar el diálogo y esperar a que el usuario seleccione una opción
+
+        ButtonType buttonTypeBorrar = new ButtonType("Borrar");
+        dialogo.getDialogPane().getButtonTypes().clear(); // Clear any existing buttons
+        dialogo.getDialogPane().getButtonTypes().addAll(ButtonType.OK, buttonTypeBorrar, ButtonType.CANCEL);
+
+        dialogo.setResultConverter(dialogButton -> {
+            if (dialogButton == buttonTypeBorrar) {
+                if (dialogo.getSelectedItem() != null) {
+                    System.out.println(dialogo.getSelectedItem());
+                    try {
+                        String nombreMenuCodificado = URLEncoder.encode(dialogo.getSelectedItem(), StandardCharsets.UTF_8);
+                        supa.borrarPlatosDeMenu(supa.obtenerIdMenuPorNombre(nombreMenuCodificado), supa.obtenerIdEmpresaPorCorreo(textfieldCorreo.getText()));
+                        supa.borrarMenu(nombreMenuCodificado, supa.obtenerIdEmpresaPorCorreo(textfieldCorreo.getText()));
+                        // Mostrar alerta de selección cancelada
+                        Alert alerta = new Alert(Alert.AlertType.INFORMATION);
+                        alerta.setTitle("Información");
+                        alerta.setHeaderText("Borrado finalizado");
+                        alerta.setContentText("Se borro el menu y sus platos finalizando la aplicacion...");
+                        alerta.showAndWait();
+                        Platform.exit();
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            } else if (dialogButton == ButtonType.OK) {
+                return dialogo.getSelectedItem();
+            } else {
+                return null;
+            }
+            return null;
+        });
+
         Optional<String> resultado = dialogo.showAndWait();
-        // Verificar si el usuario seleccionó una opción y devolverla
-        return resultado.orElse(null);
+        if (resultado.isPresent() && resultado.get().equals("Borrar")) {
+            return null; // Handle the "Borrar" action
+        }
+        return resultado.orElse(null); // Handle the "Aceptar" or "Cancelar" actions
     }
 
     private GridPane crearFormularioRegistro() {
