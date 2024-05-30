@@ -13,6 +13,8 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.ChoiceDialog;
 import javafx.stage.Stage;
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Optional;
 import java.util.prefs.Preferences;
@@ -126,7 +128,8 @@ public class Main extends Application {
                 } else {
                     String menuElegido = mostrarNombresMenuEnDialogo(nombresMenus);
                     if (menuElegido != null) {
-                        int idMenu = supa.obtenerIdMenuPorNombre(menuElegido);
+                        String nombreMenuCodificado = URLEncoder.encode(menuElegido, StandardCharsets.UTF_8);
+                        int idMenu = supa.obtenerIdMenuPorNombre(nombreMenuCodificado);
                         //Recupera los platos de la empresa del usuario logueado
                         List<Plato> listaPlatos = supa.obtenerPlatosPorIdMenu(idMenu);
                         ObservableList<String> nombresPlatos = FXCollections.observableArrayList();

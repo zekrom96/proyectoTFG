@@ -27,6 +27,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.*;
 
@@ -228,9 +230,9 @@ public class Controlador implements Initializable {
                 Plato platoNuevo = new Plato(textfieldNombrePlato.getText(), textareaDescripcionPlato.getText(),
                         comboBoxTipoPlato.getSelectionModel().getSelectedItem().toString(),
                         Double.parseDouble(textfieldPrecio.getText()));
-
+                String nombreMenuCodificado = URLEncoder.encode(nombreMenuModificar, StandardCharsets.UTF_8);
                 supa.agregarPlato(platoNuevo, supa.obtenerIdEmpresaPorCorreo(correoEmpresa),
-                        supa.obtenerIdMenuPorNombre(nombreMenuModificar));
+                        supa.obtenerIdMenuPorNombre(nombreMenuCodificado));
                 // Crear una alerta de información
                 Alert alert = new Alert(Alert.AlertType.INFORMATION);
                 alert.setTitle("Modificación de Plato");
@@ -256,10 +258,11 @@ public class Controlador implements Initializable {
                     alertaError.showAndWait();
                 } else {
                     try {
+                        String nombreMenuCodificado = URLEncoder.encode(nombreMenuModificar, StandardCharsets.UTF_8);
                         // Lógica para modificar el plato
                         supa.modificarPlatos(platoModificado,
                                 listaPlatosMenu.getSelectionModel().getSelectedItem().toString(),
-                                supa.obtenerIdMenuPorNombre(nombreMenuModificar),
+                                supa.obtenerIdMenuPorNombre(nombreMenuCodificado),
                                 supa.obtenerIdEmpresaPorCorreo(correoEmpresa));
                         Main.log.info("Se modificó el plato " + textfieldNombrePlato.getText() + " del menú " +
                                 nombreMenuModificar);
@@ -608,7 +611,8 @@ public class Controlador implements Initializable {
     }
 
     private void obtenerPlatos() {
-        List<Plato> listaPlatos = supa.obtenerPlatosPorIdMenu(supa.obtenerIdMenuPorNombre(nombreMenuModificar));
+        String nombreMenuCodificado = URLEncoder.encode(nombreMenuModificar, StandardCharsets.UTF_8);
+        List<Plato> listaPlatos = supa.obtenerPlatosPorIdMenu(supa.obtenerIdMenuPorNombre(nombreMenuCodificado));
         ObservableList<String> nombresPlatos = FXCollections.observableArrayList();
         for (Plato plato : listaPlatos) {
             nombresPlatos.add(plato.getNombrePlato());

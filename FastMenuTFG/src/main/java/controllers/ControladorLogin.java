@@ -75,10 +75,10 @@ public class ControladorLogin implements Initializable {
             } else {
                 System.out.println("El correo no existe en la bd");
                 String pwCifrada = crypt.encriptar(pw);
-                Usuario nuevoUsuario = new Usuario(correo, pwCifrada);
-                supa.crearUsuario(nuevoUsuario);
                 Empresa empresa = new Empresa(nombreEmpresa);
                 supa.agregarEmpresa(empresa, correo);
+                Usuario nuevoUsuario = new Usuario(correo, pwCifrada);
+                supa.crearUsuario(nuevoUsuario);
                 //Una vez creado el usuario y la empresa en la base de datos, se accede directamente a crear platos
                 try {
                     FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("/views/vistaCrear.fxml"));

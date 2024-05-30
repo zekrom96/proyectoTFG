@@ -3,6 +3,7 @@ package classes.services;
 import classes.utils.CifradoyDescifrado;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import javafx.scene.control.Alert;
 import models.Empresa;
 import models.Menu;
 import models.Plato;
@@ -103,8 +104,19 @@ public class Supabase {
 
             if (codigoStatus >= 200 && codigoStatus < 300) {
                 System.out.println("La empresa se agregó correctamente.");
+            } else if (codigoStatus == 409) {
+                Alert alerta = new Alert(Alert.AlertType.INFORMATION);
+                alerta.setTitle("Información");
+                alerta.setHeaderText("Ya existe la empresa");
+                alerta.setContentText("No se pudo crear la empresa");
+                alerta.showAndWait();
+                System.out.println("Error al agregar la empresa. Conflicto: la empresa ya existe.");
+                String contenidoRespuesta = obtenerContenidoRespuesta(respuesta);
+                System.out.println("Contenido de la respuesta: " + contenidoRespuesta);
             } else {
                 System.out.println("Error al agregar la empresa. Código de estado: " + codigoStatus);
+                String contenidoRespuesta = obtenerContenidoRespuesta(respuesta);
+                System.out.println("Contenido de la respuesta: " + contenidoRespuesta);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -199,6 +211,7 @@ public class Supabase {
 
     public int obtenerIdMenuPorNombre(String nombreMenu) {
         try {
+            String nombreMenuCodificado = URLEncoder.encode(nombreMenu, StandardCharsets.UTF_8);
             String url = properties.getProperty("supabase_url_menus") + "?Nombre=eq." + nombreMenu;
 
             HttpClient httpClient = HttpClients.createDefault();
