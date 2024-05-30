@@ -197,8 +197,9 @@ public class Main extends Application {
                 if (dialogo.getSelectedItem() != null) {
                     System.out.println(dialogo.getSelectedItem());
                     try {
-                        supa.borrarPlatosDeMenu(supa.obtenerIdMenuPorNombre(dialogo.getSelectedItem()), supa.obtenerIdEmpresaPorCorreo(correoPreferences));
-                        supa.borrarMenu(dialogo.getSelectedItem(), supa.obtenerIdEmpresaPorCorreo(correoPreferences));
+                        String nombreMenuCodificado = URLEncoder.encode(dialogo.getSelectedItem(), StandardCharsets.UTF_8);
+                        supa.borrarPlatosDeMenu(supa.obtenerIdMenuPorNombre(nombreMenuCodificado), supa.obtenerIdEmpresaPorCorreo(correoPreferences));
+                        supa.borrarMenu(nombreMenuCodificado, supa.obtenerIdEmpresaPorCorreo(correoPreferences));
                         // Mostrar alerta de selección cancelada
                         Alert alerta = new Alert(Alert.AlertType.INFORMATION);
                         alerta.setTitle("Información");
