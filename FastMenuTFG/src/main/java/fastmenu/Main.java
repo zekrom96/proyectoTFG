@@ -27,7 +27,7 @@ public class Main extends Application {
     //TODO Revisar pdf y código
     //TODO Mejorar logica nombreMenu?
     //TODO Borrar menu?
-    //TODO Revisar cancelar al seleccionar menu diferente
+    String correoPreferences;
     Supabase supa;
     public static final Logger log = LogManager.getLogger(Main.class);
     /*
@@ -42,7 +42,7 @@ public class Main extends Application {
         supa = new Supabase();
         Preferences preferencias = Preferences.userRoot().node("fastmenu");
         //Se recupera si había un correo guardado y su valor para iniciar una vista u otra
-        String correoPreferences = preferencias.get("logged_in_user_email", null);
+        correoPreferences = preferencias.get("logged_in_user_email", null);
         boolean estado_login = supa.comprobarEstadoCampoUsuarioLogueado(correoPreferences);
         vistaMenu(estado_login);
         log.info("Iniciando aplicación...Aplicación iniciada");
@@ -58,7 +58,6 @@ public class Main extends Application {
             ButtonType botonModificar = new ButtonType("Modificar");
             ButtonType botonCrear = new ButtonType("Crear");
             ButtonType botonCancelar = new ButtonType("Cancelar");
-
 
             alerta.getButtonTypes().setAll(botonModificar, botonCrear, botonCancelar);
 
@@ -185,8 +184,42 @@ public class Main extends Application {
         dialogo.setTitle("Selección de Menú");
         dialogo.setHeaderText("Selecciona un Menú");
         dialogo.setContentText("Menús disponibles:");
+
+        ButtonType buttonTypeBorrar = new ButtonType("Borrar");
+        dialogo.getDialogPane().getButtonTypes().clear(); // Clear any existing buttons
+        dialogo.getDialogPane().getButtonTypes().addAll(ButtonType.OK, buttonTypeBorrar, ButtonType.CANCEL);
+
+        dialogo.setResultConverter(dialogButton -> {
+            if (dialogButton == buttonTypeBorrar) {
+                if (dialogo.getSelectedItem() != null) {
+                    System.out.println(dialogo.getSelectedItem());
+                    try {
+                        supa.borrarPlatosDeMenu(supa.obtenerIdMenuPorNombre(dialogo.getSelectedItem()), supa.obtenerIdEmpresaPorCorreo(correoPreferences));
+                        supa.borrarMenu(dialogo.getSelectedItem(), supa.obtenerIdEmpresaPorCorreo(correoPreferences));
+                        // Mostrar alerta de selección cancelada
+                        Alert alerta = new Alert(Alert.AlertType.INFORMATION);
+                        alerta.setTitle("Información");
+                        alerta.setHeaderText("Borrado finalizado");
+                        alerta.setContentText("Se borro el menu y sus platos finalizando la aplicacion...");
+                        alerta.showAndWait();
+                        Platform.exit();
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            } else if (dialogButton == ButtonType.OK) {
+                return dialogo.getSelectedItem();
+            } else {
+                return null;
+            }
+            return null;
+        });
+
         Optional<String> resultado = dialogo.showAndWait();
-        return resultado.orElse(null);
+        if (resultado.isPresent() && resultado.get().equals("Borrar")) {
+            return null; // Handle the "Borrar" action
+        }
+        return resultado.orElse(null); // Handle the "Aceptar" or "Cancelar" actions
     }
 
     public static void main(String[] args) {

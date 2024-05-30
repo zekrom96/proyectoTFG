@@ -1,6 +1,8 @@
 package classes.services;
 
 import classes.utils.CifradoyDescifrado;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import models.Empresa;
 import models.Menu;
 import models.Plato;
@@ -770,6 +772,79 @@ public class Supabase {
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    public void borrarPlatosDeMenu(int idMenu, int idEmpresa) throws IOException {
+        // Recuperar todos los platos asignados al menú
+        int[] idsPlatos = recuperarIdsPlatosDeMenu(idMenu, idEmpresa);
+        HttpClient clienteHttp = HttpClients.createDefault();
+
+        // Borrar cada plato recuperado
+        for (int idPlato : idsPlatos) {
+            String urlBorrarPlato = properties.getProperty("supabase_url_platos") + "?id_plato=eq." + idPlato;
+            HttpDelete httpDelete = new HttpDelete(urlBorrarPlato);
+            httpDelete.setHeader("Content-type", "application/json");
+            httpDelete.setHeader("apikey", apiKey);
+
+            HttpResponse responseBorrarPlato = clienteHttp.execute(httpDelete);
+            int codigoStatusBorrarPlato = responseBorrarPlato.getStatusLine().getStatusCode();
+
+            if (codigoStatusBorrarPlato != 200 && codigoStatusBorrarPlato != 204) {
+                String contenidoRespuestaBorrarPlato = obtenerContenidoRespuesta(responseBorrarPlato);
+                System.out.println("Error al borrar el plato con ID " + idPlato + ". Código de estado: " + codigoStatusBorrarPlato);
+                System.out.println("Contenido de la respuesta: " + contenidoRespuestaBorrarPlato);
+            } else {
+                System.out.println("Plato borrado" + idPlato + ". Código de estado: " + codigoStatusBorrarPlato);
+            }
+        }
+    }
+
+    public void borrarMenu(String nombre, int idEmpresa) throws IOException {
+        HttpClient clienteHttp = HttpClients.createDefault();
+        String urlBorrarMenu = properties.getProperty("supabase_url_menus") + "?Nombre=eq." + nombre + "&id_empresa=eq." + idEmpresa;
+        HttpDelete httpDelete = new HttpDelete(urlBorrarMenu);
+        httpDelete.setHeader("Content-type", "application/json");
+        httpDelete.setHeader("apikey", apiKey);
+
+        HttpResponse responseBorrarMenu = clienteHttp.execute(httpDelete);
+        int codigoStatusBorrarMenu = responseBorrarMenu.getStatusLine().getStatusCode();
+
+        if (codigoStatusBorrarMenu == 200 || codigoStatusBorrarMenu == 204) {
+            System.out.println("Menú borrado correctamente. ID del Menú: " + nombre + ", ID de la Empresa: " + idEmpresa);
+        } else {
+            String contenidoRespuestaBorrarMenu = obtenerContenidoRespuesta(responseBorrarMenu);
+            System.out.println("Error al borrar el menú. Código de estado: " + codigoStatusBorrarMenu);
+            System.out.println("Contenido de la respuesta: " + contenidoRespuestaBorrarMenu);
+        }
+    }
+
+    private int[] recuperarIdsPlatosDeMenu(int idMenu, int idEmpresa) throws IOException {
+        HttpClient clienteHttp = HttpClients.createDefault();
+        String urlRecuperarPlatos = properties.getProperty("supabase_url_platos") + "?id_menu=eq." + idMenu + "&id_empresa=eq." + idEmpresa;
+        HttpGet httpGet = new HttpGet(urlRecuperarPlatos);
+        httpGet.setHeader("Content-type", "application/json");
+        httpGet.setHeader("apikey", apiKey);
+
+        HttpResponse response = clienteHttp.execute(httpGet);
+        int codigoStatus = response.getStatusLine().getStatusCode();
+
+        if (codigoStatus == 200) {
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode rootNode = mapper.readTree(response.getEntity().getContent());
+            List<Integer> idPlatosList = new ArrayList<>();
+
+            for (JsonNode node : rootNode) {
+                int idPlato = node.get("id_plato").asInt();
+                idPlatosList.add(idPlato);
+            }
+
+            return idPlatosList.stream().mapToInt(i -> i).toArray();
+        } else {
+            System.out.println("Error al recuperar los IDs de los platos. Código de estado: " + codigoStatus);
+            String contenidoRespuesta = obtenerContenidoRespuesta(response);
+            System.out.println("Contenido de la respuesta: " + contenidoRespuesta);
+            return new int[0];
         }
     }
 
