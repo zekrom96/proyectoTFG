@@ -22,14 +22,14 @@ import javafx.collections.ObservableList;
 import models.Plato;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+//TODO Revisar try-catch y avisos
+//TODO Revisar pdf y código
+//TODO Mejorar logica nombreMenu?
+//TODO Borrar menu?
 
 public class Main extends Application {
-
-    //TODO Revisar try-catch y avisos
-    //TODO Revisar pdf y código
-    //TODO Mejorar logica nombreMenu?
-    //TODO Borrar menu?
     String correoPreferences;
+    boolean alerta2 = false;
     Supabase supa;
     public static final Logger log = LogManager.getLogger(Main.class);
     /*
@@ -142,14 +142,18 @@ public class Main extends Application {
                         controlador.obtenerPlatosModificar(listaPlatos);
                         controlador.obtenerMenu(menuElegido);
                     } else {
-                        // Mostrar alerta de selección cancelada
-                        Alert alerta = new Alert(Alert.AlertType.INFORMATION);
-                        alerta.setTitle("Información");
-                        alerta.setHeaderText("Selección cancelada");
-                        alerta.setContentText("No se ha seleccionado ningún menú, volviendo al inicio de sesión...");
-                        alerta.showAndWait();
-                        cargarVentanaLogin();
-                        loginCargado = true;
+                        if(!alerta2) {
+                            // Mostrar alerta de selección cancelada
+                            Alert alerta = new Alert(Alert.AlertType.INFORMATION);
+                            alerta.setTitle("Información");
+                            alerta.setHeaderText("Selección cancelada");
+                            alerta.setContentText("No se ha seleccionado ningún menú, volviendo al inicio de sesión...");
+                            alerta.showAndWait();
+                            cargarVentanaLogin();
+                            loginCargado = true;
+                        } else {
+                            alerta2 = false;
+                        }
                     }
                 }
             }
@@ -207,6 +211,8 @@ public class Main extends Application {
                         alerta.setContentText("Se borro el menu y sus platos finalizando la aplicacion...");
                         alerta.showAndWait();
                         Platform.exit();
+                        alerta2 = true;
+                        return null;
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
@@ -221,7 +227,7 @@ public class Main extends Application {
 
         Optional<String> resultado = dialogo.showAndWait();
         if (resultado.isPresent() && resultado.get().equals("Borrar")) {
-            return null; // Handle the "Borrar" action
+            return null;
         }
         return resultado.orElse(null); // Handle the "Aceptar" or "Cancelar" actions
     }
