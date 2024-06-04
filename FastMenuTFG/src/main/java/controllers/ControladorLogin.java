@@ -393,6 +393,11 @@ public class ControladorLogin implements Initializable {
     }
 
     public String mostrarNombresMenuEnDialogo(List<String> nombresMenus) {
+        try {
+
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException(e);
+        }
         ChoiceDialog<String> dialogo = new ChoiceDialog<>(null, nombresMenus);
         dialogo.setTitle("Selección de Menú");
         dialogo.setHeaderText("Selecciona un Menú");
@@ -403,27 +408,62 @@ public class ControladorLogin implements Initializable {
         dialogo.getDialogPane().getButtonTypes().addAll(ButtonType.OK, buttonTypeBorrar, ButtonType.CANCEL);
 
         dialogo.setResultConverter(dialogButton -> {
-            if (dialogButton == buttonTypeBorrar) {
+            if(dialogButton == ButtonType.CANCEL) {
+                System.out.println("hola");
+                // Si el usuario cancela, no hacer nada
+                Alert alertaCancelacion = new Alert(Alert.AlertType.INFORMATION);
+                alertaCancelacion.setTitle("Cancelación");
+                alertaCancelacion.setHeaderText("Seleccion cancelada");
+                alertaCancelacion.setContentText("Se cancelo la selección");
+                alertaCancelacion.showAndWait();
+                Main.cargarVentanaLogin();
+                return null;
+            }
+            else if (dialogButton == buttonTypeBorrar) {
                 if (dialogo.getSelectedItem() != null) {
                     System.out.println(dialogo.getSelectedItem());
                     try {
                         String nombreMenuCodificado = URLEncoder.encode(dialogo.getSelectedItem(), StandardCharsets.UTF_8);
-                        supa.borrarPlatosDeMenu(supa.obtenerIdMenuPorNombre(nombreMenuCodificado), supa.obtenerIdEmpresaPorCorreo(textfieldCorreo.getText()));
-                        supa.borrarMenu(nombreMenuCodificado, supa.obtenerIdEmpresaPorCorreo(textfieldCorreo.getText()));
-                        // Mostrar alerta de selección cancelada
-                        Alert alerta = new Alert(Alert.AlertType.INFORMATION);
-                        alerta.setTitle("Información");
-                        alerta.setHeaderText("Borrado finalizado");
-                        alerta.setContentText("Se borro el menu y sus platos finalizando la aplicacion...");
-                        alerta.showAndWait();
-                        Platform.exit();
+
+                        // Crear alerta de confirmación
+                        Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
+                        confirmacion.setTitle("Confirmación de borrado");
+                        confirmacion.setHeaderText("Borrar Menú");
+                        confirmacion.setContentText("¿Estás seguro de que deseas borrar el menú y todos sus platos?");
+
+                        // Mostrar y esperar la respuesta del usuario
+                        Optional<ButtonType> respuesta = confirmacion.showAndWait();
+                        if (respuesta.isPresent() && respuesta.get() == ButtonType.OK) {
+                            // Si el usuario confirma, proceder con el borrado
+                            supa.borrarPlatosDeMenu(supa.obtenerIdMenuPorNombre(nombreMenuCodificado), supa.obtenerIdEmpresaPorCorreo(textfieldCorreo.getText()));
+                            supa.borrarMenu(nombreMenuCodificado, supa.obtenerIdEmpresaPorCorreo(textfieldCorreo.getText()));
+
+                            // Mostrar alerta de borrado finalizado
+                            Alert alerta = new Alert(Alert.AlertType.INFORMATION);
+                            alerta.setTitle("Información");
+                            alerta.setHeaderText("Borrado finalizado");
+                            alerta.setContentText("Se borró el menú y sus platos, finalizando la aplicación...");
+                            alerta.showAndWait();
+                            Platform.exit();
+                            return null;
+                        } else {
+                            // Si el usuario cancela, no hacer nada
+                            Alert alertaCancelacion = new Alert(Alert.AlertType.INFORMATION);
+                            alertaCancelacion.setTitle("Cancelación");
+                            alertaCancelacion.setHeaderText("Borrado cancelado");
+                            alertaCancelacion.setContentText("No se ha borrado el menú, volviendo al login.");
+                            alertaCancelacion.showAndWait();
+                            Main.cargarVentanaLogin();
+                            return null;
+                        }
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
                 }
             } else if (dialogButton == ButtonType.OK) {
                 return dialogo.getSelectedItem();
-            } else {
+            }
+            else {
                 return null;
             }
             return null;

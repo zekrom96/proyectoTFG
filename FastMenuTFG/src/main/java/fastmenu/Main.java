@@ -24,8 +24,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 //TODO Revisar try-catch y avisos
 //TODO Revisar pdf y código
-//TODO Mejorar logica nombreMenu?
-//TODO Borrar menu?
+//TODO Volver a poner fichero logs
+//TODO Revisar borrar en ControladorLogin
 
 public class Main extends Application {
     String correoPreferences;
@@ -202,17 +202,38 @@ public class Main extends Application {
                     System.out.println(dialogo.getSelectedItem());
                     try {
                         String nombreMenuCodificado = URLEncoder.encode(dialogo.getSelectedItem(), StandardCharsets.UTF_8);
-                        supa.borrarPlatosDeMenu(supa.obtenerIdMenuPorNombre(nombreMenuCodificado), supa.obtenerIdEmpresaPorCorreo(correoPreferences));
-                        supa.borrarMenu(nombreMenuCodificado, supa.obtenerIdEmpresaPorCorreo(correoPreferences));
-                        // Mostrar alerta de selección cancelada
-                        Alert alerta = new Alert(Alert.AlertType.INFORMATION);
-                        alerta.setTitle("Información");
-                        alerta.setHeaderText("Borrado finalizado");
-                        alerta.setContentText("Se borro el menu y sus platos finalizando la aplicacion...");
-                        alerta.showAndWait();
-                        Platform.exit();
-                        alerta2 = true;
-                        return null;
+
+                        // Crear alerta de confirmación
+                        Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
+                        confirmacion.setTitle("Confirmación de borrado");
+                        confirmacion.setHeaderText("Borrar Menú");
+                        confirmacion.setContentText("¿Estás seguro de que deseas borrar el menú y todos sus platos?");
+
+                        // Mostrar y esperar la respuesta del usuario
+                        Optional<ButtonType> respuesta = confirmacion.showAndWait();
+                        if (respuesta.isPresent() && respuesta.get() == ButtonType.OK) {
+                            // Si el usuario confirma, proceder con el borrado
+                            supa.borrarPlatosDeMenu(supa.obtenerIdMenuPorNombre(nombreMenuCodificado), supa.obtenerIdEmpresaPorCorreo(correoPreferences));
+                            supa.borrarMenu(nombreMenuCodificado, supa.obtenerIdEmpresaPorCorreo(correoPreferences));
+
+                            // Mostrar alerta de borrado finalizado
+                            Alert alerta = new Alert(Alert.AlertType.INFORMATION);
+                            alerta.setTitle("Información");
+                            alerta.setHeaderText("Borrado finalizado");
+                            alerta.setContentText("Se borró el menú y sus platos, finalizando la aplicación...");
+                            alerta.showAndWait();
+                            Platform.exit();
+                            alerta2 = true;
+                            return null;
+                        } else {
+                            // Si el usuario cancela, no hacer nada
+                            Alert alertaCancelacion = new Alert(Alert.AlertType.INFORMATION);
+                            alertaCancelacion.setTitle("Cancelación");
+                            alertaCancelacion.setHeaderText("Borrado cancelado");
+                            alertaCancelacion.setContentText("No se ha borrado el menú.");
+                            alertaCancelacion.showAndWait();
+                            alerta2 = false;
+                        }
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
