@@ -39,6 +39,7 @@ public class ControladorLogin implements Initializable {
     private Supabase supa;
     private CifradoyDescifrado crypt;
     private Correo correo = new Correo();
+    private boolean alertaMostrada;
     public TextField textfieldCorreo, textfieldPw;
     public Button btnRegistrase, btnLogin;
 
@@ -396,33 +397,51 @@ public class ControladorLogin implements Initializable {
         dialogo.setResultConverter(dialogButton -> {
             if(dialogButton == ButtonType.CANCEL) {
                 // Si el usuario cancela, no hacer nada
-                Alert alertaCancelacion = new Alert(Alert.AlertType.INFORMATION);
-                alertaCancelacion.setTitle("Cancelación");
-                alertaCancelacion.setHeaderText("Seleccion cancelada");
-                alertaCancelacion.setContentText("Se cancelo la selección");
-                alertaCancelacion.showAndWait();
-                Main.cargarVentanaLogin();
-                return null;
+                if (!alertaMostrada) {
+                    Alert alertaCancelacion = new Alert(Alert.AlertType.INFORMATION);
+                    alertaCancelacion.setTitle("Cancelación");
+                    alertaCancelacion.setHeaderText("Seleccion cancelada");
+                    alertaCancelacion.setContentText("Se cancelo la selección");
+                    alertaCancelacion.showAndWait();
+                    Main.cargarVentanaLogin();
+                    return null;
+                } else {
+                    alertaMostrada = false;
+                }
             }
             else if (dialogButton == buttonTypeBorrar) {
                 if (dialogo.getSelectedItem() != null) {
-                    System.out.println(dialogo.getSelectedItem());
-                    try {
-                        String nombreMenuCodificado = URLEncoder.encode(dialogo.getSelectedItem(), StandardCharsets.UTF_8);
+                    String menuSeleccionado = dialogo.getSelectedItem();
 
-                        // Proceder directamente con el borrado
-                        supa.borrarPlatosDeMenu(supa.obtenerIdMenuPorNombre(nombreMenuCodificado), supa.obtenerIdEmpresaPorCorreo(textfieldCorreo.getText()));
-                        supa.borrarMenu(nombreMenuCodificado, supa.obtenerIdEmpresaPorCorreo(textfieldCorreo.getText()));
+                    // Crear un diálogo de confirmación
+                    Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
+                    confirmacion.setTitle("Confirmación");
+                    confirmacion.setHeaderText("Confirmar borrado");
+                    confirmacion.setContentText("¿Estás seguro de que quieres borrar el menú '" + menuSeleccionado + "'?");
 
-                        // Mostrar alerta de borrado finalizado
-                        Alert alerta = new Alert(Alert.AlertType.INFORMATION);
-                        alerta.setTitle("Información");
-                        alerta.setHeaderText("Borrado finalizado");
-                        alerta.setContentText("Se borró el menú y sus platos, finalizando la aplicación...");
-                        alerta.showAndWait();
-                        return null;
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
+                    // Mostrar el diálogo de confirmación y esperar la respuesta del usuario
+                    Optional<ButtonType> resultadoConfirmacion = confirmacion.showAndWait();
+
+                    // Si el usuario confirma el borrado, proceder con la eliminación
+                    if (resultadoConfirmacion.isPresent() && resultadoConfirmacion.get() == ButtonType.OK) {
+                        try {
+                            String nombreMenuCodificado = URLEncoder.encode(menuSeleccionado, StandardCharsets.UTF_8);
+
+                            // Proceder directamente con el borrado
+                            supa.borrarPlatosDeMenu(supa.obtenerIdMenuPorNombre(nombreMenuCodificado), supa.obtenerIdEmpresaPorCorreo(textfieldCorreo.getText()));
+                            supa.borrarMenu(nombreMenuCodificado, supa.obtenerIdEmpresaPorCorreo(textfieldCorreo.getText()));
+
+                            // Mostrar alerta de borrado finalizado
+                            Alert alerta = new Alert(Alert.AlertType.INFORMATION);
+                            alerta.setTitle("Información");
+                            alerta.setHeaderText("Borrado finalizado");
+                            alerta.setContentText("Se borró el menú y sus platos, finalizando la aplicación...");
+                            alerta.showAndWait();
+                            alertaMostrada = true;
+                            return null;
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
                     }
                 }
             } else if (dialogButton == ButtonType.OK) {
