@@ -280,92 +280,83 @@ public class ControladorLogin implements Initializable {
 
     //Metodo para abrir la ventana de creación o de modificación
     private void vistaMenu() {
-        // Cerrar la ventana actual (ventana de login)
         Stage ventanaActual = (Stage) btnLogin.getScene().getWindow();
         ventanaActual.close();
 
-        // Crear una alerta con tipo de alerta de confirmación
         Alert alerta = new Alert(Alert.AlertType.CONFIRMATION);
         alerta.setTitle("Confirmación de acción");
         alerta.setHeaderText("¿Qué acción deseas realizar?");
         alerta.setContentText("Elige una opción:");
 
-        // Agregar botones al cuadro de diálogo
         ButtonType botonModificar = new ButtonType("Modificar");
         ButtonType botonCrear = new ButtonType("Crear");
         ButtonType botonCancelar = new ButtonType("Cancelar");
 
-
         alerta.getButtonTypes().setAll(botonModificar, botonCrear, botonCancelar);
 
-        // Mostrar la alerta y esperar a que se seleccione una opción
         alerta.showAndWait().ifPresent(boton -> {
             if (boton == botonModificar) {
-                System.out.println("Se seleccionó Modificar");
-                FXMLLoader loader = new FXMLLoader(Main.class.getResource("/views/vistaModificacion.fxml"));
-                Parent root;
                 try {
-                    root = loader.load();
+                    FXMLLoader loader = new FXMLLoader(Main.class.getResource("/views/vistaModificacion.fxml"));
+                    Parent root = loader.load();
+                    Scene nuevaScene = new Scene(root);
+                    Controlador controlador = loader.getController();
+                    Preferences preferences = Preferences.userRoot().node("fastmenu");
+
+                    String correoShared = preferences.get("logged_in_user_email", null);
+                    int idEmpresaActual = supa.obtenerIdEmpresaPorCorreo(correoShared);
+                    List<String> nombresMenus = supa.obtenerNombresMenuPorIdEmpresa(idEmpresaActual);
+                    if (nombresMenus.isEmpty()) {
+                        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                        alert.setTitle("Información");
+                        alert.setHeaderText("Selección cancelada");
+                        alert.setContentText("No puedes acceder a Modificar, no tienes aún menús, redirigiendo a crear...");
+                        alert.showAndWait();
+                        try {
+                            FXMLLoader loaderr = new FXMLLoader(Main.class.getResource("/views/vistaCrear.fxml"));
+                            Parent roott = loaderr.load();
+
+                            Scene nuevaScenee = new Scene(roott);
+                            Controlador controladore = loaderr.getController();
+                            Preferences pref = Preferences.userRoot().node("fastmenu");
+                            String correoShar = pref.get("logged_in_user_email", null);
+                            controladore.obtenerCorreo(correoShar);
+                            Stage nuevaVentana = new Stage();
+                            nuevaVentana.setScene(nuevaScenee);
+                            nuevaVentana.show();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    } else {
+                        String menuElegido = mostrarNombresMenuEnDialogo(nombresMenus);
+                        if (menuElegido != null) {
+                            String nombreMenuCodificado = URLEncoder.encode(menuElegido, StandardCharsets.UTF_8);
+                            int idMenu = supa.obtenerIdMenuPorNombre(nombreMenuCodificado);
+                            System.out.println(idMenu);
+
+                            List<Plato> listaPlatos = supa.obtenerPlatosPorIdMenu(idMenu);
+
+                            ObservableList<String> nombresPlatos = FXCollections.observableArrayList();
+                            for (Plato plato : listaPlatos) {
+                                nombresPlatos.add(plato.getNombrePlato());
+                            }
+                            controlador.listaPlatosMenu.setItems(nombresPlatos);
+                            controlador.listaPlatosMenu.refresh();
+                            System.out.println("Menu elegido: " + menuElegido);
+                            controlador.obtenerCorreo(correoShared);
+                            controlador.obtenerPlatosModificar(listaPlatos);
+                            controlador.obtenerMenu(menuElegido);
+                            System.out.println(listaPlatos);
+
+                            Stage nuevaVentana = new Stage();
+                            nuevaVentana.setScene(nuevaScene);
+                            nuevaVentana.show();
+                        }
+                    }
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
-                Scene nuevaScene = new Scene(root);
-                Controlador controlador = loader.getController();
-                Preferences preferences = Preferences.userRoot().node("fastmenu");
-
-                String correoShared = preferences.get("logged_in_user_email", null);
-                int idEmpresaActual = supa.obtenerIdEmpresaPorCorreo(correoShared);
-                List<String> nombresMenus = supa.obtenerNombresMenuPorIdEmpresa(idEmpresaActual);
-                if(nombresMenus.isEmpty()) {
-                    // Mostrar alerta de selección cancelada
-                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                    alert.setTitle("Información");
-                    alert.setHeaderText("Selección cancelada");
-                    alert.setContentText("No puedes acceder a Modificar, no tienes aun menus, redirigiendo a crear...");
-                    alert.showAndWait();
-                    try {
-                        FXMLLoader loaderr = new FXMLLoader(Main.class.getResource("/views/vistaCrear.fxml"));
-                        Parent roott = loaderr.load();
-
-                        Scene nuevaScenee = new Scene(roott);
-                        Controlador controladore = loaderr.getController();
-                        Preferences pref = Preferences.userRoot().node("fastmenu");
-                        String correoShar = pref.get("logged_in_user_email", null);
-                        controladore.obtenerCorreo(correoShar);
-                        Stage nuevaVentana = new Stage();
-                        nuevaVentana.setScene(nuevaScenee);
-                        nuevaVentana.show();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                } else {
-                    String menuElegido = mostrarNombresMenuEnDialogo(nombresMenus);
-                    if (menuElegido != null) {
-                        String nombreMenuCodificado = URLEncoder.encode(menuElegido, StandardCharsets.UTF_8);
-                        int idMenu = supa.obtenerIdMenuPorNombre(nombreMenuCodificado);
-                        System.out.println(idMenu);
-
-                        List<Plato> listaPlatos = supa.obtenerPlatosPorIdMenu(idMenu);
-
-                        ObservableList<String> nombresPlatos = FXCollections.observableArrayList();
-                        for (Plato plato : listaPlatos) {
-                            nombresPlatos.add(plato.getNombrePlato());
-                        }
-                        controlador.listaPlatosMenu.setItems(nombresPlatos);
-                        controlador.listaPlatosMenu.refresh();
-                        System.out.println("Menu elegido: " + menuElegido);
-                        controlador.obtenerCorreo(correoShared);
-                        controlador.obtenerPlatosModificar(listaPlatos);
-                        controlador.obtenerMenu(menuElegido);
-                        System.out.println(listaPlatos);
-                        // Establecer la nueva escena en una nueva ventana
-                        Stage nuevaVentana = new Stage();
-                        nuevaVentana.setScene(nuevaScene);
-                        nuevaVentana.show();
-                    }
-                }
             } else if (boton == botonCrear) {
-                System.out.println("Se seleccionó Crear");
                 try {
                     FXMLLoader loader = new FXMLLoader(Main.class.getResource("/views/vistaCrear.fxml"));
                     Parent root = loader.load();
@@ -393,11 +384,6 @@ public class ControladorLogin implements Initializable {
     }
 
     public String mostrarNombresMenuEnDialogo(List<String> nombresMenus) {
-        try {
-
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException(e);
-        }
         ChoiceDialog<String> dialogo = new ChoiceDialog<>(null, nombresMenus);
         dialogo.setTitle("Selección de Menú");
         dialogo.setHeaderText("Selecciona un Menú");
@@ -409,7 +395,6 @@ public class ControladorLogin implements Initializable {
 
         dialogo.setResultConverter(dialogButton -> {
             if(dialogButton == ButtonType.CANCEL) {
-                System.out.println("hola");
                 // Si el usuario cancela, no hacer nada
                 Alert alertaCancelacion = new Alert(Alert.AlertType.INFORMATION);
                 alertaCancelacion.setTitle("Cancelación");
@@ -425,37 +410,17 @@ public class ControladorLogin implements Initializable {
                     try {
                         String nombreMenuCodificado = URLEncoder.encode(dialogo.getSelectedItem(), StandardCharsets.UTF_8);
 
-                        // Crear alerta de confirmación
-                        Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
-                        confirmacion.setTitle("Confirmación de borrado");
-                        confirmacion.setHeaderText("Borrar Menú");
-                        confirmacion.setContentText("¿Estás seguro de que deseas borrar el menú y todos sus platos?");
+                        // Proceder directamente con el borrado
+                        supa.borrarPlatosDeMenu(supa.obtenerIdMenuPorNombre(nombreMenuCodificado), supa.obtenerIdEmpresaPorCorreo(textfieldCorreo.getText()));
+                        supa.borrarMenu(nombreMenuCodificado, supa.obtenerIdEmpresaPorCorreo(textfieldCorreo.getText()));
 
-                        // Mostrar y esperar la respuesta del usuario
-                        Optional<ButtonType> respuesta = confirmacion.showAndWait();
-                        if (respuesta.isPresent() && respuesta.get() == ButtonType.OK) {
-                            // Si el usuario confirma, proceder con el borrado
-                            supa.borrarPlatosDeMenu(supa.obtenerIdMenuPorNombre(nombreMenuCodificado), supa.obtenerIdEmpresaPorCorreo(textfieldCorreo.getText()));
-                            supa.borrarMenu(nombreMenuCodificado, supa.obtenerIdEmpresaPorCorreo(textfieldCorreo.getText()));
-
-                            // Mostrar alerta de borrado finalizado
-                            Alert alerta = new Alert(Alert.AlertType.INFORMATION);
-                            alerta.setTitle("Información");
-                            alerta.setHeaderText("Borrado finalizado");
-                            alerta.setContentText("Se borró el menú y sus platos, finalizando la aplicación...");
-                            alerta.showAndWait();
-                            Platform.exit();
-                            return null;
-                        } else {
-                            // Si el usuario cancela, no hacer nada
-                            Alert alertaCancelacion = new Alert(Alert.AlertType.INFORMATION);
-                            alertaCancelacion.setTitle("Cancelación");
-                            alertaCancelacion.setHeaderText("Borrado cancelado");
-                            alertaCancelacion.setContentText("No se ha borrado el menú, volviendo al login.");
-                            alertaCancelacion.showAndWait();
-                            Main.cargarVentanaLogin();
-                            return null;
-                        }
+                        // Mostrar alerta de borrado finalizado
+                        Alert alerta = new Alert(Alert.AlertType.INFORMATION);
+                        alerta.setTitle("Información");
+                        alerta.setHeaderText("Borrado finalizado");
+                        alerta.setContentText("Se borró el menú y sus platos, finalizando la aplicación...");
+                        alerta.showAndWait();
+                        return null;
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
@@ -470,9 +435,11 @@ public class ControladorLogin implements Initializable {
         });
 
         Optional<String> resultado = dialogo.showAndWait();
-        if (resultado.isPresent() && resultado.get().equals("Borrar")) {
-            return null; // Handle the "Borrar" action
+        if (!resultado.isPresent() || resultado.get().equals("Borrar")) {
+            Platform.exit();
+            return null;
         }
+
         return resultado.orElse(null); // Handle the "Aceptar" or "Cancelar" actions
     }
 
