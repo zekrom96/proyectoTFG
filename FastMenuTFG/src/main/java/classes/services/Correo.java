@@ -31,13 +31,6 @@ public class Correo {
         mensaje.setText("Nueva password temporal generada use la siguiente en el proximo inicio de sesion: " + nuevaPw);
 
         Transport.send(mensaje);
-        Platform.runLater(() -> {
-            Alert alerta = new Alert(Alert.AlertType.INFORMATION);
-            alerta.setTitle("Éxito");
-            alerta.setHeaderText(null);
-            alerta.setContentText("Correo electrónico enviado satisfactoriamente.");
-            alerta.showAndWait();
-        });
         System.out.println("Correo electrónico enviado satisfactoriamente.");
     }
 }

@@ -97,6 +97,12 @@ public class ControladorLogin implements Initializable {
                     Stage nuevaVentana = new Stage();
                     nuevaVentana.setScene(nuevaScene);
                     nuevaVentana.show();
+                    // Mostrar alerta de borrado finalizado
+                    Alert alerta = new Alert(Alert.AlertType.INFORMATION);
+                    alerta.setTitle("Información");
+                    alerta.setHeaderText("Bienvenido a FastMenu");
+                    alerta.setContentText("Usuario registrado correctamente");
+                    alerta.showAndWait();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -175,6 +181,11 @@ public class ControladorLogin implements Initializable {
                 try {
                     boolean correoEncontrado = supa.comprobarExisteCorreo(correoTextField.getText());
                     if (correoEncontrado) {
+                        Alert alerta = new Alert(Alert.AlertType.INFORMATION);
+                        alerta.setTitle("Éxito");
+                        alerta.setHeaderText(null);
+                        alerta.setContentText("Correo electrónico enviado satisfactoriamente.");
+                        alerta.showAndWait();
                         correo.enviarGmail(props.getProperty("cuenta_correo"), props.getProperty("keygmail"),
                                 correoTextField.getText(), pwTemporal);
 
@@ -395,21 +406,8 @@ public class ControladorLogin implements Initializable {
         dialogo.getDialogPane().getButtonTypes().addAll(ButtonType.OK, buttonTypeBorrar, ButtonType.CANCEL);
 
         dialogo.setResultConverter(dialogButton -> {
-            if(dialogButton == ButtonType.CANCEL) {
-                // Si el usuario cancela, no hacer nada
-                if (!alertaMostrada) {
-                    Alert alertaCancelacion = new Alert(Alert.AlertType.INFORMATION);
-                    alertaCancelacion.setTitle("Cancelación");
-                    alertaCancelacion.setHeaderText("Seleccion cancelada");
-                    alertaCancelacion.setContentText("Se cancelo la selección");
-                    alertaCancelacion.showAndWait();
-                    Main.cargarVentanaLogin();
-                    return null;
-                } else {
-                    alertaMostrada = false;
-                }
-            }
-            else if (dialogButton == buttonTypeBorrar) {
+
+            if (dialogButton == buttonTypeBorrar) {
                 if (dialogo.getSelectedItem() != null) {
                     String menuSeleccionado = dialogo.getSelectedItem();
 
@@ -455,8 +453,17 @@ public class ControladorLogin implements Initializable {
 
         Optional<String> resultado = dialogo.showAndWait();
         if (!resultado.isPresent() || resultado.get().equals("Borrar")) {
-            Platform.exit();
-            return null;
+            if (alertaMostrada) {
+                alertaMostrada = false;
+            } else {
+                Alert alerta = new Alert(Alert.AlertType.INFORMATION);
+                alerta.setTitle("Información");
+                alerta.setHeaderText("Borrado cancelado");
+                alerta.setContentText("Se cancelo la acción, volviendo al login...");
+                alerta.showAndWait();
+                Main.cargarVentanaLogin();
+                return null;
+            }
         }
 
         return resultado.orElse(null); // Handle the "Aceptar" or "Cancelar" actions
