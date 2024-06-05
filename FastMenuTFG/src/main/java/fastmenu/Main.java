@@ -22,10 +22,9 @@ import javafx.collections.ObservableList;
 import models.Plato;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
 //TODO Revisar try-catch y avisos
-//TODO Revisar pdf y código
 //TODO Volver a poner fichero logs
-//TODO Revisar borrar en ControladorLogin
 
 public class Main extends Application {
     String correoPreferences;
