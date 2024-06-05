@@ -16,7 +16,6 @@ import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.S3Exception;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequest;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileSystems;
@@ -56,6 +55,7 @@ public class GeneradorQR {
                             .signatureDuration(Duration.ofDays(7)));
 
             String presignedUrl = presignedGetObjectRequest.url().toString();
+            Main.log.info("URL prefirmada generada para el objeto en S3: " + presignedUrl);
 
             // Generar el código QR con la URL prefirmada incrustada
             BitMatrix bitMatrix = new QRCodeWriter().encode(presignedUrl, BarcodeFormat.QR_CODE, width, height);
@@ -63,7 +63,7 @@ public class GeneradorQR {
             // Escribir el código QR en un archivo
             Path path = FileSystems.getDefault().getPath(qrFilePath);
             MatrixToImageWriter.writeToPath(bitMatrix, format, path);
-            System.out.println("Código QR generado con éxito en: " + qrFilePath);
+            Main.log.info("Código QR generado con éxito en: " + qrFilePath);
 
             // Abrir un cuadro de diálogo de guardado de archivos
             FileChooser fileChooser = new FileChooser();
@@ -82,14 +82,14 @@ public class GeneradorQR {
                     String objectKeyWithoutExtension = objectKey.replace(".pdf", ""); // Eliminar la extensión ".pdf"
                     String pdfFile = "./" + objectKeyWithoutExtension + ".png";
                     java.nio.file.Files.copy(new File(pdfFile).toPath(), selectedFile.toPath());
-                    System.out.println("PDF guardado en: " + selectedFile.getAbsolutePath());
+                    Main.log.info("Archivo PNG guardado en: " + selectedFile.getAbsolutePath());
                 } catch (IOException e) {
                     e.printStackTrace();
-                    Main.log.error("Error al guardar el PDF");
+                    Main.log.error("Error al guardar el archivo PNG");
                 }
             }
         } catch (IOException | WriterException | S3Exception e) {
-            System.err.println("Error al generar el código QR: " + e.getMessage());
+            Main.log.error("Error al generar el código QR: " + e.getMessage());
         } finally {
             // Cerrar cliente de S3 y S3Presigner
             s3Client.close();

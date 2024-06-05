@@ -3,6 +3,7 @@ package classes.services;
 import classes.utils.CifradoyDescifrado;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import fastmenu.Main;
 import javafx.scene.control.Alert;
 import models.Empresa;
 import models.Menu;
@@ -38,11 +39,10 @@ public class Supabase {
         try {
             properties.load(getClass().getResourceAsStream("/properties/configuraciones.properties"));
             apiKey = properties.getProperty("supabase_key");
-            System.out.println("Archivo properties cargado correctamente.");
+            Main.log.info("Archivo properties cargado correctamente.");
             crypt = new CifradoyDescifrado(properties.getProperty("secret_key"));
         } catch (IOException e) {
-            System.err.println("Error al cargar el archivo properties: " + e.getMessage());
-            e.printStackTrace();
+            Main.log.error("Error al cargar el archivo properties: " + e.getMessage(), e);
         }
     }
 
@@ -77,15 +77,14 @@ public class Supabase {
 
             // Verificar el código de estado de la respuesta
             if (codigoStatus == 200 || codigoStatus == 201) {
-                System.out.println("Plato agregado correctamente.");
+                Main.log.info("Plato agregado correctamente.");
             } else {
-                System.out.println("Error al agregar el plato. Código de estado: " + codigoStatus);
+                Main.log.warn("Error al agregar el plato. Código de estado: " + codigoStatus);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            Main.log.error("Error al agregar el plato: " + e.getMessage(), e);
         }
     }
-
 
     public void agregarEmpresa(Empresa empresa, String correo) {
         try {
@@ -103,23 +102,23 @@ public class Supabase {
             int codigoStatus = respuesta.getStatusLine().getStatusCode();
 
             if (codigoStatus >= 200 && codigoStatus < 300) {
-                System.out.println("La empresa se agregó correctamente.");
+                Main.log.info("La empresa se agregó correctamente.");
             } else if (codigoStatus == 409) {
                 Alert alerta = new Alert(Alert.AlertType.INFORMATION);
                 alerta.setTitle("Información");
                 alerta.setHeaderText("Ya existe la empresa");
                 alerta.setContentText("No se pudo crear la empresa");
                 alerta.showAndWait();
-                System.out.println("Error al agregar la empresa. Conflicto: la empresa ya existe.");
+                Main.log.warn("Error al agregar la empresa. Conflicto: la empresa ya existe.");
                 String contenidoRespuesta = obtenerContenidoRespuesta(respuesta);
-                System.out.println("Contenido de la respuesta: " + contenidoRespuesta);
+                Main.log.warn("Contenido de la respuesta: " + contenidoRespuesta);
             } else {
-                System.out.println("Error al agregar la empresa. Código de estado: " + codigoStatus);
+                Main.log.warn("Error al agregar la empresa. Código de estado: " + codigoStatus);
                 String contenidoRespuesta = obtenerContenidoRespuesta(respuesta);
-                System.out.println("Contenido de la respuesta: " + contenidoRespuesta);
+                Main.log.warn("Contenido de la respuesta: " + contenidoRespuesta);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            Main.log.error("Error al agregar la empresa: " + e.getMessage(), e);
         }
     }
 
@@ -132,19 +131,19 @@ public class Supabase {
             empresaJson.put("Nombre", menu.getNombre());
             empresaJson.put("id_empresa", menu.getId_empresa());
 
-           mandarSolicitudPost(empresaJson, httpPost);
+            mandarSolicitudPost(empresaJson, httpPost);
 
             HttpResponse respuesta = clienteHttp.execute(httpPost);
 
             int codigoStatus = respuesta.getStatusLine().getStatusCode();
 
             if (codigoStatus >= 200 && codigoStatus < 300) {
-                System.out.println("El menu se agregó correctamente.");
+                Main.log.info("El menu se agregó correctamente.");
             } else {
-                System.out.println("Error al agregar el menu. Código de estado: " + codigoStatus);
+                Main.log.warn("Error al agregar el menu. Código de estado: " + codigoStatus);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            Main.log.error("Error al agregar el menu: " + e.getMessage(), e);
         }
     }
 
@@ -168,11 +167,11 @@ public class Supabase {
                 JSONObject empresaJson = jsonArray.getJSONObject(0);
                 return empresaJson.getInt("id");
             } else {
-                System.out.println("No se encontro ninguna empresa con el correo indicado");
+                Main.log.warn("No se encontró ninguna empresa con el correo indicado");
                 return -1;
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            Main.log.error("Error al obtener el ID de la empresa por correo: " + e.getMessage(), e);
             return -1;
         }
     }
@@ -202,12 +201,12 @@ public class Supabase {
                 Plato plato = new Plato(nombre, descripcion, tipoPlato, precio);
                 platos.add(plato);
             }
+            Main.log.info("Platos obtenidos correctamente para el menú con ID " + idMenu);
         } catch (IOException | JSONException e) {
-            e.printStackTrace();
+            Main.log.error("Error al obtener los platos por ID del menú: " + e.getMessage(), e);
         }
         return platos;
     }
-
 
     public int obtenerIdMenuPorNombre(String nombreMenu) {
         try {
@@ -223,15 +222,15 @@ public class Supabase {
 
             JSONArray jsonArray = new JSONArray(responseBody);
             if (jsonArray.length() > 0) {
-                // Obtener el ID de la primera empresa encontrada
+                // Obtener el ID del primer menú encontrado
                 JSONObject empresaJson = jsonArray.getJSONObject(0);
                 return empresaJson.getInt("id");
             } else {
-                System.out.println("No se encontro ninguna menu");
+                Main.log.warn("No se encontró ningún menú con el nombre indicado");
                 return -1;
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            Main.log.error("Error al obtener el ID del menú por nombre: " + e.getMessage(), e);
             return -1;
         }
     }
@@ -253,8 +252,9 @@ public class Supabase {
                 String nombreMenu = menuJson.getString("Nombre");
                 nombresMenus.add(nombreMenu);
             }
+            Main.log.info("Nombres de menús obtenidos correctamente para la empresa con ID " + idEmpresa);
         } catch (IOException e) {
-            e.printStackTrace();
+            Main.log.error("Error al obtener los nombres de los menús por ID de la empresa: " + e.getMessage(), e);
         }
         return nombresMenus;
     }
@@ -285,7 +285,7 @@ public class Supabase {
                 return -1;
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            Main.log.error("Error al obtener el ID del menú para la empresa: ", e);
             return -1;
         }
     }
@@ -313,29 +313,28 @@ public class Supabase {
                 JSONArray platos = new JSONArray(contenidoRespuesta);
                 if (platos.length() > 0) {
                     JSONObject primerPlato = platos.getJSONObject(0);
-                    System.out.println(primerPlato);
+                    Main.log.info("Plato encontrado: " + primerPlato);
                     idPlato = primerPlato.getInt("id_plato");
                 } else {
-                    System.out.println("No se encontró ningún plato con el nombre '" + nombrePlato);
+                    Main.log.info("No se encontró ningún plato con el nombre '" + nombrePlato + "'");
                 }
             } else {
-                System.out.println("Error al recuperar el ID del plato. Código de estado: " + codigoStatus);
+                Main.log.error("Error al recuperar el ID del plato. Código de estado: " + codigoStatus);
                 String contenidoRespuesta = obtenerContenidoRespuesta(response);
-                System.out.println("Contenido de la respuesta: " + contenidoRespuesta);
+                Main.log.error("Contenido de la respuesta: " + contenidoRespuesta);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            Main.log.error("Error al recuperar el ID del plato: ", e);
         }
-        System.out.println(idPlato);
+        Main.log.info("ID del Plato: " + idPlato);
         return idPlato;
     }
 
-
-      /*
-   //**********************************PARTE DE AUTH SIMULADA*********************************************************
-    *                                                                                                                *
-    *                                                                                                                *
-    ******************************************************************************************************************/
+/*
+ //**********************************PARTE DE AUTH SIMULADA*********************************************************
+ *                                                                                                                *
+ *                                                                                                                *
+ ******************************************************************************************************************/
 
     /*
     Metodo crea un usuario en tabla de usuarios
@@ -347,7 +346,7 @@ public class Supabase {
             JSONObject userData = new JSONObject();
             userData.put("password", usuario.getPassword());
             userData.put("email", usuario.getEmail());
-            
+
             mandarSolicitudPost(userData, httpPost);
 
             // Ejecutar la solicitud HTTP
@@ -356,15 +355,14 @@ public class Supabase {
             // Verificar el código de estado de la respuesta
             int statusCode = response.getStatusLine().getStatusCode();
             if (statusCode == 200 || statusCode == 201) {
-                System.out.println("Usuario creado correctamente.");
+                Main.log.info("Usuario creado correctamente.");
             } else {
-                System.out.println("Error al crear usuario. Código de estado: " + statusCode);
+                Main.log.error("Error al crear usuario. Código de estado: " + statusCode);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            Main.log.error("Error al crear usuario: ", e);
         }
     }
-
 
     /*
     Metodo "autenticarse" contra la bd de Usuarios, por un lado recupero de la bd la pw cifrada, la descifro y compruebo
@@ -389,34 +387,33 @@ public class Supabase {
                     // Usuario encontrado, recuperar la contraseña cifrada
                     JSONObject userData = jsonArray.getJSONObject(0);
                     String pwCifrada = userData.getString("password");
-                    System.out.println(pwCifrada);
+                    Main.log.info("Contraseña cifrada recuperada: " + pwCifrada);
                     // Descifrar la contraseña
                     String pwDescifrada = crypt.desencriptar(pwCifrada);
-                    System.out.println(pwDescifrada);
+                    Main.log.info("Contraseña descifrada: " + pwDescifrada);
                     // Verificar si la contraseña ingresada coincide con la contraseña descifrada
                     if (usuario.getPassword().equals(pwDescifrada)) {
                         // Las contraseñas coinciden, el inicio de sesión es exitoso
-                        System.out.println("Inicio de sesión exitoso para el usuario: " + usuario.getEmail());
+                        Main.log.info("Inicio de sesión exitoso para el usuario: " + usuario.getEmail());
                         return true;
                         // Lógica para continuar con el flujo de la aplicación después del inicio de sesión exitoso
                     } else {
-                        System.out.println("La contraseña es incorrecta para el usuario: " + usuario.getEmail());
+                        Main.log.warn("La contraseña es incorrecta para el usuario: " + usuario.getEmail());
                         return false;
                     }
                 } else {
-                    System.out.println("El usuario " + usuario.getEmail() + " no existe.");
+                    Main.log.warn("El usuario " + usuario.getEmail() + " no existe.");
                     return false;
                 }
             } else {
-                System.out.println("Error al realizar la solicitud HTTP. Código de estado: " + statusCode);
+                Main.log.error("Error al realizar la solicitud HTTP. Código de estado: " + statusCode);
                 return false;
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            Main.log.error("Error al iniciar sesión: ", e);
         }
         return false;
     }
-
 
     //Metodo encargado de realizar el cambio de la pw en la bd y comprobar que se ha cambiado correctamente
     public void modificarPassword(Usuario usuario) {
@@ -438,21 +435,20 @@ public class Supabase {
                 // Verificar si el cambio se realizó correctamente
                 boolean cambioRealizado = verificarCambioPassword(usuario);
                 if (cambioRealizado) {
-                    System.out.println("Contraseña actualizada correctamente para el usuario con correo: "
+                    Main.log.info("Contraseña actualizada correctamente para el usuario con correo: "
                             + usuario.getEmail());
                 } else {
-                    System.out.println("Error: No se pudo confirmar que el cambio se realizó correctamente"
+                    Main.log.warn("Error: No se pudo confirmar que el cambio se realizó correctamente"
                             + "para el usuario con correo: " + usuario.getEmail());
                 }
             } else {
-                System.out.println("Error al actualizar la contraseña para el usuario con correo: "
+                Main.log.error("Error al actualizar la contraseña para el usuario con correo: "
                         + usuario.getEmail());
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            Main.log.error("Error al modificar la contraseña: ", e);
         }
     }
-
 
     //Metodo encargado comprobar se ha cambiado la contraseña
     public boolean verificarCambioPassword(Usuario nuevoUsuario) {
@@ -474,20 +470,21 @@ public class Supabase {
                     String passwordActual = usuario.getString("password");
                     return passwordActual.equals(nuevoUsuario.getPassword());
                 } else {
-                    System.out.println("Error: No se encontró ningún usuario con el correo especificado.");
+                    Main.log.warn("Error: No se encontró ningún usuario con el correo especificado.");
                     return false;
                 }
             } else {
-                System.out.println("Error: No se pudo obtener los detalles del usuario. Código de estado: " + statusCode);
+                Main.log.error("Error: No se pudo obtener los detalles del usuario. Código de estado: " + statusCode);
                 return false;
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            Main.log.error("Error al verificar el cambio de contraseña: ", e);
             return false;
         }
     }
 
-    //Metodo modifica el campo restablecer_pw de un usuario, la usaré ponerla en true o false segun el caso
+
+    // Método para modificar el campo restablecer_pw de un usuario
     public void modificarCampoUsuarioRestablecerPw(String correoUsuario, boolean nuevoValor) {
         try {
             JSONObject requestBody = new JSONObject();
@@ -501,24 +498,24 @@ public class Supabase {
 
             HttpResponse response = httpClient.execute(httpPatch);
             int statusCode = response.getStatusLine().getStatusCode();
-            System.out.println(statusCode);
+            Main.log.info("Código de estado de la solicitud: " + statusCode);
 
             if (statusCode == 204) {
                 boolean cambioRealizado = verificarCambioCampoRestablecerPw(correoUsuario, nuevoValor);
                 if (cambioRealizado) {
-                    System.out.println("Campo restablecer_pw actualizado correctamente para el usuario con correo: " + correoUsuario);
+                    Main.log.info("Campo restablecer_pw actualizado correctamente para el usuario con correo: " + correoUsuario);
                 } else {
-                    System.out.println("Error: No se pudo confirmar que el cambio se realizó correctamente para el usuario con correo: " + correoUsuario);
+                    Main.log.warn("Error: No se pudo confirmar que el cambio se realizó correctamente para el usuario con correo: " + correoUsuario);
                 }
             } else {
-                System.out.println("Error al actualizar el campo restablecer_pw para el usuario con correo: " + correoUsuario);
+                Main.log.error("Error al actualizar el campo restablecer_pw para el usuario con correo: " + correoUsuario);
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            Main.log.error("Error al ejecutar la solicitud HTTP: ", e);
         }
     }
 
-    //Metodo verifica el cambio de valor en el campo restablecer pw
+    // Método para verificar el cambio de valor en el campo restablecer_pw
     public boolean verificarCambioCampoRestablecerPw(String correoUsuario, boolean nuevoValor) {
         try {
             String url = properties.getProperty("supabase_url_usuarios") + "?email=eq." + correoUsuario;
@@ -533,7 +530,6 @@ public class Supabase {
             int statusCode = response.getStatusLine().getStatusCode();
 
             if (statusCode == 200) {
-
                 String responseBody = obtenerContenidoRespuesta(response);
                 JSONArray jsonArray = new JSONArray(responseBody);
 
@@ -542,20 +538,20 @@ public class Supabase {
                     boolean valorActual = usuario.getBoolean("restablecer_pw");
                     return valorActual == nuevoValor;
                 } else {
-                    System.out.println("Error: No se encontró ningún usuario con el correo especificado.");
+                    Main.log.warn("Error: No se encontró ningún usuario con el correo especificado.");
                     return false;
                 }
             } else {
-                System.out.println("Error: No se pudo obtener los detalles del usuario. Código de estado: " + statusCode);
+                Main.log.error("Error: No se pudo obtener los detalles del usuario. Código de estado: " + statusCode);
                 return false;
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            Main.log.error("Error al ejecutar la solicitud HTTP: ", e);
             return false;
         }
     }
 
-    //Metodo poner el campo usuario logueado en x valor de un correo
+    // Método para modificar el campo usuario logueado
     public void modificarCampoUsuarioLogueado(String correoUsuario, boolean nuevoValor) {
         try {
             JSONObject requestBody = new JSONObject();
@@ -569,24 +565,24 @@ public class Supabase {
 
             HttpResponse response = httpClient.execute(httpPatch);
             int statusCode = response.getStatusLine().getStatusCode();
-            System.out.println(statusCode);
+            Main.log.info("Código de estado de la solicitud: " + statusCode);
 
             if (statusCode == 204) {
                 boolean cambioRealizado = verificarCambioCampoUsuarioLogueado(correoUsuario, nuevoValor);
                 if (cambioRealizado) {
-                    System.out.println("Campo usuario logueado actualizado correctamente para el usuario con correo: " + correoUsuario);
+                    Main.log.info("Campo usuario logueado actualizado correctamente para el usuario con correo: " + correoUsuario);
                 } else {
-                    System.out.println("Error: No se pudo confirmar que el cambio se realizó correctamente para el usuario con correo: " + correoUsuario);
+                    Main.log.warn("Error: No se pudo confirmar que el cambio se realizó correctamente para el usuario con correo: " + correoUsuario);
                 }
             } else {
-                System.out.println("Error al actualizar el campo restablecer_pw para el usuario con correo: " + correoUsuario);
+                Main.log.error("Error al actualizar el campo restablecer_pw para el usuario con correo: " + correoUsuario);
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            Main.log.error("Error al ejecutar la solicitud HTTP: ", e);
         }
     }
 
-    //Metodo comprueba el estado del campo restablecerpw, si esta en false o true, segun como este el programa hara x
+    // Método para comprobar el estado del campo restablecer_pw
     public boolean comprobarEstadoCampoRestablecerPw(Usuario nuevoUsuario) {
         try {
             String url = properties.getProperty("supabase_url_usuarios") + "?email=eq." + nuevoUsuario.getEmail();
@@ -608,20 +604,20 @@ public class Supabase {
                     boolean valorActual = usuario.getBoolean("restablecer_pw");
                     return valorActual;
                 } else {
-                    System.out.println("Error: No se encontró ningún usuario con el correo especificado.");
+                    Main.log.warn("Error: No se encontró ningún usuario con el correo especificado.");
                     return false;
                 }
             } else {
-                System.out.println("Error: No se pudo obtener los detalles del usuario. Código de estado: " + statusCode);
+                Main.log.error("Error: No se pudo obtener los detalles del usuario. Código de estado: " + statusCode);
                 return false;
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            Main.log.error("Error al ejecutar la solicitud HTTP: ", e);
             return false;
         }
     }
 
-    //Metodo comprueba el estado del campo usuario logueado, si esta en false o true, segun como este el programa hara x
+    // Método para comprobar el estado del campo usuario logueado
     public boolean comprobarEstadoCampoUsuarioLogueado(String correoUsuario) {
         try {
             String url = properties.getProperty("supabase_url_usuarios") + "?email=eq." + correoUsuario;
@@ -634,6 +630,7 @@ public class Supabase {
 
             HttpResponse response = httpClient.execute(httpGet);
             int statusCode = response.getStatusLine().getStatusCode();
+            Main.log.info("Código de estado de la solicitud: " + statusCode);
 
             if (statusCode == 200) {
                 String responseBody = obtenerContenidoRespuesta(response);
@@ -643,20 +640,20 @@ public class Supabase {
                     boolean valorActual = usuario.getBoolean("usuario_logueado");
                     return valorActual;
                 } else {
-                    System.out.println("Error: No se encontró ningún usuario con el correo especificado.");
+                    Main.log.warn("Error: No se encontró ningún usuario con el correo especificado.");
                     return false;
                 }
             } else {
-                System.out.println("Error: No se pudo obtener los detalles del usuario. Código de estado: " + statusCode);
+                Main.log.error("Error: No se pudo obtener los detalles del usuario. Código de estado: " + statusCode);
                 return false;
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            Main.log.error("Error al ejecutar la solicitud HTTP: ", e);
             return false;
         }
     }
 
-    //Comprueba se han realizado los cambios del campo usuario logueado
+    // Método para verificar el cambio de valor en el campo usuario logueado
     public boolean verificarCambioCampoUsuarioLogueado(String correoUsuario, boolean nuevoValor) {
         try {
             String url = properties.getProperty("supabase_url_usuarios") + "?email=eq." + correoUsuario;
@@ -667,6 +664,7 @@ public class Supabase {
             HttpResponse response = httpClient.execute(httpGet);
 
             int statusCode = response.getStatusLine().getStatusCode();
+            Main.log.info("Código de estado de la solicitud: " + statusCode);
             if (statusCode == 200) {
                 String responseBody = obtenerContenidoRespuesta(response);
                 JSONArray jsonArray = new JSONArray(responseBody);
@@ -675,21 +673,20 @@ public class Supabase {
                     boolean valorActual = usuario.getBoolean("usuario_logueado");
                     return valorActual == nuevoValor;
                 } else {
-                    System.out.println("Error: No se encontró ningún usuario con el correo especificado.");
+                    Main.log.warn("Error: No se encontró ningún usuario con el correo especificado.");
                     return false;
                 }
             } else {
-                System.out.println("Error: No se pudo obtener los detalles del usuario. Código de estado: " + statusCode);
+                Main.log.error("Error: No se pudo obtener los detalles del usuario. Código de estado: " + statusCode);
                 return false;
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            Main.log.error("Error al ejecutar la solicitud HTTP: ", e);
             return false;
         }
     }
 
-
-    //Metodo comprueba si en la tabla usuario existe un correo dado, ya que un valor unico el email
+    // Método para comprobar si en la tabla usuario existe un correo dado, ya que un valor único es el email
     public boolean comprobarExisteCorreo(String correo) {
         try {
             String url = properties.getProperty("supabase_url_usuarios") + "?select=email&email=eq." + correo;
@@ -700,59 +697,61 @@ public class Supabase {
             HttpResponse response = httpClient.execute(httpGet);
 
             int statusCode = response.getStatusLine().getStatusCode();
+            Main.log.info("Código de estado de la solicitud: " + statusCode);
             if (statusCode == 200) {
                 String responseBody = obtenerContenidoRespuesta(response);
                 JSONArray jsonArray = new JSONArray(responseBody);
                 return jsonArray.length() > 0;
             } else {
-                System.out.println("Error: No se pudo obtener los detalles del usuario. Código de estado: " + statusCode);
+                Main.log.error("Error: No se pudo obtener los detalles del usuario. Código de estado: " + statusCode);
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            Main.log.error("Error al ejecutar la solicitud HTTP: ", e);
         }
         return false;
     }
 
-    //Modifica los datos de un plato o varios
+    // Método para modificar los datos de un plato o varios
     public void modificarPlatos(Plato platoModificado, String nombrePlatoOriginal, int idMenu, int idEmpresa) {
         try {
-                int idPlato = recuperarIdPlato(nombrePlatoOriginal, idEmpresa, idMenu);
-                if (idPlato != 0) {
-                    HttpClient clienteHttp = HttpClients.createDefault();
-                    // Construir la URL de la solicitud PUT utilizando el ID del plato encontrado
-                    String urlModificarPlato = properties.getProperty("supabase_url_platos") + "?id_plato=eq." + idPlato;
-                    HttpPut httpPut = new HttpPut(urlModificarPlato);
-                    httpPut.setHeader("Content-type", "application/json");
-                    httpPut.setHeader("apikey", apiKey);
+            int idPlato = recuperarIdPlato(nombrePlatoOriginal, idEmpresa, idMenu);
+            if (idPlato != 0) {
+                HttpClient clienteHttp = HttpClients.createDefault();
+                // Construir la URL de la solicitud PUT utilizando el ID del plato encontrado
+                String urlModificarPlato = properties.getProperty("supabase_url_platos") + "?id_plato=eq." + idPlato;
+                HttpPut httpPut = new HttpPut(urlModificarPlato);
+                httpPut.setHeader("Content-type", "application/json");
+                httpPut.setHeader("apikey", apiKey);
 
-                    // Crear objeto JSON con los datos del plato modificado
-                    JSONObject platoJson = new JSONObject();
-                    platoJson.put("nombre", platoModificado.getNombrePlato());
-                    platoJson.put("descripcion", platoModificado.getDescripcionPlato());
-                    platoJson.put("tipo", platoModificado.getTipoPlato());
-                    platoJson.put("precio", platoModificado.getPrecioPlato());
-                    platoJson.put("id_plato", idPlato);
+                // Crear objeto JSON con los datos del plato modificado
+                JSONObject platoJson = new JSONObject();
+                platoJson.put("nombre", platoModificado.getNombrePlato());
+                platoJson.put("descripcion", platoModificado.getDescripcionPlato());
+                platoJson.put("tipo", platoModificado.getTipoPlato());
+                platoJson.put("precio", platoModificado.getPrecioPlato());
+                platoJson.put("id_plato", idPlato);
 
-                    // Agregar el objeto JSON al cuerpo de la solicitud PUT
-                    StringEntity entidadJson = new StringEntity(platoJson.toString(), StandardCharsets.UTF_8);
-                    httpPut.setEntity(entidadJson);
+                // Agregar el objeto JSON al cuerpo de la solicitud PUT
+                StringEntity entidadJson = new StringEntity(platoJson.toString(), StandardCharsets.UTF_8);
+                httpPut.setEntity(entidadJson);
 
-                    // Ejecutar la solicitud PUT
-                    HttpResponse responseModificarPlato = clienteHttp.execute(httpPut);
-                    int codigoStatusModificarPlato = responseModificarPlato.getStatusLine().getStatusCode();
+                // Ejecutar la solicitud PUT
+                HttpResponse responseModificarPlato = clienteHttp.execute(httpPut);
+                int codigoStatusModificarPlato = responseModificarPlato.getStatusLine().getStatusCode();
 
-                    // Verificar el código de estado de la respuesta
-                    if (codigoStatusModificarPlato == 200 || codigoStatusModificarPlato == 204) {
-                        System.out.println("Plato modificado correctamente. Nombre: " + platoModificado.getNombrePlato() + ", ID del Menú: " + idMenu);
-                    } else {
-                        System.out.println("Error al modificar el plato. Código de estado: " + codigoStatusModificarPlato);
-                        String contenidoRespuestaModificarPlato = obtenerContenidoRespuesta(responseModificarPlato);
-                        System.out.println("Contenido de la respuesta: " + contenidoRespuestaModificarPlato);
-                    }
+                // Verificar el código de estado de la respuesta
+                if (codigoStatusModificarPlato == 200 || codigoStatusModificarPlato == 204) {
+                    Main.log.info("Plato modificado correctamente. Nombre: " + platoModificado.getNombrePlato() + ", ID del Menú: " + idMenu);
                 } else {
-                    System.out.println("No se encontró el plato '" + platoModificado.getNombrePlato() + "' en el menú con ID " + idMenu + " de la empresa con ID " + idEmpresa);
+                    Main.log.error("Error al modificar el plato. Código de estado: " + codigoStatusModificarPlato);
+                    String contenidoRespuestaModificarPlato = obtenerContenidoRespuesta(responseModificarPlato);
+                    Main.log.error("Contenido de la respuesta: " + contenidoRespuestaModificarPlato);
                 }
-            } catch (IOException e) {
+            } else {
+                Main.log.warn("No se encontró el plato '" + platoModificado.getNombrePlato() + "' en el menú con ID " + idMenu + " de la empresa con ID " + idEmpresa);
+            }
+        } catch (IOException e) {
+            Main.log.error("Error al ejecutar la solicitud HTTP: ", e);
             throw new RuntimeException(e);
         }
     }
@@ -775,16 +774,17 @@ public class Supabase {
 
                 // Verificar el código de estado de la respuesta
                 if (codigoStatusBorrarPlato == 200 || codigoStatusBorrarPlato == 204) {
-                    System.out.println("Plato borrado correctamente. Nombre: " + nombrePlatoOriginal + ", ID del Menú: " + idMenu);
+                    Main.log.info("Plato borrado correctamente. Nombre: " + nombrePlatoOriginal + ", ID del Menú: " + idMenu);
                 } else {
-                    System.out.println("Error al borrar el plato. Código de estado: " + codigoStatusBorrarPlato);
+                    Main.log.error("Error al borrar el plato. Código de estado: " + codigoStatusBorrarPlato);
                     String contenidoRespuestaBorrarPlato = obtenerContenidoRespuesta(responseBorrarPlato);
-                    System.out.println("Contenido de la respuesta: " + contenidoRespuestaBorrarPlato);
+                    Main.log.error("Contenido de la respuesta: " + contenidoRespuestaBorrarPlato);
                 }
             } else {
-                System.out.println("No se encontró el plato '" + nombrePlatoOriginal + "' en el menú con ID " + idMenu + " de la empresa con ID " + idEmpresa);
+                Main.log.warn("No se encontró el plato '" + nombrePlatoOriginal + "' en el menú con ID " + idMenu + " de la empresa con ID " + idEmpresa);
             }
         } catch (IOException e) {
+            Main.log.error("Error al ejecutar la solicitud HTTP: ", e);
             throw new RuntimeException(e);
         }
     }
@@ -806,10 +806,10 @@ public class Supabase {
 
             if (codigoStatusBorrarPlato != 200 && codigoStatusBorrarPlato != 204) {
                 String contenidoRespuestaBorrarPlato = obtenerContenidoRespuesta(responseBorrarPlato);
-                System.out.println("Error al borrar el plato con ID " + idPlato + ". Código de estado: " + codigoStatusBorrarPlato);
-                System.out.println("Contenido de la respuesta: " + contenidoRespuestaBorrarPlato);
+                Main.log.error("Error al borrar el plato con ID " + idPlato + ". Código de estado: " + codigoStatusBorrarPlato);
+                Main.log.error("Contenido de la respuesta: " + contenidoRespuestaBorrarPlato);
             } else {
-                System.out.println("Plato borrado" + idPlato + ". Código de estado: " + codigoStatusBorrarPlato);
+                Main.log.info("Plato borrado" + idPlato + ". Código de estado: " + codigoStatusBorrarPlato);
             }
         }
     }
@@ -825,11 +825,11 @@ public class Supabase {
         int codigoStatusBorrarMenu = responseBorrarMenu.getStatusLine().getStatusCode();
 
         if (codigoStatusBorrarMenu == 200 || codigoStatusBorrarMenu == 204) {
-            System.out.println("Menú borrado correctamente. ID del Menú: " + nombre + ", ID de la Empresa: " + idEmpresa);
+            Main.log.info("Menú borrado correctamente. ID del Menú: " + nombre + ", ID de la Empresa: " + idEmpresa);
         } else {
             String contenidoRespuestaBorrarMenu = obtenerContenidoRespuesta(responseBorrarMenu);
-            System.out.println("Error al borrar el menú. Código de estado: " + codigoStatusBorrarMenu);
-            System.out.println("Contenido de la respuesta: " + contenidoRespuestaBorrarMenu);
+            Main.log.error("Error al borrar el menú. Código de estado: " + codigoStatusBorrarMenu);
+            Main.log.error("Contenido de la respuesta: " + contenidoRespuestaBorrarMenu);
         }
     }
 
@@ -855,16 +855,15 @@ public class Supabase {
 
             return idPlatosList.stream().mapToInt(i -> i).toArray();
         } else {
-            System.out.println("Error al recuperar los IDs de los platos. Código de estado: " + codigoStatus);
+            Main.log.error("Error al recuperar los IDs de los platos. Código de estado: " + codigoStatus);
             String contenidoRespuesta = obtenerContenidoRespuesta(response);
-            System.out.println("Contenido de la respuesta: " + contenidoRespuesta);
+            Main.log.error("Contenido de la respuesta: " + contenidoRespuesta);
             return new int[0];
         }
     }
+    // *****************************************MÉTODOS PRIVADOS*******************************************************//
 
-    //*****************************************METODOS PRIVADOS*******************************************************//
-
-    //Imprime la respuesta del servidcr, sirve para la depuracion prinicipalmente
+    // Imprime la respuesta del servidor, útil para la depuración principalmente
     private String obtenerContenidoRespuesta(HttpResponse response) throws IOException {
         BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
         StringBuilder result = new StringBuilder();
@@ -875,7 +874,7 @@ public class Supabase {
         return result.toString();
     }
 
-    //Metodo ejecutar las solicitudes post
+    // Método para ejecutar las solicitudes POST
     private void mandarSolicitudPost(JSONObject json, HttpPost post) {
         // Configurar entidad JSON para la solicitud
         StringEntity entidad = new StringEntity(json.toString(), StandardCharsets.UTF_8);
@@ -885,7 +884,7 @@ public class Supabase {
         post.setHeader("apikey", apiKey);
     }
 
-    //Metodo ejecutar las solicitudes patch
+    // Método para ejecutar las solicitudes PATCH
     private void mandarSolicitudPath(HttpPatch httpPatch, JSONObject requestBody) throws UnsupportedEncodingException {
         httpPatch.setHeader("Content-type", "application/json");
         httpPatch.setHeader("apikey", apiKey);

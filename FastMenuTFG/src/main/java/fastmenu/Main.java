@@ -40,16 +40,20 @@ public class Main extends Application {
 
     @Override
     public void start(Stage stage) {
+        log.info("Iniciando aplicación...");
         supa = new Supabase();
         Preferences preferencias = Preferences.userRoot().node("fastmenu");
         //Se recupera si había un correo guardado y su valor para iniciar una vista u otra
         correoPreferences = preferencias.get("logged_in_user_email", null);
+        log.info("Correo recuperado de preferencias: " + correoPreferences);
         boolean estado_login = supa.comprobarEstadoCampoUsuarioLogueado(correoPreferences);
+        log.info("Estado de login comprobado: " + estado_login);
         vistaMenu(estado_login);
-        log.info("Iniciando aplicación...Aplicación iniciada");
+        log.info("Aplicación iniciada");
     }
 
     private void vistaMenu(boolean usuarioLogueado) {
+        log.info("Mostrando vista de menú, usuario logueado: " + usuarioLogueado);
         if (usuarioLogueado) {
             Alert alerta = new Alert(Alert.AlertType.CONFIRMATION);
             alerta.setTitle("Confirmación de acción");
@@ -64,16 +68,20 @@ public class Main extends Application {
 
             alerta.showAndWait().ifPresent(boton -> {
                 if (boton == botonModificar) {
+                    log.info("Botón 'Modificar' seleccionado");
                     if (loginCargado) {
+                        log.info("Login ya cargado, estableciendo loginCargado a false");
                         loginCargado = false;
                     } else {
                         cargarVentanaModificacion();
-                        log.info("El usuario accedio a la ventana de Modificación");
+                        log.info("El usuario accedió a la ventana de Modificación");
                     }
                 } else if (boton == botonCrear) {
+                    log.info("Botón 'Crear' seleccionado");
                     cargarVentanaCreacion();
-                    log.info("El usuario accedio a la ventana de Creación");
+                    log.info("El usuario accedió a la ventana de Creación");
                 } else if (boton == botonCancelar) {
+                    log.info("Botón 'Cancelar' seleccionado");
                     Alert alert = new Alert(Alert.AlertType.INFORMATION);
                     alert.setTitle("Informacion");
                     alert.setHeaderText("Cancelacion de seleccion");
@@ -84,21 +92,24 @@ public class Main extends Application {
             });
         } else {
             cargarVentanaLogin();
-            log.info("El usuario accedio a la ventana de Login");
+            log.info("El usuario accedió a la ventana de Login");
         }
     }
 
     private void cargarVentanaModificacion() {
+        log.info("Cargando ventana de modificación");
         FXMLLoader loader = new FXMLLoader(Main.class.getResource("/views/vistaModificacion.fxml"));
         cargarVentana(loader, false);
     }
 
     private void cargarVentanaCreacion() {
+        log.info("Cargando ventana de creación");
         FXMLLoader loader = new FXMLLoader(Main.class.getResource("/views/vistaCrear.fxml"));
         cargarVentana(loader, true);
     }
 
     private void cargarVentana(FXMLLoader loader, boolean ocultar) {
+        log.info("Cargando ventana, ocultar: " + ocultar);
         try {
             Parent root = loader.load();
             Scene nuevaScene = new Scene(root);
@@ -106,15 +117,19 @@ public class Main extends Application {
             Preferences preferences = Preferences.userRoot().node("fastmenu");
 
             String correoShared = preferences.get("logged_in_user_email", null);
+            log.info("Correo compartido recuperado: " + correoShared);
             //Recupera el id de la empresa del correo del usuario logueado
             int idEmpresaActual = supa.obtenerIdEmpresaPorCorreo(correoShared);
+            log.info("ID de la empresa actual: " + idEmpresaActual);
 
             //Se usa la variable ocultar para evitar se vea la seleccion de menus al cargar la ventana de Crear
             if (!ocultar) {
                 //Recupera los nombres de los menus de la empresa del usuario logueado
                 List<String> nombresMenus = supa.obtenerNombresMenuPorIdEmpresa(idEmpresaActual);
+                log.info("Nombres de los menús obtenidos: " + nombresMenus);
                 //Si no tiene menus se le redirige a la ventana de crear
                 if (nombresMenus.isEmpty()) {
+                    log.warn("No hay menús, redirigiendo a la ventana de creación");
                     cargarVentanaCreacion();
                     Alert alert = new Alert(Alert.AlertType.INFORMATION);
                     alert.setTitle("Error del usuario");
@@ -122,15 +137,17 @@ public class Main extends Application {
                     alert.setContentText("Ha sido redirigido a crear");
                     alert.showAndWait();
                     loginCargado = true;
-                    Main.log.warn("El usuario " + correoShared + " intento acceder a modificar sin tener menus" +
-                            "redirigiendo a la ventana de crear");
+                    Main.log.warn("El usuario " + correoShared + " intentó acceder a modificar sin tener menús, redirigiendo a la ventana de crear");
                 } else {
                     String menuElegido = mostrarNombresMenuEnDialogo(nombresMenus);
+                    log.info("Menú elegido: " + menuElegido);
                     if (menuElegido != null) {
                         String nombreMenuCodificado = URLEncoder.encode(menuElegido, StandardCharsets.UTF_8);
                         int idMenu = supa.obtenerIdMenuPorNombre(nombreMenuCodificado);
+                        log.info("ID del menú elegido: " + idMenu);
                         //Recupera los platos de la empresa del usuario logueado
                         List<Plato> listaPlatos = supa.obtenerPlatosPorIdMenu(idMenu);
+                        log.info("Lista de platos obtenida: " + listaPlatos);
                         ObservableList<String> nombresPlatos = FXCollections.observableArrayList();
                         for (Plato plato : listaPlatos) {
                             nombresPlatos.add(plato.getNombrePlato());
@@ -141,7 +158,8 @@ public class Main extends Application {
                         controlador.obtenerPlatosModificar(listaPlatos);
                         controlador.obtenerMenu(menuElegido);
                     } else {
-                        if(!alerta2) {
+                        log.info("No se seleccionó ningún menú");
+                        if (!alerta2) {
                             // Mostrar alerta de selección cancelada
                             Alert alerta = new Alert(Alert.AlertType.INFORMATION);
                             alerta.setTitle("Información");
@@ -166,12 +184,13 @@ public class Main extends Application {
                 nuevaVentana.show();
             }
         } catch (IOException e) {
-            log.error("No se pudo cargar la ventana");
+            log.error("No se pudo cargar la ventana", e);
             throw new RuntimeException(e);
         }
     }
 
     public static void cargarVentanaLogin() {
+        log.info("Cargando ventana de login");
         try {
             FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("/views/vistaLogin.fxml"));
             Scene scene = new Scene(fxmlLoader.load(), 449, 438);
@@ -181,11 +200,13 @@ public class Main extends Application {
             stage.setResizable(false);
             stage.show();
         } catch (IOException e) {
+            log.error("No se pudo cargar la ventana de login", e);
             throw new RuntimeException(e);
         }
     }
 
     public String mostrarNombresMenuEnDialogo(List<String> nombresMenus) {
+        log.info("Mostrando diálogo de selección de menú");
         ChoiceDialog<String> dialogo = new ChoiceDialog<>(null, nombresMenus);
         dialogo.setTitle("Selección de Menú");
         dialogo.setHeaderText("Selecciona un Menú");
@@ -197,8 +218,9 @@ public class Main extends Application {
 
         dialogo.setResultConverter(dialogButton -> {
             if (dialogButton == buttonTypeBorrar) {
+                log.info("Botón 'Borrar' seleccionado");
                 if (dialogo.getSelectedItem() != null) {
-                    System.out.println(dialogo.getSelectedItem());
+                    log.info("Menú seleccionado para borrar: " + dialogo.getSelectedItem());
                     try {
                         String nombreMenuCodificado = URLEncoder.encode(dialogo.getSelectedItem(), StandardCharsets.UTF_8);
 
@@ -211,6 +233,7 @@ public class Main extends Application {
                         // Mostrar y esperar la respuesta del usuario
                         Optional<ButtonType> respuesta = confirmacion.showAndWait();
                         if (respuesta.isPresent() && respuesta.get() == ButtonType.OK) {
+                            log.info("Confirmación de borrado aceptada");
                             // Si el usuario confirma, proceder con el borrado
                             supa.borrarPlatosDeMenu(supa.obtenerIdMenuPorNombre(nombreMenuCodificado), supa.obtenerIdEmpresaPorCorreo(correoPreferences));
                             supa.borrarMenu(nombreMenuCodificado, supa.obtenerIdEmpresaPorCorreo(correoPreferences));
@@ -226,6 +249,7 @@ public class Main extends Application {
                             return null;
                         } else {
                             // Si el usuario cancela, no hacer nada
+                            log.info("Confirmación de borrado cancelada");
                             Alert alertaCancelacion = new Alert(Alert.AlertType.INFORMATION);
                             alertaCancelacion.setTitle("Cancelación");
                             alertaCancelacion.setHeaderText("Borrado cancelado");
@@ -234,6 +258,7 @@ public class Main extends Application {
                             alerta2 = false;
                         }
                     } catch (IOException e) {
+                        log.error("Error al borrar el menú", e);
                         throw new RuntimeException(e);
                     }
                 }

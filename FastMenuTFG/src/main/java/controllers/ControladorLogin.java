@@ -60,6 +60,7 @@ public class ControladorLogin implements Initializable {
 
     // Método para mostrar el dialogo de registro
     public void onClickBtnRegistrarse(MouseEvent mouseEvent) throws Exception {
+        System.out.println("Se ha hecho clic en el botón Registrarse.");
         String[] resultado = mostrarDialogoRegistro();
         if (resultado != null) {
             String correo = resultado[0];
@@ -103,7 +104,10 @@ public class ControladorLogin implements Initializable {
                     alerta.setHeaderText("Bienvenido a FastMenu");
                     alerta.setContentText("Usuario registrado correctamente");
                     alerta.showAndWait();
+                    Main.log.info("El usuario " + correo + " se ha registrado correctamente");
                 } catch (Exception e) {
+                    Main.log.error("El usuario " + correo + " no ha poddido registrarse");
+                    System.err.println("Error al cargar la vista de creación de platos: " + e.getMessage());
                     e.printStackTrace();
                 }
             }
@@ -111,46 +115,50 @@ public class ControladorLogin implements Initializable {
     }
 
     public void onClickBtnLogin() {
+        System.out.println("Se ha hecho clic en el botón Login.");
         login(textfieldCorreo.getText(), textfieldPw.getText());
     }
 
 
-    //Muestra el dialogo de registro para un usuario
     public String[] mostrarDialogoRegistro() {
-        // Crear el formulario
-        GridPane grid = crearFormularioRegistro();
-        // Crear el diálogo
-        Dialog<String[]> dialog = new Dialog<>();
-        dialog.setTitle("Registro");
-        // Agregar 2 botones uno con el texto Registrar y el otro Cancelar
-        ButtonType registrarButtonType = new ButtonType("Registrar", ButtonBar.ButtonData.OK_DONE);
-        dialog.getDialogPane().getButtonTypes().addAll(registrarButtonType, ButtonType.CANCEL);
-        // Asignar el gridPane al diálogo
-        dialog.getDialogPane().setContent(grid);
-        // Obtener los campos de texto y el botón "Registrar"
-        TextField correoTextField = (TextField) grid.lookup("#correoTextField");
-        PasswordField pw = (PasswordField) grid.lookup("#pw");
-        PasswordField confirmarPw = (PasswordField) grid.lookup("#confirmarPw");
-        TextField nombreEmpresaTextField = (TextField) grid.lookup("#nombreEmpresaTextField");
-        Node registrarButton = dialog.getDialogPane().lookupButton(registrarButtonType);
-        registrarButton.setDisable(true);
-        // Listeners para habilitar/deshabilitar el botón "Registrar"
-        agregarListenersRegistro(correoTextField, pw, confirmarPw, nombreEmpresaTextField, registrarButton);
-        // Convertir el resultado del diálogo en un array de strings al hacer clic en el botón "Registrar"
-        dialog.setResultConverter(dialogButton -> {
-            if (dialogButton == registrarButtonType) {
-                String correo = correoTextField.getText();
-                String pass = pw.getText();
-                String nombreEmpresa = nombreEmpresaTextField.getText();
-                return new String[]{correo, pass, nombreEmpresa};
-            }
+        try {
+            // Crear el formulario
+            GridPane grid = crearFormularioRegistro();
+            // Crear el diálogo
+            Dialog<String[]> dialog = new Dialog<>();
+            dialog.setTitle("Registro");
+            // Agregar 2 botones uno con el texto Registrar y el otro Cancelar
+            ButtonType registrarButtonType = new ButtonType("Registrar", ButtonBar.ButtonData.OK_DONE);
+            dialog.getDialogPane().getButtonTypes().addAll(registrarButtonType, ButtonType.CANCEL);
+            // Asignar el gridPane al diálogo
+            dialog.getDialogPane().setContent(grid);
+            // Obtener los campos de texto y el botón "Registrar"
+            TextField correoTextField = (TextField) grid.lookup("#correoTextField");
+            PasswordField pw = (PasswordField) grid.lookup("#pw");
+            PasswordField confirmarPw = (PasswordField) grid.lookup("#confirmarPw");
+            TextField nombreEmpresaTextField = (TextField) grid.lookup("#nombreEmpresaTextField");
+            Node registrarButton = dialog.getDialogPane().lookupButton(registrarButtonType);
+            registrarButton.setDisable(true);
+            // Listeners para habilitar/deshabilitar el botón "Registrar"
+            agregarListenersRegistro(correoTextField, pw, confirmarPw, nombreEmpresaTextField, registrarButton);
+            // Convertir el resultado del diálogo en un array de strings al hacer clic en el botón "Registrar"
+            dialog.setResultConverter(dialogButton -> {
+                if (dialogButton == registrarButtonType) {
+                    String correo = correoTextField.getText();
+                    String nombreEmpresa = nombreEmpresaTextField.getText();
+                    Main.log.info("Usuario registrado: Correo - " + correo + ", Nombre de empresa - " + nombreEmpresa);
+                    return new String[]{correo, pw.getText(), nombreEmpresa};
+                }
+                return null;
+            });
+            // Mostrar el diálogo y devolver el resultado
+            Optional<String[]> result = dialog.showAndWait();
+            return result.orElse(null);
+        } catch (Exception e) {
+            Main.log.error("Error al mostrar el diálogo de registro: " + e.getMessage());
             return null;
-        });
-        // Mostrar el diálogo y devolver el resultado
-        Optional<String[]> result = dialog.showAndWait();
-        return result.orElse(null);
+        }
     }
-
 
     // Dialogo y logica para recuperar la contraseña de un usuario
     public void onClickRecuperar() {
@@ -178,6 +186,7 @@ public class ControladorLogin implements Initializable {
         dialogo.showAndWait().ifPresent(resultado -> {
             if (resultado == ButtonType.OK) {
                 String pwTemporal = GeneradorPassword.generarPassword();
+                Main.log.info("Contraseña temporal generada para el correo: " + correoTextField.getText());
                 try {
                     boolean correoEncontrado = supa.comprobarExisteCorreo(correoTextField.getText());
                     if (correoEncontrado) {
@@ -203,6 +212,7 @@ public class ControladorLogin implements Initializable {
                     }
 
                 } catch (Exception e) {
+                    Main.log.error("Error al procesar la recuperación de contraseña: " + e.getMessage());
                     throw new RuntimeException(e);
                 }
             }
@@ -214,12 +224,13 @@ public class ControladorLogin implements Initializable {
     private void login(String correo, String pw) {
         Usuario usuario = new Usuario(correo, pw);
         if (supa.iniciarSesion(usuario)) {
-            /*
-            Se comprueba si el usuario solicito un cambio de contraseña, si lo hizo en el proximo inicio de sesión,
-            se comprueba un valor en la bd, si es true, se le solicitara una nueva contraseña, en caso contrario,
-            hara un login normal.
-             */
+        /*
+        Se comprueba si el usuario solicito un cambio de contraseña, si lo hizo en el proximo inicio de sesión,
+        se comprueba un valor en la bd, si es true, se le solicitara una nueva contraseña, en caso contrario,
+        hara un login normal.
+         */
             if (supa.comprobarEstadoCampoRestablecerPw(usuario)) {
+                Main.log.info("Se solicitó un cambio de contraseña para el usuario: " + correo);
                 PasswordField campoPw = new PasswordField();
                 campoPw.setPromptText("Nueva Contraseña");
                 PasswordField campoConfirmar = new PasswordField();
@@ -273,6 +284,7 @@ public class ControladorLogin implements Initializable {
                 guardarEstadoLoginPreferences(textfieldCorreo.getText());
                 supa.modificarCampoUsuarioLogueado(textfieldCorreo.getText(), true);
                 vistaMenu();
+                Main.log.info("Inicio de sesión exitoso para el usuario: " + correo);
             }
         } else {
             // Crear una alerta de correo no encontrado
@@ -281,6 +293,7 @@ public class ControladorLogin implements Initializable {
             alertaCorreoNoEncontrado.setHeaderText("Datos incorrectos");
             alertaCorreoNoEncontrado.setContentText("Los datos introducidos no corresponden a ningun usuario");
             alertaCorreoNoEncontrado.showAndWait();
+            Main.log.warn("Intento de inicio de sesión fallido para el usuario: " + correo);
         }
     }
 
@@ -288,6 +301,7 @@ public class ControladorLogin implements Initializable {
     private void guardarEstadoLoginPreferences(String correoUsuario) {
         Preferences preferences = Preferences.userRoot().node("fastmenu");
         preferences.put("logged_in_user_email", correoUsuario);
+        Main.log.info("Estado de inicio de sesión guardado para el usuario: " + correoUsuario);
     }
 
     //Metodo para abrir la ventana de creación o de modificación
@@ -324,6 +338,7 @@ public class ControladorLogin implements Initializable {
                         alert.setHeaderText("Selección cancelada");
                         alert.setContentText("No puedes acceder a Modificar, no tienes aún menús, redirigiendo a crear...");
                         alert.showAndWait();
+                        Main.log.info("No se encontraron menús para modificar, redirigiendo a la vista de creación.");
                         try {
                             FXMLLoader loaderr = new FXMLLoader(Main.class.getResource("/views/vistaCrear.fxml"));
                             Parent roott = loaderr.load();
@@ -342,6 +357,7 @@ public class ControladorLogin implements Initializable {
                     } else {
                         String menuElegido = mostrarNombresMenuEnDialogo(nombresMenus);
                         if (menuElegido != null) {
+                            Main.log.info("Se ha seleccionado el menú: " + menuElegido + " para modificar.");
                             String nombreMenuCodificado = URLEncoder.encode(menuElegido, StandardCharsets.UTF_8);
                             int idMenu = supa.obtenerIdMenuPorNombre(nombreMenuCodificado);
                             System.out.println(idMenu);
@@ -382,6 +398,7 @@ public class ControladorLogin implements Initializable {
                     nuevaVentana.setScene(nuevaScene);
                     nuevaVentana.show();
                 } catch (Exception e) {
+                    Main.log.error("Error al abrir la ventana de creación o modificación.");
                     e.printStackTrace();
                 }
             } else if (boton == botonCancelar) {
@@ -391,6 +408,7 @@ public class ControladorLogin implements Initializable {
                 alert.setContentText("Ha sido redirigido al login");
                 alert.showAndWait();
                 Main.cargarVentanaLogin();
+                Main.log.info("Selección cancelada, redirigiendo al login.");
             }
         });
     }
@@ -462,6 +480,7 @@ public class ControladorLogin implements Initializable {
                 alerta.setContentText("Se cancelo la acción, volviendo al login...");
                 alerta.showAndWait();
                 Main.cargarVentanaLogin();
+                Main.log.info("Selección cancelada, redirigiendo al login.");
                 return null;
             }
         }
@@ -492,7 +511,7 @@ public class ControladorLogin implements Initializable {
         grid.add(confirmarPw, 1, 2);
         grid.add(new Label("Nombre de la Empresa:"), 0, 3);
         grid.add(nombreEmpresaTextField, 1, 3);
-        
+
         return grid;
     }
 

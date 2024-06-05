@@ -1,5 +1,7 @@
 package classes.utils;
 
+import fastmenu.Main;
+
 import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
@@ -8,6 +10,7 @@ import java.util.Base64;
 
 public class CifradoyDescifrado {
     private final String clave;
+
     public CifradoyDescifrado(String clave) {
         this.clave = clave;
     }
@@ -36,9 +39,11 @@ public class CifradoyDescifrado {
             System.arraycopy(textoCifrado, 0, resultado, sal.length, textoCifrado.length);
 
             // Codificar el resultado en Base64 y devolverlo como una cadena
-            return Base64.getEncoder().encodeToString(resultado);
+            String textoEncriptado = Base64.getEncoder().encodeToString(resultado);
+            Main.log.info("Texto encriptado: " + textoEncriptado);
+            return textoEncriptado;
         } catch (Exception e) {
-            e.printStackTrace();
+            Main.log.error("Error al encriptar el texto: ", e);
             return null;
         }
     }
@@ -66,9 +71,11 @@ public class CifradoyDescifrado {
             byte[] textoBytes = cipher.doFinal(textoCifradoBytes);
 
             // Devolver el texto descifrado como una cadena
-            return new String(textoBytes);
+            String textoDescifrado = new String(textoBytes);
+            Main.log.info("Texto descifrado: " + textoDescifrado);
+            return textoDescifrado;
         } catch (Exception e) {
-            e.printStackTrace();
+            Main.log.error("Error al desencriptar el texto: ", e);
             return null;
         }
     }

@@ -63,7 +63,7 @@ public class Controlador implements Initializable {
         Main.log.info("Iniciando Controlador");
     }
 
-    // Metodo se llama al hacer click en el boton de generar pdf
+    // Método que se llama al hacer clic en el botón de generar PDF
     public void onClickBotonPDF() {
         if (!textfieldNombreMenu.getText().isEmpty()) {
             nombreMenuNuevo = textfieldNombreMenu.getText();
@@ -73,9 +73,9 @@ public class Controlador implements Initializable {
             Alert alertaError = new Alert(Alert.AlertType.ERROR);
             alertaError.setTitle("Error");
             alertaError.setHeaderText("Este es un mensaje de error");
-            alertaError.setContentText("Rellene el campo de nombre de menu por favor");
+            alertaError.setContentText("Rellene el campo de nombre de menú por favor");
             alertaError.showAndWait();
-            Main.log.warn("El usuario " + correoEmpresa + " no introdujo el campo de menu, alerta mostrada");
+            Main.log.warn("El usuario " + correoEmpresa + " no introdujo el campo de menú, alerta mostrada");
         } else {
             if (platos.isEmpty()) {
                 Alert alertaError = new Alert(Alert.AlertType.ERROR);
@@ -103,21 +103,21 @@ public class Controlador implements Initializable {
                     int idEmpresa = supa.obtenerIdEmpresaPorCorreo(correoEmpresa);
                     System.out.println(idEmpresa);
                     Menu menu = new Menu(nombreMenuNuevo, idEmpresa);
-                    // Agrego el menu con los datos y el id de empresa obtenido
+                    // Agrego el menú con los datos y el id de empresa obtenido
                     supa.agregarMenu(menu);
-                    // Recupero el id del menu actual
+                    // Recupero el id del menú actual
                     int idMenu = supa.obtenerIdMenuPorIdEmpresa(menu);
                     for (Plato plato : platos) {
-                        // Agrego cada plato con sus correspondientes datos al menu
+                        // Agrego cada plato con sus correspondientes datos al menú
                         supa.agregarPlato(plato, idEmpresa, idMenu);
                     }
                     File pdf = new File("./" + textfieldNombreMenu.getText() + ".pdf");
-                    // Llamada al metodo sube el pdf al bucket de aws s3
+                    // Llamada al método para subir el PDF al bucket de AWS S3
                     s3.subirPDFaS3(properties.getProperty("aws_access_key_id"),
                             properties.getProperty("aws_secret_access_key"),
                             properties.getProperty("aws_session_token"), pdf,
                             textfieldNombreMenu.getText() + ".pdf");
-                    // Llamada al metodo para acceder y generar un qr que redireccione al pdf alojado en s3
+                    // Llamada al método para acceder y generar un QR que redireccione al PDF alojado en S3
                     qr.generarQrYEnlazarConS3("pruebazekrom", textfieldNombreMenu.getText() +
                                     ".pdf", "./" + textfieldNombreMenu.getText() + ".png",
                             properties.getProperty("aws_access_key_id"),
@@ -147,24 +147,24 @@ public class Controlador implements Initializable {
                     e.printStackTrace();
                     Main.log.error("Error al generar el PDF");
                 }
-                Main.log.info("Se creo el pdf para el menú" + nombreMenuNuevo);
+                Main.log.info("Se creó el PDF para el menú" + nombreMenuNuevo);
                 Alert alertaError = new Alert(Alert.AlertType.INFORMATION);
-                alertaError.setTitle("Menu");
-                alertaError.setHeaderText("Este es un mensaje de informacion");
-                alertaError.setContentText("El menu se creo correctamente, saliendo de fastmenu...");
+                alertaError.setTitle("Menú");
+                alertaError.setHeaderText("Este es un mensaje de información");
+                alertaError.setContentText("El menú se creó correctamente, saliendo de FastMenu...");
                 alertaError.showAndWait();
                 Platform.exit();
             }
         }
     }
 
-    // Metodo agregar platos a la lista en la vista de Crear
+    // Método para agregar platos a la lista en la vista de Crear
     public void onClickBotonAgregar() {
         if (!textfieldNombreMenu.getText().isEmpty()) {
             nombreMenuNuevo = textfieldNombreMenu.getText();
             textfieldNombreMenu.setText(nombreMenuNuevo);
             textfieldNombreMenu.setEditable(false);
-            Main.log.info("El usuario " + correoEmpresa + "introdujo un nombre de menu, bloqueando el campo...");
+            Main.log.info("El usuario " + correoEmpresa + " introdujo un nombre de menú, bloqueando el campo...");
         }
         if (!textfieldPrecio.getText().isEmpty() && !esUnNumero(textfieldPrecio.getText())) {
             // Mostrar una alerta si el precio no es un número válido
@@ -173,7 +173,7 @@ public class Controlador implements Initializable {
             alertaError.setHeaderText("Precio inválido");
             alertaError.setContentText("Por favor, ingrese un número válido para el precio.");
             alertaError.showAndWait();
-            Main.log.error("El usuario " + correoEmpresa + " introdujo un número no valido");
+            Main.log.error("El usuario " + correoEmpresa + " introdujo un número no válido");
         } else if (!textareaDescripcionPlato.getText().isEmpty() && !textfieldNombrePlato.getText().isEmpty() &&
                 !comboBoxTipoPlato.getSelectionModel().isEmpty()) {
             double precio = Double.parseDouble(textfieldPrecio.getText());
@@ -199,7 +199,7 @@ public class Controlador implements Initializable {
         onClickBotonLimpiar();
     }
 
-    //Metodo modificar los datos de un plato
+    // Método para modificar los datos de un plato
     public void onClickBotonAgregarModificar() {
         if (!textfieldPrecio.getText().isEmpty() && !esUnNumero(textfieldPrecio.getText())) {
             // Mostrar una alerta si el precio no es un número válido
@@ -208,7 +208,7 @@ public class Controlador implements Initializable {
             alertaError.setHeaderText("Precio inválido");
             alertaError.setContentText("Por favor, ingrese un número válido para el precio.");
             alertaError.showAndWait();
-            Main.log.error("El usuario " + correoEmpresa + " introdujo un número no valido");
+            Main.log.error("El usuario " + correoEmpresa + " introdujo un número no válido");
         } else if (!textareaDescripcionPlato.getText().isEmpty() &&
                 !textfieldNombrePlato.getText().isEmpty() &&
                 !comboBoxTipoPlato.getSelectionModel().isEmpty()) {
@@ -222,10 +222,10 @@ public class Controlador implements Initializable {
             listaPlatosObservable.setAll(platos);
             listaPlatos.setItems(listaPlatosObservable);
             listaPlatos.refresh();
-            /*
-            Si no tiene ningun plato seleccionado se entiende lo que hace es agregar un nuevo plato a ese menu y si no
-            lo que haría seria editar los datos del plato seleccionado
-             */
+        /*
+        Si no tiene ningún plato seleccionado se entiende lo que hace es agregar un nuevo plato a ese menú y si no
+        lo que haría sería editar los datos del plato seleccionado
+         */
             if (listaPlatosMenu.getSelectionModel().getSelectedItem() == null) {
                 Plato platoNuevo = new Plato(textfieldNombrePlato.getText(), textareaDescripcionPlato.getText(),
                         comboBoxTipoPlato.getSelectionModel().getSelectedItem().toString(),
@@ -241,7 +241,7 @@ public class Controlador implements Initializable {
 
                 // Mostrar la alerta y esperar a que el usuario la cierre
                 alert.showAndWait();
-                Main.log.info("Se agregó el plato " + textfieldNombrePlato.getText() + "al menu" + nombreMenuModificar);
+                Main.log.info("Se agregó el plato " + textfieldNombrePlato.getText() + " al menú " + nombreMenuModificar);
             } else {
                 Plato platoModificado = new Plato(textfieldNombrePlato.getText(), textareaDescripcionPlato.getText(),
                         comboBoxTipoPlato.getSelectionModel().getSelectedItem().toString(),
@@ -249,12 +249,12 @@ public class Controlador implements Initializable {
                 System.out.println(platoModificado.getTipoPlato());
                 System.out.println(platoSeleccionado.getTipoPlato());
                 if (platoSeleccionado.toString().equals(platoModificado.toString())
-                && platoSeleccionado.getTipoPlato() == platoModificado.getTipoPlato()) {
+                        && platoSeleccionado.getTipoPlato() == platoModificado.getTipoPlato()) {
                     // Mostrar una alerta de error si faltan datos
                     Alert alertaError = new Alert(Alert.AlertType.ERROR);
                     alertaError.setTitle("Error");
                     alertaError.setHeaderText("Este es un mensaje de error");
-                    alertaError.setContentText("Los datos del plato no han sido cambiados, cancelando modificacion");
+                    alertaError.setContentText("Los datos del plato no han sido cambiados, cancelando modificación");
                     alertaError.showAndWait();
                 } else {
                     try {
@@ -300,12 +300,13 @@ public class Controlador implements Initializable {
         onClickBotonLimpiarModificar();
     }
 
-    // Metodo con la logica para borrar un plato de un menu
+
+    // Método con la lógica para borrar un plato de un menú
     public void onClickBotonBorrarPlato() {
         if (listaPlatosMenu.getSelectionModel().getSelectedItem() != null) {
             // Obtener el plato seleccionado
             String platoSeleccionado = listaPlatosMenu.getSelectionModel().getSelectedItem().toString();
-            if (platoSeleccionado!=null) {
+            if (platoSeleccionado != null) {
                 // Crear la alerta de confirmación
                 Alert alertaConfirmacion = new Alert(Alert.AlertType.CONFIRMATION);
                 alertaConfirmacion.setTitle("Confirmación de Borrado");
@@ -326,6 +327,7 @@ public class Controlador implements Initializable {
                         alertaOk.setTitle("Plato borrado");
                         alertaOk.setHeaderText("El plato " + platoSeleccionado + " fue borrado");
                         alertaOk.showAndWait();
+                        Main.log.info("El plato " + platoSeleccionado + " fue borrado del menú " + nombreMenuModificar);
                     }
                 });
             }
@@ -333,12 +335,13 @@ public class Controlador implements Initializable {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Error borrado");
             alert.setHeaderText("Error");
-            alert.setContentText("No se selecciono ningún plato, no se puede borrar");
+            alert.setContentText("No se seleccionó ningún plato, no se puede borrar");
             alert.showAndWait();
+            Main.log.error("No se seleccionó ningún plato para borrar");
         }
     }
 
-    //Al hacer cick en previsualizar muestro el pdf se generaria
+    // Al hacer clic en previsualizar, muestra el PDF que se generaría
     public void onBtnClickPrevisualizar() {
         if (platos.isEmpty()) {
             Alert alertaError = new Alert(Alert.AlertType.ERROR);
@@ -350,18 +353,20 @@ public class Controlador implements Initializable {
         } else {
             String pdfPath = "./" + textfieldNombreMenu.getText() + ".pdf";
             guardarPDFYMostrar(platos, pdfPath);
+            Main.log.info("Se previsualizó el PDF del menú " + textfieldNombreMenu.getText());
         }
     }
 
-    //Regenerar el pdf en la vista de modificar
+    // Regenerar el PDF en la vista de modificar
     public void onClickBotonGuardar() {
         regenerarPDf();
     }
 
-    //Al hacer click en Salir acaba la aplicacion
+    // Al hacer clic en Salir, termina la aplicación
     public void onClickBotonDesconectarse() {
         supa.modificarCampoUsuarioLogueado(correoEmpresa, false);
         Platform.exit();
+        Main.log.info("El usuario " + correoEmpresa + " se desconectó de la aplicación");
     }
 
     public void onClickBotonBorrarCrear(MouseEvent mouseEvent) {
@@ -381,32 +386,32 @@ public class Controlador implements Initializable {
                     listaPlatosObservable.setAll(platos);
                     listaPlatos.setItems(listaPlatosObservable);
                     listaPlatos.refresh();
+                    Main.log.info("Se eliminó el plato " + platoSeleccionado.getNombrePlato() + " de la lista de platos");
                 }
             });
         }
     }
 
-    //********************************************METODOS PARA RECIBIR DATOS******************************************//
+// Métodos para recibir datos
+
     public void obtenerCorreo(String correoUsuario) {
         this.correoEmpresa = correoUsuario;
         System.out.println("Correo del usuario registrado: " + correoUsuario);
         Main.log.info("Correo del usuario registrado: " + correoEmpresa);
     }
 
-    //Obtiene la lista de platos a modificar del menu
     public void obtenerPlatosModificar(List<Plato> platos) {
         this.platosAModificar = platos;
-        System.out.println("Platos leidos correctamente");
+        System.out.println("Platos leídos correctamente");
     }
 
-    //Obtiene el menu a modificar
-    public void obtenerMenu(String menuModifcar) {
-        this.nombreMenuModificar = menuModifcar;
-        System.out.println("Menu a modificar : " + menuModifcar);
-        Main.log.info("Menu a modificar : " + nombreMenuModificar);
+    public void obtenerMenu(String menuModificar) {
+        this.nombreMenuModificar = menuModificar;
+        System.out.println("Menú a modificar: " + menuModificar);
+        Main.log.info("Menú a modificar: " + nombreMenuModificar);
     }
 
-    //******************************************METODOS PRIVADOS******************************************************//
+// Métodos privados
 
     // Método para manejar la selección de un plato en el ListView y actualizar los campos con sus datos
     private void onPlatoSeleccionado(MouseEvent event) {
@@ -415,7 +420,7 @@ public class Controlador implements Initializable {
         if (nombrePlatoSeleccionado != null) {
             // Buscar el objeto Plato correspondiente al nombre seleccionado
             platoSeleccionado = null;
-            //platosAModificar es la lista contiene los platos y sus datos
+            // platosAModificar es la lista que contiene los platos y sus datos
             for (Plato plato : platosAModificar) {
                 if (plato.getNombrePlato().equals(nombrePlatoSeleccionado)) {
                     platoSeleccionado = plato;
@@ -459,17 +464,17 @@ public class Controlador implements Initializable {
 
             document.close();
 
-            //Se obtiene el id del menu deseado a modificar
+            // Se obtiene el ID del menú deseado a modificar
             int idMenu = supa.obtenerIdMenuPorNombre(this.nombreMenuModificar);
-            //Regenero la lista de platos con los platos nuevos agregados o modificados
+            // Regenero la lista de platos con los platos nuevos agregados o modificados
             List<Plato> platos = supa.obtenerPlatosPorIdMenu(idMenu);
             guardarPDFYMostrar(platos, pdfPath);
 
-            // Llamada al metodo sube el pdf al bucket de aws s3
+            // Llamada al método para subir el PDF al bucket de AWS S3
             s3.subirPDFaS3(properties.getProperty("aws_access_key_id"), properties.getProperty("aws_secret_access_key"),
                     properties.getProperty("aws_session_token"), pdfFile, nombreMenuModificar + ".pdf");
 
-            // Llamada al metodo para acceder y generar un qr que redireccione al pdf alojado en s3
+            // Llamada al método para generar un QR que redireccione al PDF alojado en S3
             qr.generarQrYEnlazarConS3("pruebazekrom", nombreMenuModificar + ".pdf", "./"
                             + nombreMenuModificar + ".png",
                     properties.getProperty("aws_access_key_id"),
@@ -500,10 +505,10 @@ public class Controlador implements Initializable {
             Main.log.error("Error al regenerar el PDF");
             e.printStackTrace();
         }
-        Main.log.info("Se regeneró el pdf para el menú " + nombreMenuModificar);
+        Main.log.info("Se regeneró el PDF para el menú " + nombreMenuModificar);
     }
 
-    //Metodo organizar los platos por tipo y agruparlos
+    // Método para organizar los platos por tipo y agruparlos
     private void agregarPlatosPorTipo(Document document, String tipoPlato) throws DocumentException {
         Paragraph tipoTitle = new Paragraph(tipoPlato);
         tipoTitle.setAlignment(Element.ALIGN_CENTER);
@@ -596,7 +601,7 @@ public class Controlador implements Initializable {
         }
     }
 
-    // Metodo abre el pdf generado
+    // Método para abrir el PDF generado
     private void mostrarPDF(String pdfPath) {
         try {
             File file = new File(pdfPath);
@@ -623,7 +628,7 @@ public class Controlador implements Initializable {
         platosAModificar = listaPlatos;
     }
 
-    //Limpiar los campos en la pantalla de crear
+    // Limpiar los campos en la pantalla de crear
     @FXML
     private void onClickBotonLimpiar() {
         if (!textfieldNombreMenu.isEditable()) {
@@ -636,6 +641,7 @@ public class Controlador implements Initializable {
         textareaDescripcionPlato.clear();
         comboBoxTipoPlato.getSelectionModel().clearSelection();
     }
+
     //Limpiar los campos en la pantalla de modificar
     @FXML
     private void onClickBotonLimpiarModificar() {
